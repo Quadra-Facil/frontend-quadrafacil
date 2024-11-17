@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import './App.css'
-import LogoMarca from './img/logomarca-branca.svg'
+import LogoMarca from '../img/logomarca-branca.svg'
 
 export default function App() {
 
