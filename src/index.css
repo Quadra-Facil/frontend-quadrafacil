@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+  padding: 0;
+  margin: 0px;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #FF8A5B;
+  --secundary-color: #f7cebe;
+  --background-app: #f7f7f7;
+  --background-inputs: #DFDFDF;
+  --color-font: #757575;
+  --hover-btn: #db6232;
+}
+
+body {
+  background-color: var(--background-app);
+  font-family: 'Poppins', sans-serif;
+
+  font-family: "Kanit", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+a,
+button {
+  border: 0;
+  text-decoration: none;
+  cursor: pointer;
+
+}
