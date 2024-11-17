@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import './App.css'
 import LogoMarca from './img/logomarca-branca.svg'
 
@@ -29,7 +30,7 @@ export default function App() {
         <article className="information">
           <h1>Crie sua conta</h1>
           <h3>Crie sua conta e comece a usar nossas funcionalidades.</h3>
-          <a href="">Criar Conta</a>
+          <Link to="/signout">Criar conta</Link>
         </article>
 
       </section>
