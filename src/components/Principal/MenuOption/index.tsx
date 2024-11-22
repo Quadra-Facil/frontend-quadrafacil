@@ -1,7 +1,9 @@
 import "./style-menuOption.css"
 import LogoQuadra from "../../../img/logomarca.svg"
-import { FiMenu, FiChevronRight } from "react-icons/fi";
+import { FiMenu } from "react-icons/fi";
 import ReserveIcon from "./img/reserveIcon.svg"
+import LicencaIcon from "./img/licencaIcon.svg"
+import ArenaIcon from "./img/arenaIcon.svg"
 
 export default function MenuOption() {
   return (
@@ -16,30 +18,25 @@ export default function MenuOption() {
           <div className="divider-item"></div>
           <img src={ReserveIcon} alt="Icon" width={28} height={28} />
           <strong>Reservas</strong>
-          <FiChevronRight size={28} color="#868282" />
         </section>
 
         <section className="menu-item">
           <div className="divider-item"></div>
-          <img src={ReserveIcon} alt="Icon" width={28} height={28} />
-          <strong>Licença</strong>
-          <FiChevronRight size={28} color="#868282" />
-        </section>
-
-        <section className="menu-item">
-          <div className="divider-item"></div>
-          <img src={ReserveIcon} alt="Icon" width={28} height={28} />
+          <img src={ArenaIcon} alt="Icon" width={28} height={28} />
           <strong>Arena</strong>
-          <FiChevronRight size={28} color="#868282" />
+        </section>
+
+        <section className="menu-item">
+          <div className="divider-item"></div>
+          <img src={LicencaIcon} alt="Icon" width={28} height={28} />
+          <strong>Licença</strong>
         </section>
 
         <section className="menu-item">
           <div className="divider-item"></div>
           <img src={ReserveIcon} alt="Icon" width={28} height={28} />
-          <strong>Configurações</strong>
-          <FiChevronRight size={28} color="#868282" />
+          <strong>Configuração</strong>
         </section>
-
       </nav>
     </>
   )

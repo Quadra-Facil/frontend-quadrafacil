@@ -3,3 +3,60 @@ main {
   justify-content: space-between;
 
 }
+
+.area-menu {
+  width: 20vw;
+}
+
+.area-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  flex-direction: column;
+  width: 50vw;
+  height: 100vh;
+  color: #868282;
+}
+
+.header-principal {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  width: 100%;
+  height: 15vh;
+  background-color: aqua;
+  padding-bottom: 3%;
+
+  h1 {
+    font-size: 2.3rem;
+    font-weight: 500;
+  }
+
+  strong {
+    color: var(--primary-color);
+    font-weight: 500;
+  }
+}
+
+.area-secundary {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  background-color: aqua;
+  width: 100%;
+  height: 30vh;
+}
+
+.context {
+  height: 50vh;
+  width: 100%;
+  border-radius: 10px;
+  background-color: #fff;
+  margin-bottom: 3%;
+}
+
+.area-reserve {
+  background-color: #fff;
+  width: 25vw;
+  height: 100vh;
+}

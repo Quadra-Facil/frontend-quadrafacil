@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../services/contexts/AuthContext"; // Corrigir importação se necessário
 import MenuOption from "../../components/Principal/MenuOption";
 import "./style-principal.css"
+import UserIcon from "./img/user.svg"
 
 export default function Principal() {
   const authContext = useContext(AuthContext);
@@ -35,8 +36,33 @@ export default function Principal() {
           <MenuOption />
         </section>
         <section className="area-content">
-          <h1>Bem-vindo, {user ? user.userName : 'Usuário'}</h1>
+
+          <div className="header-principal">
+            <h1>Bem-vindo<strong>,</strong> {user ? user.userName : 'Usuário'} <strong>=)</strong></h1>
+            <img src={UserIcon} alt="icon" width={33} />
+          </div>
+
+          <div className="area-secundary">
+            <div className="button-area">
+              <button>Nova</button>
+              <button>Dashboard</button>
+            </div>
+
+            <div className="area-user">
+              <p>Alvorada beach</p>
+              <p>icone</p>
+              <p>Configurações</p>
+
+              <button>Sair</button>
+            </div>
+          </div>
+
+          <div className="context">
+
+          </div>
+
         </section>
+
         <section className="area-reserve"></section>
       </main>
 
