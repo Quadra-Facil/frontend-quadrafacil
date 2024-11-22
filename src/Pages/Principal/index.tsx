@@ -1,5 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../services/contexts/AuthContext"; // Corrigir importação se necessário
+import MenuOption from "../../components/Principal/MenuOption";
+import "./style-principal.css"
 
 export default function Principal() {
   const authContext = useContext(AuthContext);
@@ -28,7 +30,16 @@ export default function Principal() {
 
   return (
     <>
-      <h1>Bem-vindo, {user ? user.userName : 'Usuário'}</h1> {/* Verificação se 'user' existe antes de acessar userName */}
+      <main>
+        <section className="area-menu">
+          <MenuOption />
+        </section>
+        <section className="area-content">
+          <h1>Bem-vindo, {user ? user.userName : 'Usuário'}</h1>
+        </section>
+        <section className="area-reserve"></section>
+      </main>
+
     </>
   );
 }

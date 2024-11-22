@@ -50,6 +50,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
             setIsAuthenticated(false);
             setUser(null); // Limpa os dados do usuário se não houver token
+            navigate('/'); // Redireciona para a tela principal
         }
     }, [authToken, navigate]);
 
