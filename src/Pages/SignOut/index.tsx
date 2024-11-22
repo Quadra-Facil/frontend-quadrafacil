@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import "./style-signout.css";
 import { FormEvent, useState, useEffect } from "react";
-import { api } from "../../services/apiClient";
+import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
 import { useNavigate } from "react-router-dom";
+import { IMaskInput } from "react-imask"
 
 export default function SignOut() {
   const [userName, setName] = useState('');
@@ -17,6 +18,7 @@ export default function SignOut() {
   const [sendMessage, setSendMessage] = useState('');
 
   const navigate = useNavigate();
+
 
   // Exibir Toast após mudança de sendTitle e sendMessage
   useEffect(() => {
@@ -60,12 +62,6 @@ export default function SignOut() {
     }
   }
 
-  function teste() {
-    // Forçar atualização do Toast para testes
-    setSendTitle('warning');
-    setSendMessage('Mensagem de exemplo');
-  }
-
   return (
     <>
       {/* Renderiza o Toast com uma chave única baseada em sendTitle e sendMessage */}
@@ -79,7 +75,7 @@ export default function SignOut() {
         </article>
 
         <article className="signout">
-          <h1 onClick={teste}>Sign Out</h1>
+          <h1>Sign Out</h1>
 
           {/* Condicional de loading */}
           {isLoading ? (
@@ -88,7 +84,12 @@ export default function SignOut() {
             <form onSubmit={handleAddUser}>
               <input type="text" placeholder='Nome' required onChange={e => setName(e.target.value)} />
               <input type="email" placeholder='Email' required onChange={e => setEmail(e.target.value)} />
-              <input type="text" placeholder='Telefone' required onChange={e => setPhone(e.target.value)} />
+              <IMaskInput
+                mask={"(00)00000-0000"}
+                type="text"
+                placeholder='Telefone' required
+                onChange={e => setPhone((e.target as HTMLInputElement).value)}
+              />
               <input type="password" placeholder='Senha' required onChange={e => setPassword(e.target.value)} />
               <input type="password" placeholder='Repetir Senha' required onChange={e => setPasswordRepeat(e.target.value)} />
               <button type="submit">Cadastrar</button>
