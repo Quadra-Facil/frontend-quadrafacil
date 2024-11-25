@@ -3,6 +3,8 @@ import { AuthContext } from "../../services/contexts/AuthContext"; // Corrigir i
 import MenuOption from "../../components/Principal/MenuOption";
 import "./style-principal.css"
 import UserIcon from "./img/user.svg"
+import SettingsIcon from "./img/FiSettings.svg"
+import { FiAlignRight, FiActivity, FiPlusCircle } from "react-icons/fi";
 
 export default function Principal() {
   const authContext = useContext(AuthContext);
@@ -44,8 +46,18 @@ export default function Principal() {
 
           <div className="area-secundary">
             <div className="button-area">
-              <button>Nova</button>
-              <button>Dashboard</button>
+              <div className="button-area-nova">
+                <button className="button-nova">
+                  <FiPlusCircle size={20} />
+                  Nova
+                </button>
+              </div>
+              <div className="button-area-dashboard">
+                <button className="button-dash">
+                  <FiActivity size={20} />
+                  Dashboard
+                </button>
+              </div>
             </div>
 
             <div className="area-user">

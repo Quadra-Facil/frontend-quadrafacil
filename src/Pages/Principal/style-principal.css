@@ -55,6 +55,42 @@ main {
   margin-bottom: 3%;
 }
 
+.button-area {
+  display: flex;
+  justify-content: space-between;
+  width: 17vw;
+
+  button {
+    width: 120px;
+    height: 40px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 6px;
+  }
+
+  .button-nova {
+    background-color: var(--primary-color);
+  }
+
+  .button-nova:hover {
+    background-color: #f89f7c;
+  }
+
+  .button-dash {
+    background-color: var(--secundary-color);
+    color: var(--primary-color);
+  }
+
+  .button-dash:hover {
+    background-color: #f2c2af;
+  }
+}
+
+
+
 .area-reserve {
   background-color: #fff;
   width: 25vw;
