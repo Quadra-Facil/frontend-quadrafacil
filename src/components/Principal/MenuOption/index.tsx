@@ -4,6 +4,7 @@ import { FiMenu } from "react-icons/fi";
 import ReserveIcon from "./img/reserveIcon.svg"
 import LicencaIcon from "./img/licencaIcon.svg"
 import ArenaIcon from "./img/arenaIcon.svg"
+import FiSettings from "./img/FiSettings.svg"
 
 export default function MenuOption() {
   return (
@@ -34,7 +35,7 @@ export default function MenuOption() {
 
         <section className="menu-item">
           <div className="divider-item"></div>
-          <img src={ReserveIcon} alt="Icon" width={28} height={28} />
+          <img src={FiSettings} alt="Icon" width={28} height={28} />
           <strong>Configuração</strong>
         </section>
       </nav>

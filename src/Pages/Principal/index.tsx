@@ -4,7 +4,10 @@ import MenuOption from "../../components/Principal/MenuOption";
 import "./style-principal.css"
 import UserIcon from "./img/user.svg"
 import SettingsIcon from "./img/FiSettings.svg"
-import { FiAlignRight, FiActivity, FiPlusCircle } from "react-icons/fi";
+import IconInstagran from "./img/FiInstagram.svg"
+import IconWatsApp from "./img/FiMessageSquare.svg"
+
+import { FiActivity, FiInstagram, FiPlusCircle, FiSearch } from "react-icons/fi";
 
 export default function Principal() {
   const authContext = useContext(AuthContext);
@@ -18,9 +21,10 @@ export default function Principal() {
 
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
+  const [classAreaUser, setClassAreaUser] = useState(false);
 
   useEffect(() => {
-    console.log(user ? user : 'Usuário')
+    // setClassAreaUser(false)
     if (sendTitle && sendMessage) {
       const timer = setTimeout(() => {
         setSendTitle('');
@@ -30,6 +34,17 @@ export default function Principal() {
       return () => clearTimeout(timer); // Limpar o timer ao desmontar o componente ou atualizar os estados
     }
   }, [sendTitle, sendMessage]);
+
+  const classUser = () => {
+    setClassAreaUser(true); // Mostra a área de usuário
+    console.log(classAreaUser)
+  };
+
+  // Função para lidar com o hover fora
+  const hideClassUser = () => {
+    setClassAreaUser(false); // Esconde a área de usuário
+    console.log(classAreaUser)
+  };
 
   return (
     <>
@@ -41,31 +56,60 @@ export default function Principal() {
 
           <div className="header-principal">
             <h1>Bem-vindo<strong>,</strong> {user ? user.userName : 'Usuário'} <strong>=)</strong></h1>
-            <img src={UserIcon} alt="icon" width={33} />
+            <img
+              src={UserIcon}
+              alt="icon"
+              width={33}
+              onMouseEnter={classUser}
+            />
           </div>
 
+
+
           <div className="area-secundary">
-            <div className="button-area">
-              <div className="button-area-nova">
-                <button className="button-nova">
-                  <FiPlusCircle size={20} />
-                  Nova
-                </button>
+            <section className="area-btn-input">
+              <div className="button-area">
+                <div className="button-area-nova">
+                  <button className="button-nova">
+                    <FiPlusCircle size={20} />
+                    Nova
+                  </button>
+                </div>
+                <div className="button-area-dashboard">
+                  <button className="button-dash">
+                    <FiActivity size={20} />
+                    Dashboard
+                  </button>
+                </div>
               </div>
-              <div className="button-area-dashboard">
-                <button className="button-dash">
-                  <FiActivity size={20} />
-                  Dashboard
-                </button>
-              </div>
-            </div>
 
-            <div className="area-user">
+              <div className="area-search">
+                <input type="text"
+                  placeholder="Pesquise itens do menu"
+                />
+                <button className="search-icon">
+                  <FiSearch size={32} color="#8a8888" />
+                </button>
+              </div>
+            </section>
+
+
+            <div className="area-user" onMouseLeave={hideClassUser} // Quando o mouse sai, esconde
+              style={{
+                display: classAreaUser ? 'flex' : 'none', // Controla o display para mostrar ou esconder
+                transition: 'opacity 0.3s ease, visibility 0.3s ease', // Transição suave
+                opacity: classAreaUser ? 1 : 0,  // Controla a opacidade
+                visibility: classAreaUser ? 'visible' : 'hidden',  // Controla a visibilidade
+              }}>
               <p>Alvorada beach</p>
-              <p>icone</p>
-              <p>Configurações</p>
+              <div className="area-config">
+                <img src={SettingsIcon} alt="" />
+                <p>Configurações</p>
+              </div>
 
-              <button>Sair</button>
+              <button>
+                Sair
+              </button>
             </div>
           </div>
 
@@ -73,10 +117,15 @@ export default function Principal() {
 
           </div>
 
+          <div className="area-social">
+            <img src={IconInstagran} alt="icon" />
+            <img src={IconWatsApp} alt="icon" />
+          </div>
+
         </section>
 
         <section className="area-reserve"></section>
-      </main>
+      </main >
 
     </>
   );

@@ -24,7 +24,6 @@ main {
   align-items: end;
   width: 100%;
   height: 15vh;
-  background-color: aqua;
   padding-bottom: 3%;
 
   h1 {
@@ -36,23 +35,19 @@ main {
     color: var(--primary-color);
     font-weight: 500;
   }
+
+  img {
+    cursor: pointer;
+  }
 }
 
 .area-secundary {
   display: flex;
   justify-content: space-between;
   align-items: start;
-  background-color: aqua;
   width: 100%;
-  height: 30vh;
-}
-
-.context {
-  height: 50vh;
-  width: 100%;
-  border-radius: 10px;
-  background-color: #fff;
-  margin-bottom: 3%;
+  height: 20vh;
+  margin-top: -5%;
 }
 
 .button-area {
@@ -89,6 +84,122 @@ main {
   }
 }
 
+.area-search {
+  width: 50vw;
+  height: 10vh;
+  margin-top: 5%;
+  z-index: 5;
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  input {
+    background-color: #ffffff;
+    border: 0;
+    border-radius: 10px;
+    height: 100%;
+    color: #868282c1;
+    font-weight: 600;
+    font-size: 1rem;
+    width: 100%;
+    padding-left: 4%;
+    box-shadow: 0 3px 0 rgba(105, 104, 104, 0.25);
+  }
+
+  button {
+    position: absolute;
+    /* Posiciona o ícone de forma absoluta */
+    right: 10px;
+    /* Coloca o ícone 10px à direita do input */
+    top: 50%;
+    /* Alinha verticalmente o ícone ao centro do input */
+    transform: translateY(-50%);
+    background-color: #f89f7c;
+    height: 80%;
+    width: 10%;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.area-search input::placeholder {
+  color: #86828253;
+}
+
+.area-search input:focus {
+  border: none;
+  outline: none;
+}
+
+
+
+.area-user {
+  background-color: #fff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 230px;
+  height: 170px;
+  flex-direction: column;
+  border-radius: 10px;
+  margin: -5% -3% 0 -40%;
+  box-shadow: 0 3px 0 rgba(105, 104, 104, 0.25);
+  z-index: 10;
+  position: relative;
+  /* display: none; */
+
+  button {
+    background-color: var(--primary-color);
+    color: #fff;
+    width: 80%;
+    height: 30px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: 15px;
+    cursor: pointer;
+  }
+}
+
+.area-config {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  width: 80%;
+  font-weight: 300;
+
+  p {
+    margin-left: 10%;
+  }
+
+  img {
+    width: 25px;
+  }
+}
+
+.area-config:hover {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+.context {
+  height: 45vh;
+  width: 100%;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.area-social {
+  height: 10vh;
+  width: 100%;
+  background-color: #f89f7c;
+}
 
 
 .area-reserve {
