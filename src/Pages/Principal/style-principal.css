@@ -38,6 +38,7 @@ main {
 
   img {
     cursor: pointer;
+    margin-top: -15%;
   }
 }
 
@@ -87,7 +88,7 @@ main {
 .area-search {
   width: 50vw;
   height: 10vh;
-  margin-top: 5%;
+  margin-top: 4%;
   z-index: 5;
   position: relative;
   display: flex;
@@ -146,7 +147,7 @@ main {
   height: 170px;
   flex-direction: column;
   border-radius: 10px;
-  margin: -5% -3% 0 -40%;
+  margin: -1% -4% 0 -40%;
   box-shadow: 0 3px 0 rgba(105, 104, 104, 0.25);
   z-index: 10;
   position: relative;
@@ -198,9 +199,25 @@ main {
 .area-social {
   height: 10vh;
   width: 100%;
-  background-color: #f89f7c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5%;
 }
 
+.area-img {
+  margin: 0 2%;
+  padding: 1%;
+}
+
+.area-img:hover {
+  background-color: #a9a9a93a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  cursor: pointer;
+}
 
 .area-reserve {
   background-color: #fff;

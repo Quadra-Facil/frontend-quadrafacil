@@ -118,8 +118,12 @@ export default function Principal() {
           </div>
 
           <div className="area-social">
-            <img src={IconInstagran} alt="icon" />
-            <img src={IconWatsApp} alt="icon" />
+            <div className="area-img">
+              <img src={IconInstagran} alt="icon" width={35} title="Instagran" />
+            </div>
+            <div className="area-img">
+              <img src={IconWatsApp} alt="icon" width={35} title="WhatsApp" />
+            </div>
           </div>
 
         </section>
