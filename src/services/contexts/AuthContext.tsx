@@ -40,19 +40,23 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    // Verifica se o token é válido quando o componente carrega
     useEffect(() => {
         if (authToken) {
-            setIsAuthenticated(true);
-            const userData = decodeToken(authToken); // Decodifica o token
-            setUser(userData); // Armazena os dados do usuário no estado
-            navigate('/principal'); // Redireciona para a tela principal
+            if (!isAuthenticated) { // Verifica se já não está autenticado
+                setIsAuthenticated(true);
+                const userData = decodeToken(authToken); // Decodifica o token
+                setUser(userData); // Armazena os dados do usuário no estado
+                navigate('/principal'); // Redireciona para a tela principal
+            }
         } else {
-            setIsAuthenticated(false);
-            setUser(null); // Limpa os dados do usuário se não houver token
-            navigate('/'); // Redireciona para a tela principal
+            if (isAuthenticated) { // Só redireciona se estava autenticado
+                setIsAuthenticated(false);
+                setUser(null); // Limpa os dados do usuário se não houver token
+                navigate('/'); // Redireciona para a tela inicial
+            }
         }
-    }, [authToken, navigate]);
+    }, [authToken, isAuthenticated, navigate]);
+
 
     // Função para fazer login
     const login = (token: string): void => {
@@ -68,7 +72,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAuthToken(null);
         setUser(null); // Limpa os dados do usuário no logout
         setIsAuthenticated(false);
-        navigate('/login'); // Redireciona para a tela de login
+        navigate('/'); // Redireciona para a tela de login
     };
 
     return (

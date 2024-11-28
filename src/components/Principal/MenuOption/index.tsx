@@ -5,8 +5,10 @@ import ReserveIcon from "./img/reserveIcon.svg"
 import LicencaIcon from "./img/licencaIcon.svg"
 import ArenaIcon from "./img/arenaIcon.svg"
 import FiSettings from "./img/FiSettings.svg"
+import { useNavigate } from "react-router-dom";
 
 export default function MenuOption() {
+  const navigate = useNavigate();
   return (
     <>
       <nav className="menu">
@@ -21,7 +23,7 @@ export default function MenuOption() {
           <strong>Reservas</strong>
         </section>
 
-        <section className="menu-item">
+        <section className="menu-item" onClick={() => { navigate("/arena") }}>
           <div className="divider-item"></div>
           <img src={ArenaIcon} alt="Icon" width={28} height={28} />
           <strong>Arena</strong>
@@ -37,6 +39,18 @@ export default function MenuOption() {
           <div className="divider-item"></div>
           <img src={FiSettings} alt="Icon" width={28} height={28} />
           <strong>Configuração</strong>
+        </section>
+
+        <section className="menu-item">
+          <div className="divider-item"></div>
+          <img src={FiSettings} alt="Icon" width={28} height={28} />
+          <strong>Dashboard</strong>
+        </section>
+
+        <section className="menu-item">
+          <div className="divider-item"></div>
+          <img src={FiSettings} alt="Icon" width={28} height={28} />
+          <strong>Relatórios</strong>
         </section>
       </nav>
     </>

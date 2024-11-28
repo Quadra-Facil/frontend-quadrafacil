@@ -7,7 +7,7 @@ import SettingsIcon from "./img/FiSettings.svg"
 import IconInstagran from "./img/FiInstagram.svg"
 import IconWatsApp from "./img/FiMessageSquare.svg"
 
-import { FiActivity, FiInstagram, FiPlusCircle, FiSearch } from "react-icons/fi";
+import { FiActivity, FiPlusCircle, FiSearch } from "react-icons/fi";
 
 export default function Principal() {
   const authContext = useContext(AuthContext);
@@ -37,13 +37,11 @@ export default function Principal() {
 
   const classUser = () => {
     setClassAreaUser(true); // Mostra a área de usuário
-    console.log(classAreaUser)
   };
 
   // Função para lidar com o hover fora
   const hideClassUser = () => {
     setClassAreaUser(false); // Esconde a área de usuário
-    console.log(classAreaUser)
   };
 
   return (
@@ -107,14 +105,14 @@ export default function Principal() {
                 <p>Configurações</p>
               </div>
 
-              <button>
+              <button onClick={() => logout()}>
                 Sair
               </button>
             </div>
           </div>
 
           <div className="context">
-
+            <h1>horario disponiveis do dia</h1>
           </div>
 
           <div className="area-social">
