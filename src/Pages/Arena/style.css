@@ -105,19 +105,53 @@
   font-weight: 300;
 }
 
-.arena button {
-  background-color: var(--primary-color);
-  width: 50%;
+.area-btns {
+  width: 50vw;
   height: 15%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.area-btns .cadastrar {
+  background-color: var(--primary-color);
+  color: #fff;
+  width: 20%;
+  height: 60%;
   border-radius: 50px;
   font-size: 1rem;
-  color: #fff;
   font-weight: 600;
-  margin-top: 2%;
   box-shadow: 0 3px 0 #d6d6d697;
   transition: background-color 0.7s ease;
 }
 
-.arena button:hover {
-  background-color: var(--hover-btn);
+.area-btns .endereco,
+.area-btns .acesso {
+  background-color: var(--secundary-color);
+  color: var(--primary-color);
+  width: 20%;
+  height: 60%;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 3px 0 #d6d6d697;
+  transition: background-color 0.7s ease;
+}
+
+.area-btns .cadastrar:hover {
+  background-color: var(--primary-color);
+  color: #fff;
+  width: 20%;
+  height: 60%;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 3px 0 #d6d6d697;
+  transition: background-color 0.7s ease;
+}
+
+.area-btns .endereco:hover,
+.area-btns .acesso:hover {
+  background-color: #f1a485;
+  color: #ffffff;
 }
