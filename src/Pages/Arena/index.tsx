@@ -1,24 +1,23 @@
 import { Link } from "react-router-dom";
-import "./style-signout.css";
+import "./style.css";
 import { FormEvent, useState, useEffect } from "react";
 import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
 import { useNavigate } from "react-router-dom";
 import { IMaskInput } from "react-imask"
+import SelectSearchStatus from "../../components/SelectSearchStatus";
 
-export default function SignOut() {
-  const [userName, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordRepeat, setPasswordRepeat] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [sendTitle, setSendTitle] = useState('');
-  const [sendMessage, setSendMessage] = useState('');
+export default function Arena() {
+  const [arenaName, setarenaName] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [status, setStatus] = useState<string>('');
+  const [valueHour, setValueHour] = useState<any>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [sendTitle, setSendTitle] = useState<string>('');
+  const [sendMessage, setSendMessage] = useState<string>('');
 
   const navigate = useNavigate();
-
 
   // Exibir Toast após mudança de sendTitle e sendMessage
   useEffect(() => {
@@ -33,28 +32,21 @@ export default function SignOut() {
     }
   }, [sendTitle, sendMessage]);
 
-  async function handleAddUser(e: FormEvent) {
+  async function handleAddArena(e: FormEvent) {
     e.preventDefault();
-
-    if (password !== passwordRepeat) {
-      setSendTitle('warning');
-      setSendMessage("As senhas não coincidem.");
-      return;
-    }
 
     setIsLoading(true);
 
     try {
-      const response = await api.post('/api/user', {
-        userName,
-        email,
-        password,
-        phone
+      const response = await api.post('/api/Arena', {
+        name: arenaName,
+        phone,
+        status,
+        valuehour: valueHour
       });
       setIsLoading(false);
       setSendTitle('success');
-      setSendMessage(`Olá, ${response.data.userName}. Faça seu login.`);
-      navigate("/");
+      setSendMessage(`Arena ${response.data.name} inserida.`);
     } catch (error: any) {
       setIsLoading(false);
       setSendTitle('error');
@@ -62,37 +54,45 @@ export default function SignOut() {
     }
   }
 
+  // Função de callback para atualizar o estado do status no componente pai
+  const handleStatusChange = (newStatus: string): void => {
+    setStatus(newStatus);
+  };
+
   return (
     <>
       {/* Renderiza o Toast com uma chave única baseada em sendTitle e sendMessage */}
       <Toast title={sendTitle} message={sendMessage} />
 
-      <section className='signout-container'>
+      <section className='arena-container'>
         <article className="information">
-          <h1>Faça seu login</h1>
-          <h3>Se você já tem uma conta, faça seu login.</h3>
-          <Link to="/">Fazer login</Link>
+          <h1>Menu Principal</h1>
+          <h3>Volte ao menu principal.</h3>
+          <Link to="/principal">Menu Principal</Link>
         </article>
 
-        <article className="signout">
-          <h1>Sign Out</h1>
+        <article className="arena">
+          <h1>Vincula Arena</h1>
 
           {/* Condicional de loading */}
           {isLoading ? (
             <Loading />
           ) : (
-            <form onSubmit={handleAddUser}>
-              <input type="text" placeholder='Nome' required onChange={e => setName(e.target.value)} />
-              <input type="email" placeholder='Email' required onChange={e => setEmail(e.target.value)} />
+            <form onSubmit={handleAddArena}>
+              <input className="input-form" type="text" placeholder='Arena' required onChange={e => setarenaName(e.target.value)} />
               <IMaskInput
+                className="input-form"
                 mask={"(00)00000-0000"}
                 type="text"
                 placeholder='Telefone' required
                 onChange={e => setPhone((e.target as HTMLInputElement).value)}
               />
-              <input type="password" placeholder='Senha' required onChange={e => setPassword(e.target.value)} />
-              <input type="password" placeholder='Repetir Senha' required onChange={e => setPasswordRepeat(e.target.value)} />
-              <button type="submit">Cadastrar</button>
+
+              <SelectSearchStatus currentStatus={status} onStatusChange={handleStatusChange} />
+
+              <input className="input-form" type="number" placeholder='Valor Hora' required onChange={e => setValueHour(e.target.value)} />
+
+              <button type="submit">Cadastrar Arena</button>
             </form>
           )}
         </article>

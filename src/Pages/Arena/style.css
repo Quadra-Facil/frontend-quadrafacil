@@ -1,0 +1,123 @@
+.arena-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.information {
+  width: 50vw;
+  height: 100vh;
+  background-color: var(--primary-color);
+  color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.information h1 {
+  font-size: 3rem;
+}
+
+.information h3 {
+  font-size: 2rem;
+  font-weight: 300;
+  text-align: center;
+  padding: 10% 0;
+}
+
+.information a {
+  width: 180px;
+  border-radius: 50px;
+  height: 45px;
+  background-color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--primary-color);
+  box-shadow: 0 3px 0 rgba(152, 54, 54, 0.25);
+  /* Sombra verde com 10px de desfoque */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.7s ease;
+}
+
+.information a:hover {
+  background-color: #e5b07f;
+  color: #fff;
+}
+
+/* --------------------------------------------------- */
+
+.arena {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 50vw;
+  height: 90vh;
+}
+
+.arena h1 {
+  font-size: 4rem;
+  color: var(--color-font);
+}
+
+.arena form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 60%;
+  height: 65%;
+}
+
+.input-form {
+  border-radius: 8px;
+  width: 100%;
+  height: 15%;
+  background-color: var(--background-inputs);
+  padding-left: 3%;
+  font-size: 1rem;
+  color: #6c6c6c;
+  border: 0;
+}
+
+.input-form:focus {
+  border: none;
+  outline: none;
+}
+
+.arena-select {
+  border-radius: 8px;
+  width: 100%;
+  height: 15%;
+  background-color: var(--background-inputs);
+  font-size: 1rem;
+  color: #6c6c6c;
+  border: 0;
+}
+
+.arena a {
+  font-weight: 300;
+}
+
+.arena button {
+  background-color: var(--primary-color);
+  width: 50%;
+  height: 15%;
+  border-radius: 50px;
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 600;
+  margin-top: 2%;
+  box-shadow: 0 3px 0 #d6d6d697;
+  transition: background-color 0.7s ease;
+}
+
+.arena button:hover {
+  background-color: var(--hover-btn);
+}
