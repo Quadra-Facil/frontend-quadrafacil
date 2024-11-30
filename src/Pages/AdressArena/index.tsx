@@ -125,6 +125,7 @@ export default function AdressArena() {
             <Loading />
           ) : (
             <form onSubmit={handleAddAdressArena}>
+              
               <select name="uf" id="uf" onChange={handleSelectUf}>
                 <option value="0">Selecione uma UF</option>
                 {ufs.map((uf) => (
