@@ -1,16 +1,28 @@
 import { Link } from "react-router-dom";
 import "./style.css";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect, ChangeEvent } from "react";
 import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
 import { useNavigate } from "react-router-dom";
 import { IMaskInput } from "react-imask"
 import SelectSearchStatus from "../../components/SelectSearchStatus";
+import axios from "axios";
+
+type IBGEUFResponse = {
+  sigla: string;
+  nome: string;
+};
+type IBGECITYResponse = {
+  id: number;
+  nome: string;
+};
 
 export default function AdressArena() {
-  const [uf, setUf] = useState<string>('');
-  const [city, setCity] = useState<string>('');
+  const [ufs, setUfs] = useState<IBGEUFResponse[]>([]);
+  const [cities, setCities] = useState<IBGECITYResponse[]>([]);
+  const [selectedUf, setSelectedUf] = useState("0");
+  const [selectedCity, setSelectedCity] = useState("0");
   const [road, setRoad] = useState<string>('');
   const [neighborhood, setNeighborhood] = useState<string>('');
   const [number, setNumber] = useState<number | any>();
@@ -35,6 +47,37 @@ export default function AdressArena() {
     }
   }, [sendTitle, sendMessage]);
 
+  useEffect(() => {
+    if (selectedUf === "0") {
+      return;
+    }
+    axios
+      .get(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios`
+      )
+      .then((response) => {
+        setCities(response.data);
+      });
+  });
+
+  useEffect(() => {
+    axios
+      .get("https://servicodados.ibge.gov.br/api/v1/localidades/estados/")
+      .then((response) => {
+        setUfs(response.data);
+      });
+  }, [selectedUf]);
+
+  function handleSelectUf(event: ChangeEvent<HTMLSelectElement>) {
+    const uf = event.target.value;
+    setSelectedUf(uf);
+  }
+
+  function handleSelectCity(event: ChangeEvent<HTMLSelectElement>) {
+    const city = event.target.value;
+    setSelectedCity(city);
+  }
+
   async function handleAddAdressArena(e: FormEvent) {
     e.preventDefault();
 
@@ -42,8 +85,8 @@ export default function AdressArena() {
 
     try {
       const response = await api.post('/api/adress', {
-        state: uf,
-        city,
+        state: ufs,
+        city: cities,
         street: road,
         neighborhood,
         number,
@@ -82,11 +125,25 @@ export default function AdressArena() {
             <Loading />
           ) : (
             <form onSubmit={handleAddAdressArena}>
-              <select name="uf" id="uf">
-                <option value="0">Estado</option>
+              <select name="uf" id="uf" onChange={handleSelectUf}>
+                <option value="0">Selecione uma UF</option>
+                {ufs.map((uf) => (
+                  <option value={uf.sigla}>{uf.nome}</option>
+                ))}
               </select>
-              <select name="city" id="city">
-                <option value="0">Cidade</option>
+
+              <select
+                name="City"
+                id="City"
+                value={selectedCity}
+                onChange={handleSelectCity}
+              >
+                <option value="0">Selecione uma cidade</option>
+                {cities.map((city) => (
+                  <option key={city.id} value={city.nome}>
+                    {city.nome}
+                  </option>
+                ))}
               </select>
 
               <input className="input-form" type="text" placeholder='Rua' required onChange={e => setRoad(e.target.value)} />
