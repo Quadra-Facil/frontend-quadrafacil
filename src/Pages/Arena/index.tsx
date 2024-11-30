@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import "./style.css";
+import { Link } from "react-router-dom";
 import { FormEvent, useState, useEffect } from "react";
 import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
@@ -92,7 +92,11 @@ export default function Arena() {
 
               <input className="input-form" type="number" placeholder='Valor Hora' required onChange={e => setValueHour(e.target.value)} />
 
-              <button type="submit">Cadastrar Arena</button>
+              <div className="area-btns">
+                <button className="cadastrar" type="submit">Cadastrar</button>
+                <button className="endereco" type="submit" onClick={() => navigate('/adress')}>Endereço</button>
+                <button className="acesso" type="submit" >Acesso</button>
+              </div>
             </form>
           )}
         </article>

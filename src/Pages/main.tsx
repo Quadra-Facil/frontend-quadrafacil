@@ -7,6 +7,7 @@ import App from './App.tsx';
 import { AuthProvider } from '../services/contexts/AuthContext.tsx';
 import Principal from './Principal/index.tsx';
 import Arena from './Arena/index.tsx';
+import AdressArena from './AdressArena/index.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path='/signout' element={<SignOut />} />
           <Route path='/principal' element={<Principal />} />
           <Route path='/arena' element={<Arena />} />
+          <Route path='/adress' element={<AdressArena />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
