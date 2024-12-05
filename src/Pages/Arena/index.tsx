@@ -1,4 +1,5 @@
-import "./style.css";
+import "./style-arena.css";
+import Select from "react-select";
 import { Link } from "react-router-dom";
 import { FormEvent, useState, useEffect } from "react";
 import { api } from "../../services/axiosApi/apiClient";
@@ -7,6 +8,57 @@ import Toast from "../../components/Toast";
 import { useNavigate } from "react-router-dom";
 import { IMaskInput } from "react-imask"
 import SelectSearchStatus from "../../components/SelectSearchStatus";
+import Modal from "react-modal"
+import { SingleValue, ActionMeta, InputActionMeta } from "react-select";
+import { FiX } from "react-icons/fi";
+
+type GetAllUserResponse = {
+  $id: string;
+  users: {
+    $id: string;
+    $values: {
+      $id: string;
+      id: number;
+      userName: string;
+      email: string;
+      role: string;
+      phone: string;
+      arenaId: number;
+    }[];
+  };
+};
+
+// type GetAllArenasResponse = {
+//   $values: {
+//     id: number;
+//     name: string;
+//     phone: string;
+//     adressArenas: {
+//       $values: {
+//         state: string;
+//         city: string;
+//       }[];
+//     }
+//   }[];
+// };
+
+type AddressArena = {
+  state: string;
+  city: string;
+};
+
+type Arena = {
+  id: number;
+  name: string;
+  phone: string;
+  adressArenas: {
+    $values: AddressArena[];
+  };
+};
+
+type GetAllArenasResponse = {
+  $values: Arena[];
+};
 
 export default function Arena() {
   const [arenaName, setarenaName] = useState<string>('');
@@ -16,8 +68,50 @@ export default function Arena() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const [getAllUsers, setGetAllUsers] = useState<{ value: string; label: string }[]>([]);
+  const [getAllArenas, setGetAllArenas] = useState<{ value: string; label: string }[]>([]);
+  // const [selectedOption, setSelectedOption] = useState<SingleValue<OptionType>>(null);
 
   const navigate = useNavigate();
+
+  //style modal
+  const customStylesModal = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#f0f0f0',
+      border: '1px solid #ccc',
+      borderRadius: '10px',
+      padding: '20px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '40vw',
+      height: '60vh',
+      maxWidth: '90%',
+      color: '#6c6c6c'
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+  };
+
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  // const handleChange = (selected: SingleValue<OptionType>) => {
+  //   setSelectedOption(selected);
+  //   console.log("Selected:", selected);
+  // };
 
   // Exibir Toast após mudança de sendTitle e sendMessage
   useEffect(() => {
@@ -31,6 +125,59 @@ export default function Arena() {
       return () => clearTimeout(timer); // Limpar o timer quando o componente for desmontado ou o estado mudar
     }
   }, [sendTitle, sendMessage]);
+
+  // Carregar usuários da API
+  useEffect(() => {
+    api.get<GetAllUserResponse>("/api/user/getUsers")
+      .then((response) => {
+        const usersArray = response.data.users.$values; // Acessar a lista de usuários no campo "users.$values"
+
+        if (Array.isArray(usersArray)) {
+          const formattedUsers = usersArray.map((item) => ({
+            value: String(item.id), // Transformar ID em string para o componente Select
+            label: `${item.userName} - ${item.email}`, // Exibir nome e email como rótulo
+          }));
+          setGetAllUsers(formattedUsers);
+        } else {
+          console.error("Os dados retornados não são um array:", response.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar dados:", err);
+      });
+  }, []);
+
+  //get all arenas
+  useEffect(() => {
+    api
+      .get<GetAllArenasResponse>("/api/Arena")
+      .then((response) => {
+        const arenaArray = response.data.$values;
+
+        if (Array.isArray(arenaArray)) {
+          const formattedArena = arenaArray.map((item) => {
+            const adressArenas = item.adressArenas?.$values || [];
+
+            // Combina todas as cidades e estados disponíveis
+            const stateCity = adressArenas
+              .map((address) => `${address.state} - ${address.city}`)
+              .join(", ") || "Sem endereço";
+
+            return {
+              value: String(item.id), // Transformar ID em string para o componente Select
+              label: `${item.name} - ${stateCity}`, // Exibir nome, estado e cidade como rótulo
+            };
+          });
+
+          setGetAllArenas(formattedArena);
+        } else {
+          console.error("Os dados retornados não são um array:", response.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar dados:", err);
+      });
+  }, []);
 
   async function handleAddArena(e: FormEvent) {
     e.preventDefault();
@@ -59,20 +206,134 @@ export default function Arena() {
     setStatus(newStatus);
   };
 
+
   return (
     <>
+
+      <div className="area-modal">
+
+        <Modal
+          isOpen={modalIsOpen}
+          // onAfterOpen={afterOpenModal}
+          onRequestClose={closeModal}
+          style={customStylesModal}
+          shouldCloseOnOverlayClick={false}
+          contentLabel="Example Modal"
+        >
+          <header className="header-modal">
+            <h1>Vinculo usuário-arena</h1>
+            <div className="area-close" onClick={closeModal}>
+              <FiX size={24} />
+            </div>
+          </header>
+
+          <div className="area-select-user">
+            <h3>Selecione o usuário:</h3>
+            <Select
+              options={getAllUsers}
+              onChange={(selectedOption) => {
+                // if (selectedOption) {
+                //   setArenaId(Number(selectedOption.value)); // Converte para número antes de atribuir
+                // } else {
+                //   setArenaId(null); // Define como null se nada for selecionado
+                // }
+              }}
+              placeholder="Usuário"
+              styles={{
+                control: (baseStyles) => ({
+                  ...baseStyles,
+                  borderColor: "none",
+                  border: 0,
+                  width: "30vw",
+                  height: "8vh",
+                  backgroundColor: "#dfdfdf",
+                  padding: "0 12px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                }),
+                option: (baseStyles, state) => ({
+                  ...baseStyles,
+                  backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
+                  color: "#878282",
+                  padding: "12px 20px",
+                  cursor: "pointer",
+                  borderRadius: "4px",
+                  fontSize: "14px",
+                }),
+                menu: (base) => ({
+                  ...base,
+                  maxHeight: '25vh', // Limita a altura do menu
+                  overflowY: "hidden", // Adiciona rolagem
+                }),
+              }}
+            />
+          </div>
+
+          <div className="area-select-arena">
+            <h3>Selecione a arena:</h3>
+            <Select
+              options={getAllArenas}
+              onChange={(selectedOption) => {
+                // if (selectedOption) {
+                //   setArenaId(Number(selectedOption.value)); // Converte para número antes de atribuir
+                // } else {
+                //   setArenaId(null); // Define como null se nada for selecionado
+                // }
+              }}
+              placeholder="Arena"
+              styles={{
+                control: (baseStyles) => ({
+                  ...baseStyles,
+                  borderColor: "none",
+                  border: 0,
+                  width: "30vw",
+                  height: "8vh",
+                  backgroundColor: "#dfdfdf",
+                  padding: "0 12px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                }),
+                option: (baseStyles, state) => ({
+                  ...baseStyles,
+                  backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
+                  color: "#878282",
+                  padding: "12px 20px",
+                  cursor: "pointer",
+                  borderRadius: "4px",
+                  fontSize: "14px",
+                }),
+                menu: (base) => ({
+                  ...base,
+                  maxHeight: '25vh', // Limita a altura do menu
+                  overflowY: "hidden", // Adiciona rolagem
+                }),
+              }}
+            />
+          </div>
+
+          <div className="area-btn-vincular">
+            <button className="btn-vincular">Vincular</button>
+          </div>
+
+
+        </Modal>
+      </div>
+
       {/* Renderiza o Toast com uma chave única baseada em sendTitle e sendMessage */}
       <Toast title={sendTitle} message={sendMessage} />
 
       <section className='arena-container'>
         <article className="information">
-          <h1>Menu Principal</h1>
-          <h3>Volte ao menu principal.</h3>
-          <Link to="/principal">Menu Principal</Link>
+          <h1>Gerenciamento - Arena </h1>
+          <h3>ou retorne ao menu principal.</h3>
+          <Link to="/principal" className="menu-btn">Menu Principal</Link>
         </article>
 
-        <article className="arena">
-          <h1>Vincula Arena</h1>
+        <article className="area-arena">
+          <nav className="nav-arena">
+            <button className="endereco" type="submit" onClick={() => navigate('/adress')}>Endereço</button>
+            <button className="acesso" type="submit" onClick={openModal}>Acesso</button>
+          </nav>
 
           {/* Condicional de loading */}
           {isLoading ? (
@@ -94,8 +355,6 @@ export default function Arena() {
 
               <div className="area-btns">
                 <button className="cadastrar" type="submit">Cadastrar</button>
-                <button className="endereco" type="submit" onClick={() => navigate('/adress')}>Endereço</button>
-                <button className="acesso" type="submit" >Acesso</button>
               </div>
             </form>
           )}
