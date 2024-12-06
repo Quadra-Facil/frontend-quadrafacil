@@ -71,6 +71,8 @@ export default function Arena() {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [getAllUsers, setGetAllUsers] = useState<{ value: string; label: string }[]>([]);
   const [getAllArenas, setGetAllArenas] = useState<{ value: string; label: string }[]>([]);
+  const [selectedUser, setSelectedUser] = useState<string>('');
+  const [selectedArena, setSelectedArena] = useState<any>();
   // const [selectedOption, setSelectedOption] = useState<SingleValue<OptionType>>(null);
 
   const navigate = useNavigate();
@@ -206,6 +208,34 @@ export default function Arena() {
     setStatus(newStatus);
   };
 
+  //vincular arena com user
+  async function handleVinculoArenaUser(e: FormEvent) {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    await api
+      .put(`/api/Arena/association-arena-user`, {
+        realArenaId: Number(selectedArena),
+      }, {
+        params: { // query params
+          id_user: Number(selectedUser),
+        },
+      })
+      .then(() => {
+        setIsLoading(false);
+        setSendTitle('success');
+        setSendMessage(`Vínculo realizado.`);
+        closeModal();
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        setSendTitle('error');
+        setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
+      });
+  }
+
+
 
   return (
     <>
@@ -232,11 +262,11 @@ export default function Arena() {
             <Select
               options={getAllUsers}
               onChange={(selectedOption) => {
-                // if (selectedOption) {
-                //   setArenaId(Number(selectedOption.value)); // Converte para número antes de atribuir
-                // } else {
-                //   setArenaId(null); // Define como null se nada for selecionado
-                // }
+                if (selectedOption) {
+                  setSelectedUser(selectedOption.value); // Converte para número antes de atribuir
+                } else {
+                  setSelectedUser('usuario'); // Define como null se nada for selecionado
+                }
               }}
               placeholder="Usuário"
               styles={{
@@ -274,11 +304,11 @@ export default function Arena() {
             <Select
               options={getAllArenas}
               onChange={(selectedOption) => {
-                // if (selectedOption) {
-                //   setArenaId(Number(selectedOption.value)); // Converte para número antes de atribuir
-                // } else {
-                //   setArenaId(null); // Define como null se nada for selecionado
-                // }
+                if (selectedOption) {
+                  setSelectedArena(selectedOption.value); // Converte para número antes de atribuir
+                } else {
+                  setSelectedArena('arena'); // Define como null se nada for selecionado
+                }
               }}
               placeholder="Arena"
               styles={{
@@ -312,9 +342,8 @@ export default function Arena() {
           </div>
 
           <div className="area-btn-vincular">
-            <button className="btn-vincular">Vincular</button>
+            <button className="btn-vincular" onClick={handleVinculoArenaUser}>Vincular</button>
           </div>
-
 
         </Modal>
       </div>

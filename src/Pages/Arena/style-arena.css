@@ -55,7 +55,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   width: 50vw;
   height: 100vh;
 }
@@ -69,7 +69,8 @@
   align-items: center;
   padding-right: 5%;
 
-  button {
+  .acesso,
+  .endereco {
     /* border: 2px solid var(--primary-color); */
     background-color: var(--secundary-color);
     padding: 2%;
@@ -78,9 +79,11 @@
     color: var(--primary-color);
     font-size: 1rem;
     font-weight: 500;
+    height: 50px;
   }
 
-  button:hover {
+  .acesso:hover,
+  .endereco:hover {
     background-color: #f4b9a1;
   }
 
@@ -96,6 +99,7 @@
   justify-content: space-between;
   width: 70%;
   height: 65vh;
+  margin-top: 7%;
 }
 
 .input-form {
