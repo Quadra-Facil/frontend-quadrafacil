@@ -7,7 +7,6 @@ import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import AsyncSelect from "react-select/async";
 
 type IBGEUFResponse = {
   sigla: string;
@@ -18,21 +17,24 @@ type IBGECITYResponse = {
   nome: string;
 };
 
-type GetAllUserResponse = {
-  $id: string;
-  users: {
-    $id: string;
-    $values: {
-      $id: string;
-      id: number;
-      userName: string;
-      email: string;
-      role: string;
-      phone: string;
-      arenaId: number;
-    }[];
+type AddressArena = {
+  state: string;
+  city: string;
+};
+
+type Arena = {
+  id: number;
+  name: string;
+  phone: string;
+  adressArenas: {
+    $values: AddressArena[];
   };
 };
+
+type GetAllArenasResponse = {
+  $values: Arena[];
+};
+
 
 export default function AdressArena() {
   const [ufs, setUfs] = useState<{ value: string; label: string }[]>([]);
@@ -43,11 +45,12 @@ export default function AdressArena() {
   const [neighborhood, setNeighborhood] = useState<string>("");
   const [number, setNumber] = useState<string | number>("");
   const [reference, setReference] = useState<string>("");
-  const [arenaId, setArenaId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sendTitle, setSendTitle] = useState<string>("");
   const [sendMessage, setSendMessage] = useState<string>("");
-  const [getAllUsers, setGetAllUsers] = useState<{ value: string; label: string }[]>([]);
+
+  const [getAllArenas, setGetAllArenas] = useState<{ value: string; label: string }[]>([]);
+  const [selectedArena, setSelectedArena] = useState<any>();
 
   const navigate = useNavigate();
 
@@ -96,18 +99,29 @@ export default function AdressArena() {
     }
   }, [selectedUf]);
 
-  // Carregar usuários da API
+  //get all arenas
   useEffect(() => {
-    api.get<GetAllUserResponse>("/api/user/getUsers")
+    api
+      .get<GetAllArenasResponse>("/api/Arena")
       .then((response) => {
-        const usersArray = response.data.users.$values; // Acessar a lista de usuários no campo "users.$values"
+        const arenaArray = response.data.$values;
 
-        if (Array.isArray(usersArray)) {
-          const formattedUsers = usersArray.map((item) => ({
-            value: String(item.id), // Transformar ID em string para o componente Select
-            label: `${item.userName} - ${item.email}`, // Exibir nome e email como rótulo
-          }));
-          setGetAllUsers(formattedUsers);
+        if (Array.isArray(arenaArray)) {
+          const formattedArena = arenaArray.map((item) => {
+            const adressArenas = item.adressArenas?.$values || [];
+
+            // Combina todas as cidades e estados disponíveis
+            const stateCity = adressArenas
+              .map((address) => `${address.state} - ${address.city}`)
+              .join(", ") || "Sem endereço";
+
+            return {
+              value: String(item.id), // Transformar ID em string para o componente Select
+              label: `${item.name} - ${stateCity}`, // Exibir nome, estado e cidade como rótulo
+            };
+          });
+
+          setGetAllArenas(formattedArena);
         } else {
           console.error("Os dados retornados não são um array:", response.data);
         }
@@ -117,24 +131,26 @@ export default function AdressArena() {
       });
   }, []);
 
+
   // Submissão do formulário
   async function handleAddAdressArena(e: FormEvent) {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await api.post("/api/adress", {
+      await api.post("/api/adress", {
         state: selectedUf,
         city: selectedCity,
         street: road,
         neighborhood,
         number,
         reference,
-        arenaId,
+        arenaId: Number(selectedArena),
       });
       setIsLoading(false);
       setSendTitle("success");
-      setSendMessage(`Endereço ${response.data.name} inserido.`);
+      setSendMessage(`Endereço inserido.`);
+      navigate('/principal')
     } catch (error: any) {
       setIsLoading(false);
       setSendTitle("error");
@@ -169,7 +185,7 @@ export default function AdressArena() {
                       ...baseStyles,
                       border: 0,
                       width: "15vw",
-                      height: "10vh",
+                      height: "8vh",
                       backgroundColor: "#dfdfdf",
                       color: "#878282",
                       padding: "0 12px",
@@ -200,7 +216,7 @@ export default function AdressArena() {
                       ...baseStyles,
                       border: 0,
                       width: "19vw",
-                      height: "10vh",
+                      height: "8vh",
                       backgroundColor: "#dfdfdf",
                       color: "#878282",
                       padding: "0 12px",
@@ -245,7 +261,6 @@ export default function AdressArena() {
                 />
               </div>
 
-
               <input
                 className="input-form"
                 type="text"
@@ -255,25 +270,25 @@ export default function AdressArena() {
               />
 
               {/* /* busca os user(name e email) Alan - alan@gmail.com */}
-              <h3>Selecione um usuário para arena</h3>
+              <h3>Selecione a arena para este endereço</h3>
 
               <Select
-                options={getAllUsers}
+                options={getAllArenas}
                 onChange={(selectedOption) => {
                   if (selectedOption) {
-                    setArenaId(Number(selectedOption.value)); // Converte para número antes de atribuir
+                    setSelectedArena(selectedOption.value); // Converte para número antes de atribuir
                   } else {
-                    setArenaId(null); // Define como null se nada for selecionado
+                    setSelectedArena('arena'); // Define como null se nada for selecionado
                   }
                 }}
-                placeholder="Vincule um usuário"
+                placeholder="Arena"
                 styles={{
                   control: (baseStyles) => ({
                     ...baseStyles,
                     borderColor: "none",
                     border: 0,
                     width: "35vw",
-                    height: "10vh",
+                    height: "8vh",
                     backgroundColor: "#dfdfdf",
                     padding: "0 12px",
                     borderRadius: "10px",
@@ -287,6 +302,11 @@ export default function AdressArena() {
                     cursor: "pointer",
                     borderRadius: "4px",
                     fontSize: "14px",
+                  }),
+                  menu: (base) => ({
+                    ...base,
+                    maxHeight: '25vh', // Limita a altura do menu
+                    overflowY: "hidden", // Adiciona rolagem
                   }),
                 }}
               />

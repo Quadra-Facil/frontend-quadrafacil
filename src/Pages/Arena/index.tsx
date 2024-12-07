@@ -222,7 +222,7 @@ export default function Arena() {
           id_user: Number(selectedUser),
         },
       })
-      .then(() => {
+      .then((response) => {
         setIsLoading(false);
         setSendTitle('success');
         setSendMessage(`Vínculo realizado.`);
