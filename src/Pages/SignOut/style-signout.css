@@ -107,3 +107,79 @@
 .signout button:hover {
   background-color: var(--hover-btn);
 }
+
+.main-modal {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.area-teste {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 50%;
+  height: 70vh;
+  align-items: center;
+
+  h3 {
+    font-size: 30px;
+    font-weight: 300;
+    width: 80%;
+    text-align: center;
+    margin-bottom: 10%;
+  }
+
+  button {
+    width: 17vw;
+    border-radius: 10px;
+    height: 70px;
+    margin-top: -5%;
+    background-color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    box-shadow: 0 3px 0 rgba(152, 54, 54, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.7s ease;
+
+    .icon-teste {
+      margin-left: 5%;
+    }
+  }
+
+  button:hover {
+    background-color: var(--hover-btn);
+    color: #fff;
+  }
+}
+
+.area-planos {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 50%;
+  height: 80vh;
+  align-items: center;
+  background-color: #e5b07f26;
+  border-radius: 20px;
+  margin-top: -6%;
+
+  .animation {
+    width: 90%;
+  }
+
+  a {
+    border: 2px solid var(--secundary-color);
+    padding: 3% 10%;
+    border-radius: 10px;
+    color: var(--primary-color);
+    margin-top: -50px;
+  }
+
+  a:hover {
+    background-color: var(--secundary-color);
+  }
+}
