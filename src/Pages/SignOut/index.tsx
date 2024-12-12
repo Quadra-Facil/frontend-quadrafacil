@@ -58,7 +58,8 @@ export default function SignOut() {
       setIsLoading(false);
       setSendTitle('success');
       setSendMessage(`Olá, ${response.data.userName}. Faça seu login.`);
-      navigate("/");
+      openModal();
+      // navigate("/");
     } catch (error: any) {
       setIsLoading(false);
       setSendTitle('error');
@@ -174,7 +175,6 @@ export default function SignOut() {
                 <input type="password" placeholder='Senha' required onChange={e => setPassword(e.target.value)} />
                 <input type="password" placeholder='Repetir Senha' required onChange={e => setPasswordRepeat(e.target.value)} />
                 <button type="submit">Cadastrar</button>
-                <button onClick={openModal}>Chama modal</button>
               </form></>
           )}
         </article>

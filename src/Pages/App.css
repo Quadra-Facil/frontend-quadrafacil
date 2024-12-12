@@ -60,6 +60,7 @@
 
 .login a {
   font-weight: 300;
+  color: rgb(36, 112, 200);
 }
 
 .login button {
@@ -123,4 +124,109 @@
 .information a:hover {
   background-color: #e5b07f;
   color: #fff;
+}
+
+/* modal */
+
+main {
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .area-message {
+    background: url(../img/forgot-background.png);
+    height: 100%;
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    h1 {
+      font-size: 2rem;
+      color: #fff;
+    }
+
+    h4 {
+      width: 70%;
+      text-align: center;
+      margin-top: 5%;
+      color: #ffffffb6;
+      font-weight: 400;
+    }
+  }
+
+  .area-dados {
+    height: 100%;
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+
+    .header-modal {
+      width: 100%;
+      height: 15%;
+      display: flex;
+      justify-content: end;
+      padding-right: 3%;
+    }
+
+    .area-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    .divider {
+      background-color: var(--primary-color);
+      width: 60%;
+      height: 5px;
+      border-radius: 10px;
+    }
+
+    p {
+      max-width: 60%;
+      text-align: center;
+      margin: 8% 0;
+    }
+
+    input {
+      width: 60%;
+      border-radius: 8px;
+      height: 10%;
+      background-color: var(--background-inputs);
+      padding-left: 3%;
+      font-size: 1rem;
+      color: #6c6c6c;
+      border: 0;
+    }
+
+    strong {
+      color: var(--primary-color);
+      cursor: pointer;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      width: 40%;
+      height: 10%;
+      border-radius: 50px;
+      font-size: 1rem;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 3px 0 #d6d6d697;
+      transition: background-color 0.7s ease;
+
+    }
+
+    button:hover {
+      background-color: var(--hover-btn);
+    }
+  }
 }
