@@ -1,5 +1,5 @@
 import './App.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import LogoMarca from '../img/logomarca-branca.svg';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../services/contexts/AuthContext';
@@ -18,6 +18,8 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [modalIsOpen, setIsOpen] = useState(false);
   const [emailForgotPass, setEmailForgotPass] = useState<string>('')
+
+  const navigate = useNavigate();
 
   // Caso esteja usando o AuthContext
   const authContext = useContext(AuthContext);
@@ -92,9 +94,9 @@ export default function App() {
         setIsLoading(false);
         setSendTitle('success');
         setSendMessage(`E-mail enviado para ${emailForgotPass}`);
+        closeModal();
       })
       .catch(error => {
-
         setIsLoading(false);
         setSendTitle('error');
         setSendMessage(error.response?.data?.erro || 'Erro desconhecido');

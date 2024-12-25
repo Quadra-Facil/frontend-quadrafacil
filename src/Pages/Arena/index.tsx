@@ -218,12 +218,6 @@ export default function Arena() {
     setStatus(newStatus);
   };
 
-  useEffect(() => {
-    console.log("----------");
-
-    console.log()
-  }, [])
-
   //vincular arena com user
   async function handleVinculoArenaUser(e: FormEvent) {
     e.preventDefault();

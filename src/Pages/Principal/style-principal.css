@@ -55,6 +55,7 @@ main {
   display: flex;
   justify-content: space-between;
   width: 17vw;
+  margin-bottom: 3%;
 
   button {
     width: 120px;
@@ -94,6 +95,7 @@ main {
   display: flex;
   justify-content: space-around;
   align-items: center;
+
 
   input {
     background-color: #ffffff;

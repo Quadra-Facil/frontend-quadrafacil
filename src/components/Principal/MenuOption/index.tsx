@@ -32,7 +32,19 @@ export default function MenuOption() {
         <section className="menu-item">
           <div className="divider-item"></div>
           <img src={LicencaIcon} alt="Icon" width={28} height={28} />
+          <strong>Espaço</strong>
+        </section>
+
+        <section className="menu-item">
+          <div className="divider-item"></div>
+          <img src={LicencaIcon} alt="Icon" width={28} height={28} />
           <strong>Licença</strong>
+        </section>
+
+        <section className="menu-item" onClick={() => navigate("/client")}>
+          <div className="divider-item"></div>
+          <img src={LicencaIcon} alt="Icon" width={28} height={28} />
+          <strong>Clientes</strong>
         </section>
 
         <section className="menu-item">
