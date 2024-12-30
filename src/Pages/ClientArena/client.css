@@ -39,7 +39,7 @@
     font-size: 10px;
 
     .icon-area {
-      background-color: rgb(209, 211, 211);
+      background-color: rgb(255, 255, 255);
       width: 25px;
       height: 25px;
       border-radius: 50%;
@@ -65,7 +65,7 @@
 
     .area-status {
       width: 100%;
-      height: 7px;
+      height: 4px;
       display: flex;
       justify-content: end;
       align-items: end;
@@ -74,9 +74,9 @@
       .status {
         width: 20%;
         height: 100%;
-        background-color: rgb(17, 255, 0);
         border-radius: 10px;
         margin-right: 5%;
+        background-color: #ffee00;
       }
     }
 
@@ -91,6 +91,12 @@
       p {
         margin-left: 5%;
       }
+    }
+
+    .area-mudar-plano:hover {
+      cursor: pointer;
+      color: #8d8b8b;
+      font-weight: 600;
     }
   }
 }
@@ -140,4 +146,94 @@ footer {
     background-color: #e4e3e328;
   }
 
+}
+
+/* ///////////////////////// modais */
+
+.header-modal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 10vh;
+  border-bottom: 0.2px solid #818080;
+
+  h2 {
+    color: #818080;
+    margin-top: 0%;
+  }
+}
+
+.main-modal {
+  height: 40vh;
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  flex-direction: column;
+
+  .adress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 17vh;
+    border-bottom: 0.2px solid #818080;
+
+    .titulo-adress {
+      width: 100%;
+    }
+
+    .main-adress {
+      width: 100%;
+
+      h5 {
+        font-weight: 700;
+      }
+
+
+      .body-adress {
+        padding-left: 3%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+
+        .first {
+          width: 50%;
+        }
+
+        .main {
+          width: 50%;
+        }
+      }
+
+      .last {
+        width: 100%;
+        padding-left: 3%;
+        margin-top: 1%;
+        margin-bottom: 3%;
+      }
+    }
+  }
+
+  .plans {
+    width: 100%;
+    margin-top: 3%;
+
+    .body-plans {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2%;
+
+      h5 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 120px;
+      }
+    }
+  }
 }
