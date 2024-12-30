@@ -7,7 +7,9 @@ import SettingsIcon from "./img/FiSettings.svg"
 import IconInstagran from "./img/FiInstagram.svg"
 import IconWatsApp from "./img/FiMessageSquare.svg"
 
+
 import { FiActivity, FiPlusCircle, FiSearch } from "react-icons/fi";
+import { api } from "../../services/axiosApi/apiClient";
 
 export default function Principal() {
   const authContext = useContext(AuthContext);
@@ -22,6 +24,7 @@ export default function Principal() {
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
   const [classAreaUser, setClassAreaUser] = useState(false);
+  const [Arena, setArena] = useState<string>('')
 
   useEffect(() => {
     // setClassAreaUser(false)
@@ -34,6 +37,22 @@ export default function Principal() {
       return () => clearTimeout(timer); // Limpar o timer ao desmontar o componente ou atualizar os estados
     }
   }, [sendTitle, sendMessage]);
+
+  // dando erro aqui
+  useEffect(() => {
+    const fetchArena = async () => {
+      try {
+        const response = await api.post("/api/Arena/getArena", {
+          arenaId: user.arena // 'params' é o correto para enviar parâmetros na URL
+        });
+        setArena(response.data.name)
+      } catch (error) {
+        console.log("Erro ao buscar arena: ", error);
+      }
+    };
+
+    fetchArena(); // Agora estamos chamando a função assíncrona
+  }, [Arena]);
 
   const classUser = () => {
     setClassAreaUser(true); // Mostra a área de usuário
@@ -53,7 +72,7 @@ export default function Principal() {
         <section className="area-content">
 
           <div className="header-principal">
-            <h1>Bem-vindo<strong>,</strong> {user ? user.userName : 'Usuário'} <strong>=)</strong></h1>
+            <h1>Olá<strong>,</strong> {user ? user.userName : 'Usuário'} <strong>=)</strong></h1>
             <img
               src={UserIcon}
               alt="icon"
@@ -61,8 +80,6 @@ export default function Principal() {
               onMouseEnter={classUser}
             />
           </div>
-
-
 
           <div className="area-secundary">
             <section className="area-btn-input">
@@ -99,7 +116,7 @@ export default function Principal() {
                 opacity: classAreaUser ? 1 : 0,  // Controla a opacidade
                 visibility: classAreaUser ? 'visible' : 'hidden',  // Controla a visibilidade
               }}>
-              <p>Alvorada beach</p>
+              <p>{Arena}</p>
               <div className="area-config">
                 <img src={SettingsIcon} alt="" />
                 <p>Configurações</p>

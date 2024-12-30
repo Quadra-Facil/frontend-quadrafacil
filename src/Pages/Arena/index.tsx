@@ -1,7 +1,7 @@
 import "./style-arena.css";
 import Select from "react-select";
 import { Link } from "react-router-dom";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect, useContext } from "react";
 import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
@@ -11,6 +11,7 @@ import SelectSearchStatus from "../../components/SelectSearchStatus";
 import Modal from "react-modal"
 import { SingleValue, ActionMeta, InputActionMeta } from "react-select";
 import { FiX } from "react-icons/fi";
+import { AuthContext } from "../../services/contexts/AuthContext";
 
 type GetAllUserResponse = {
   $id: string;
@@ -76,6 +77,15 @@ export default function Arena() {
   // const [selectedOption, setSelectedOption] = useState<SingleValue<OptionType>>(null);
 
   const navigate = useNavigate();
+
+  const authContext = useContext(AuthContext);
+
+  // Verificar se o authContext está disponível
+  if (!authContext) {
+    return <div>Carregando...</div>; // Pode retornar uma tela de carregamento ou um componente de fallback
+  }
+
+  const { user } = authContext;
 
   //style modal
   const customStylesModal = {
@@ -222,11 +232,21 @@ export default function Arena() {
           id_user: Number(selectedUser),
         },
       })
-      .then((response) => {
+      .then(async (response) => {
         setIsLoading(false);
         setSendTitle('success');
         setSendMessage(`Vínculo realizado.`);
         closeModal();
+
+        await api.put("/api/user/edit/rule", {
+          userId: Number(user.userId)
+        }).then((resp) => {
+          setSendTitle('success');
+          setSendMessage(`Acesso admin inserido.`);
+        })
+          .catch((erro: any) => {
+            console.log("Erro ao atribuir acesso: " + erro)
+          })
       })
       .catch((error) => {
         setIsLoading(false);
