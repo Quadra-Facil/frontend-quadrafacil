@@ -9,6 +9,9 @@ import Principal from './Principal/index.tsx';
 import Arena from './Arena/index.tsx';
 import AdressArena from './AdressArena/index.tsx';
 import ClientArena from './ClientArena/index.tsx';
+import Modal from "react-modal"
+
+Modal.setAppElement("#root");
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

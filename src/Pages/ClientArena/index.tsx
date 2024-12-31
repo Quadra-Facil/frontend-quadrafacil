@@ -67,8 +67,8 @@ export default function ClientArena() {
   const [sendMessage, setSendMessage] = useState<string>('');
   const [modalIsOpenDetails, setIsOpenDetails] = useState(false);
   const [modalIsOpenPlans, setIsOpenPlans] = useState(false);
-  const [selectedArena, setSelectedArena] = useState<Arena | null>(null); // Estado para armazenar a arena selecionada
-  const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false); // Novo estado para o dialog de confirmação
+  const [selectedArena, setSelectedArena] = useState<Arena | null>(null);
+  const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
   const [isCheckd, setIsChecked] = useState("")
   const [selectedPlan, setSelectedPlan] = useState<any>();
 
@@ -440,23 +440,21 @@ export default function ClientArena() {
               </Modal>
 
               {/* Input de Pesquisa (visível apenas se nenhum modal estiver aberto) */}
-              {!modalIsOpenDetails && !modalIsOpenPlans && (
-                <section className="header">
-                  <div className="area-search">
-                    <input
-                      type="text"
-                      placeholder="Pesquise por arena, cidade, estado ou status"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <button className="search-icon">
-                      <FiSearch size={32} color="#8a8888" />
-                    </button>
-                  </div>
-                  <h3>Área de filtragem de clientes</h3>
-                  tipo de plano mensal, anual, semestral
-                </section>
-              )}
+              <section className="header">
+                <div className="area-search">
+                  <input
+                    type="text"
+                    placeholder="Pesquise por arena, cidade, estado ou status"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <button className="search-icon">
+                    <FiSearch size={32} color="#8a8888" />
+                  </button>
+                </div>
+                <h3>Área de filtragem de clientes</h3>
+                tipo de plano mensal, anual, semestral
+              </section>
 
               {/* Exibindo os cards filtrados */}
               {

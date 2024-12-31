@@ -90,7 +90,6 @@ main {
   width: 50vw;
   height: 10vh;
   margin-top: 4%;
-  z-index: 5;
   position: relative;
   display: flex;
   justify-content: space-around;

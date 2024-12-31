@@ -7,8 +7,7 @@ import SettingsIcon from "./img/FiSettings.svg"
 import IconInstagran from "./img/FiInstagram.svg"
 import IconWatsApp from "./img/FiMessageSquare.svg"
 
-
-import { FiActivity, FiPlusCircle, FiSearch } from "react-icons/fi";
+import { FiActivity, FiPlusCircle, FiSearch, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 
 export default function Principal() {
@@ -25,6 +24,7 @@ export default function Principal() {
   const [sendMessage, setSendMessage] = useState<string>('');
   const [classAreaUser, setClassAreaUser] = useState(false);
   const [Arena, setArena] = useState<string>('')
+
 
   useEffect(() => {
     // setClassAreaUser(false)
