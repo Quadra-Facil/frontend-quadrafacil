@@ -29,7 +29,6 @@ type GetAllUserResponse = {
   };
 };
 
-
 type AddressArena = {
   state: string;
   city: string;

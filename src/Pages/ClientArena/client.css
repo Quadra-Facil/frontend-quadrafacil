@@ -324,8 +324,8 @@ footer {
 }
 
 .main-modal-plans {
-  margin: 0;
-  height: 80%;
+  margin-top: 5%;
+  height: 60%;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -338,16 +338,15 @@ footer {
   }
 
   .new-plan {
-    background-color: #ffee00;
     width: 100%;
     height: 70%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: end;
+    margin-top: -10%;
 
     .title-plans {
-      background-color: aqua;
       width: 100%;
       height: 80%;
 
@@ -357,6 +356,31 @@ footer {
 
       h3:nth-of-type(2) {
         font-size: 0.9rem;
+      }
+    }
+
+    .area-btn-save {
+      width: 100%;
+      height: 20%;
+      display: flex;
+      justify-content: end;
+      align-items: center;
+
+      button {
+        background-color: var(--primary-color);
+        height: 10%;
+        width: 200px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #fff;
+        position: fixed;
+        bottom: 30px;
+      }
+
+      button:hover {
+        background-color: var(--hover-btn);
+
       }
     }
   }

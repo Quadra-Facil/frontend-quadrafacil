@@ -1,6 +1,6 @@
 import "./client.css";
 import Select from "react-select";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { FiSearch, FiPhone, FiArrowRight, FiMapPin, FiCalendar, FiRefreshCw, FiClipboard, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 import Modal from "react-modal";
@@ -70,20 +70,25 @@ export default function ClientArena() {
   const [selectedArena, setSelectedArena] = useState<Arena | null>(null); // Estado para armazenar a arena selecionada
   const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false); // Novo estado para o dialog de confirmação
   const [isCheckd, setIsChecked] = useState("")
+  const [selectedPlan, setSelectedPlan] = useState<any>();
 
   // Get all arenas
   useEffect(() => {
+    setIsLoading(true);
     api
       .get<GetAllArenasResponse>("/api/Arena")
       .then((response) => {
         const arenaArray = response.data.arenas?.$values;
         if (Array.isArray(arenaArray)) {
+          setIsLoading(false)
           setGetAllArenas(response.data);
         } else {
+          setIsLoading(false)
           console.error("Os dados retornados não são um array:", response.data);
         }
       })
       .catch((err) => {
+        setIsLoading(false)
         console.error("Erro ao buscar dados:", err);
       });
   }, [selectedArena]);
@@ -167,7 +172,7 @@ export default function ClientArena() {
       padding: '20px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       width: '50vw',
-      height: '60vh',
+      height: '65vh',
       maxWidth: '90%',
       color: '#6c6c6c'
     },
@@ -189,13 +194,15 @@ export default function ClientArena() {
   }
 
   // Função para abrir o modal de planos
-  function openModalPlan() {
+  function openModalPlan(arena: Arena) {
+    setSelectedArena(arena)
     setIsOpenPlans(true);
   }
 
   // Função para fechar o modal de planos
   function closeModalPlans() {
     setIsOpenPlans(false);
+    setSelectedArena(null)
   }
 
   // Função para abrir o modal de confirmação
@@ -248,6 +255,33 @@ export default function ClientArena() {
       closeConfirmDialog();
     }
     closeConfirmDialog(); // Fechar o modal de confirmação
+  }
+
+  const getPlans = [
+    { value: 'teste', label: 'Teste' },
+    { value: 'mensal', label: 'Mensal' },
+    { value: 'semestral', label: 'Semestral' },
+    { value: 'anual', label: 'Anual' },
+  ]
+
+  async function handleEditPlan(e: FormEvent) {
+    e.preventDefault();
+
+    setIsLoading(true)
+
+    await api.put("/edit", {
+      PlanSelect: selectedPlan,// O tipo de plano escolhido: "mensal", "semestral", "anual"
+      ArenaId: Number(selectedArena?.id)
+    }).then((response) => {
+      setIsLoading(false);
+      setSendTitle('success');
+      setSendMessage('Plano alterado');
+      closeModalPlans();
+    }).catch((err) => {
+      setIsLoading(false);
+      setSendTitle('error');
+      setSendMessage('Erro ao ALTERAR plano');
+    })
   }
 
   return (
@@ -322,8 +356,9 @@ export default function ClientArena() {
               >
                 <header className="header-modal">
                   <div className="header-arena-plans">
-                    <h5><strong>Arena:</strong> {selectedArena?.name}</h5>
-                    <h5><strong>Plano Atual:</strong> {selectedArena?.plans.$values[0].planSelect}</h5>
+                    <h5><strong>Arena:</strong> {selectedArena?.name || "Sem nome"}</h5>
+                    <h5><strong>Plano Atual:</strong> {selectedArena?.plans?.$values[0].planSelect || "Sem plano"}</h5>
+
                   </div>
                   <div className="area-close" onClick={closeModalPlans}>
                     <FiX size={24} />
@@ -334,12 +369,48 @@ export default function ClientArena() {
                     <div className="title-plans">
                       <h3>Selecione um novo plano:</h3>
                       <h3>Ou o mesmo plano para renovação.</h3>
-                      <select>
-                        <option>MEnsal</option>
-                      </select>
+                      <Select
+                        options={getPlans}
+                        onChange={(selectedOption) => {
+                          if (selectedOption) {
+                            setSelectedPlan(selectedOption.value); // Converte para número antes de atribuir
+                          } else {
+                            setSelectedPlan('null'); // Define como null se nada for selecionado
+                          }
+                        }}
+                        placeholder="Plano"
+                        styles={{
+                          control: (baseStyles) => ({
+                            ...baseStyles,
+                            borderColor: "none",
+                            border: 0,
+                            width: "100%",
+                            height: "8vh",
+                            backgroundColor: "#dfdfdf",
+                            padding: "0 12px",
+                            borderRadius: "10px",
+                            fontSize: "14px",
+                            marginTop: '3%'
+                          }),
+                          option: (baseStyles, state) => ({
+                            ...baseStyles,
+                            backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
+                            color: "#878282",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            borderRadius: "4px",
+                            fontSize: "14px",
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            maxHeight: '25vh', // Limita a altura do menu
+                            overflowY: "hidden", // Adiciona rolagem
+                          }),
+                        }}
+                      />
                     </div>
                     <div className="area-btn-save">
-                      <button>Salvar Alterações</button>
+                      <button onClick={handleEditPlan}>Salvar Alterações</button>
                     </div>
                   </section>
                 </main>
@@ -388,75 +459,79 @@ export default function ClientArena() {
               )}
 
               {/* Exibindo os cards filtrados */}
-              <section className="area-cards">
-                {(filteredData?.length || 0) > 0 ? (
-                  filteredData?.map((item) => (
-                    <div key={item.id} className="card">
-                      <header>
-                        <h3>{item.name || "Sem nome"}</h3>
-                        <div className="icon-area">
-                          <FiPhone title={item.phone || "Sem telefone"} color="var(--primary-color)" />
+              {
+                isLoading ? <Loading /> : (
+
+                  <section className="area-cards">
+                    {(filteredData?.length || 0) > 0 ? (
+                      filteredData?.map((item) => (
+                        <div key={item.id} className="card">
+                          <header>
+                            <h3>{item.name || "Sem nome"}</h3>
+                            <div className="icon-area">
+                              <FiPhone title={item.phone || "Sem telefone"} color="var(--primary-color)" />
+                            </div>
+                            <div className="icon-area">
+                              <FiMapPin
+                                color="var(--primary-color)"
+                                title={
+                                  item.adressArenas?.$values?.[0]
+                                    ? `${item.adressArenas.$values[0].state || "Sem estado"}, ${item.adressArenas.$values[0].city || "Sem cidade"}`
+                                    : "Sem endereço"
+                                }
+                              />
+                            </div>
+                          </header>
+                          <main>
+                            <div className="area-status">
+                              <div
+                                className="status"
+                                style={{
+                                  backgroundColor:
+                                    item.status === "ativo"
+                                      ? "#50cd48"
+                                      : item.status === "teste"
+                                        ? "#ffee00"
+                                        : "#f80000",
+                                }}
+                                title={item.plans?.$values?.[0]?.planSelect || "Sem plano"}
+                              ></div>
+                            </div>
+                            <div className="area-plano">
+                              <FiClipboard />
+                              <p>
+                                <strong>Valor da Hora: </strong> R${item.valueHour || "Valor não informado"}
+                              </p>
+                            </div>
+                            <div className="area-mudar-plano" onClick={() => openModalPlan(item)}>
+                              <FiRefreshCw />
+                              <p>Mudar plano</p>
+                            </div>
+                            <div className="area-vencimento">
+                              <FiCalendar />
+                              <p>
+                                <strong>Até:</strong>{" "}
+                                {item.plans?.$values?.[0]?.planExpiry
+                                  ? new Date(item.plans.$values[0].planExpiry).toLocaleDateString("pt-br")
+                                  : "Sem plano"}
+                              </p>
+                            </div>
+                          </main>
+                          <footer>
+                            <button className="show-plus" onClick={() => openModalDetails(item)}>
+                              <h4>Ver mais</h4>
+                              <div className="icon-area">
+                                <FiArrowRight />
+                              </div>
+                            </button>
+                          </footer>
                         </div>
-                        <div className="icon-area">
-                          <FiMapPin
-                            color="var(--primary-color)"
-                            title={
-                              item.adressArenas?.$values?.[0]
-                                ? `${item.adressArenas.$values[0].state || "Sem estado"}, ${item.adressArenas.$values[0].city || "Sem cidade"}`
-                                : "Sem endereço"
-                            }
-                          />
-                        </div>
-                      </header>
-                      <main>
-                        <div className="area-status">
-                          <div
-                            className="status"
-                            style={{
-                              backgroundColor:
-                                item.status === "ativo"
-                                  ? "#50cd48"
-                                  : item.status === "teste"
-                                    ? "#ffee00"
-                                    : "#f80000",
-                            }}
-                            title={item.plans?.$values?.[0]?.planSelect || "Sem plano"}
-                          ></div>
-                        </div>
-                        <div className="area-plano">
-                          <FiClipboard />
-                          <p>
-                            <strong>Valor da Hora: </strong> R${item.valueHour || "Valor não informado"}
-                          </p>
-                        </div>
-                        <div className="area-mudar-plano" onClick={openModalPlan}>
-                          <FiRefreshCw />
-                          <p>Mudar plano</p>
-                        </div>
-                        <div className="area-vencimento">
-                          <FiCalendar />
-                          <p>
-                            <strong>Até:</strong>{" "}
-                            {item.plans?.$values?.[0]?.planExpiry
-                              ? new Date(item.plans.$values[0].planExpiry).toLocaleDateString("pt-br")
-                              : "Sem plano"}
-                          </p>
-                        </div>
-                      </main>
-                      <footer>
-                        <button className="show-plus" onClick={() => openModalDetails(item)}>
-                          <h4>Ver mais</h4>
-                          <div className="icon-area">
-                            <FiArrowRight />
-                          </div>
-                        </button>
-                      </footer>
-                    </div>
-                  ))
-                ) : (
-                  <p>Nenhuma arena encontrada.</p>
+                      ))
+                    ) : (
+                      <p>Nenhuma arena encontrada.</p>
+                    )}
+                  </section>
                 )}
-              </section>
             </>
           )
       }
