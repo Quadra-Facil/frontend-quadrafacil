@@ -105,7 +105,7 @@ export default function ClientArena() {
     return nameMatches || stateMatches || cityMatches || statusMatches || planMatches;
   });
 
-  // Style modal (details e plans)
+  // Style modal (details)
   const customStylesModal = {
     content: {
       top: '50%',
@@ -130,7 +130,6 @@ export default function ClientArena() {
   };
 
   // style modal dialog
-
   const customStylesModalDialog = {
     content: {
       top: '18%',
@@ -146,6 +145,29 @@ export default function ClientArena() {
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       width: '30vw',
       height: '30vh',
+      maxWidth: '90%',
+      color: '#6c6c6c'
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+  };
+  // style modal plans
+  const customStylesModalPlans = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#f0f0f0',
+      border: '1px solid #ccc',
+      borderRadius: '10px',
+      padding: '20px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '50vw',
+      height: '60vh',
       maxWidth: '90%',
       color: '#6c6c6c'
     },
@@ -244,7 +266,7 @@ export default function ClientArena() {
                 shouldCloseOnOverlayClick={false}
               >
                 <header className="header-modal">
-                  <h2>{selectedArena?.name}</h2>
+                  <h2>{selectedArena?.name || "sem arena"}</h2>
                   <div className="area-close" onClick={closeModalDetails}>
                     <FiX size={24} />
                   </div>
@@ -257,17 +279,17 @@ export default function ClientArena() {
                     <div className="main-adress">
                       <div className="body-adress">
                         <section className="first">
-                          <h5><strong>Uf:</strong> {selectedArena?.adressArenas.$values[0]?.state}</h5>
-                          <h5><strong>Cidade:</strong> {selectedArena?.adressArenas.$values[0]?.city}</h5>
-                          <h5><strong>Bairro:</strong> {selectedArena?.adressArenas.$values[0]?.neighborhood}</h5>
+                          <h5><strong>Uf:</strong> {selectedArena?.adressArenas.$values[0]?.state || "sem estado"}</h5>
+                          <h5><strong>Cidade:</strong> {selectedArena?.adressArenas.$values[0]?.city || "sem cidade"}</h5>
+                          <h5><strong>Bairro:</strong> {selectedArena?.adressArenas.$values[0]?.neighborhood || "sem bairro"}</h5>
                         </section>
                         <section className="main">
-                          <h5><strong>Rua:</strong> {selectedArena?.adressArenas.$values[0]?.street}</h5>
-                          <h5><strong>Numero:</strong> {selectedArena?.adressArenas.$values[0]?.number}</h5>
+                          <h5><strong>Rua:</strong> {selectedArena?.adressArenas.$values[0]?.street || "sem endereço"}</h5>
+                          <h5><strong>Numero:</strong> {selectedArena?.adressArenas.$values[0]?.number || "s/n"}</h5>
                         </section>
                       </div>
                       <section className="last">
-                        <h5><strong>Referência:</strong> {selectedArena?.adressArenas.$values[0]?.reference}</h5>
+                        <h5><strong>Referência:</strong> {selectedArena?.adressArenas.$values[0]?.reference || "sem referência"}</h5>
                       </section>
                     </div>
                   </section>
@@ -276,7 +298,7 @@ export default function ClientArena() {
                       <h3>Planos:</h3>
                     </div>
                     <div className="body-plans">
-                      <h5><strong>Plano atual:</strong> {selectedArena?.plans.$values[0]?.planSelect}</h5>
+                      <h5><strong>Plano atual:</strong> {selectedArena?.plans.$values[0]?.planSelect || "sem plano"}</h5>
                       <h5>Status Arena:
                         <input style={{ cursor: 'pointer' }} type="checkbox" checked={selectedArena?.status == "ativo" ? true : false}
                           onClick={() => openConfirmDialog()}
@@ -286,6 +308,38 @@ export default function ClientArena() {
                           }}
                         />
                       </h5>
+                    </div>
+                  </section>
+                </main>
+              </Modal>
+
+              {/* Modal Plans */}
+              <Modal
+                isOpen={modalIsOpenPlans}
+                onRequestClose={closeModalPlans}
+                style={customStylesModalPlans}
+                shouldCloseOnOverlayClick={false}
+              >
+                <header className="header-modal">
+                  <div className="header-arena-plans">
+                    <h5><strong>Arena:</strong> {selectedArena?.name}</h5>
+                    <h5><strong>Plano Atual:</strong> {selectedArena?.plans.$values[0].planSelect}</h5>
+                  </div>
+                  <div className="area-close" onClick={closeModalPlans}>
+                    <FiX size={24} />
+                  </div>
+                </header>
+                <main className="main-modal-plans">
+                  <section className="new-plan">
+                    <div className="title-plans">
+                      <h3>Selecione um novo plano:</h3>
+                      <h3>Ou o mesmo plano para renovação.</h3>
+                      <select>
+                        <option>MEnsal</option>
+                      </select>
+                    </div>
+                    <div className="area-btn-save">
+                      <button>Salvar Alterações</button>
                     </div>
                   </section>
                 </main>
@@ -339,14 +393,18 @@ export default function ClientArena() {
                   filteredData?.map((item) => (
                     <div key={item.id} className="card">
                       <header>
-                        <h3>{item.name}</h3>
+                        <h3>{item.name || "Sem nome"}</h3>
                         <div className="icon-area">
-                          <FiPhone title={item.phone} color="var(--primary-color)" />
+                          <FiPhone title={item.phone || "Sem telefone"} color="var(--primary-color)" />
                         </div>
                         <div className="icon-area">
                           <FiMapPin
                             color="var(--primary-color)"
-                            title={`${item.adressArenas?.$values[0]?.state}, ${item.adressArenas?.$values[0]?.city}`}
+                            title={
+                              item.adressArenas?.$values?.[0]
+                                ? `${item.adressArenas.$values[0].state || "Sem estado"}, ${item.adressArenas.$values[0].city || "Sem cidade"}`
+                                : "Sem endereço"
+                            }
                           />
                         </div>
                       </header>
@@ -355,20 +413,20 @@ export default function ClientArena() {
                           <div
                             className="status"
                             style={{
-                              backgroundColor: `${item.status === "ativo"
-                                ? "#50cd48"
-                                : item.status === "teste"
-                                  ? "#ffee00"
-                                  : "#f80000"
-                                }`,
+                              backgroundColor:
+                                item.status === "ativo"
+                                  ? "#50cd48"
+                                  : item.status === "teste"
+                                    ? "#ffee00"
+                                    : "#f80000",
                             }}
-                            title={item.plans?.$values[0]?.planSelect}
+                            title={item.plans?.$values?.[0]?.planSelect || "Sem plano"}
                           ></div>
                         </div>
                         <div className="area-plano">
                           <FiClipboard />
                           <p>
-                            <strong>Valor da Hora: </strong> R${item.valueHour}
+                            <strong>Valor da Hora: </strong> R${item.valueHour || "Valor não informado"}
                           </p>
                         </div>
                         <div className="area-mudar-plano" onClick={openModalPlan}>
@@ -379,11 +437,9 @@ export default function ClientArena() {
                           <FiCalendar />
                           <p>
                             <strong>Até:</strong>{" "}
-                            {item.plans?.$values[0]?.planExpiry
-                              ? new Date(item.plans?.$values[0]?.planExpiry).toLocaleDateString(
-                                "pt-br"
-                              )
-                              : "sem plano"}
+                            {item.plans?.$values?.[0]?.planExpiry
+                              ? new Date(item.plans.$values[0].planExpiry).toLocaleDateString("pt-br")
+                              : "Sem plano"}
                           </p>
                         </div>
                       </main>

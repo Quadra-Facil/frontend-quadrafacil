@@ -31,9 +31,11 @@ type Arena = {
   };
 };
 
-type GetAllArenasResponse = {
-  $values: Arena[];
-};
+interface GetAllArenasResponse {
+  arenas: {
+    $values: Arena[];  // Tipando corretamente o $values
+  };
+}
 
 
 export default function AdressArena() {
@@ -104,7 +106,7 @@ export default function AdressArena() {
     api
       .get<GetAllArenasResponse>("/api/Arena")
       .then((response) => {
-        const arenaArray = response.data.$values;
+        const arenaArray = response.data.arenas.$values || [];
 
         if (Array.isArray(arenaArray)) {
           const formattedArena = arenaArray.map((item) => {
