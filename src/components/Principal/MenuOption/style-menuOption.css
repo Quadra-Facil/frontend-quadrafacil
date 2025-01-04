@@ -112,3 +112,88 @@
     }
   }
 }
+
+.header-arena-space {
+  h5 {
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+}
+
+.main-modal-space {
+  height: 65%;
+
+  .area-first {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    padding-left: 3%;
+
+    h5 {
+      font-size: 1rem;
+    }
+
+
+    input {
+      border: 0;
+      height: 50px;
+      width: 80%;
+      border-radius: 7px;
+      padding-left: 5%;
+    }
+  }
+
+  .area-second {
+    width: 40%;
+
+    h5 {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.area-btn {
+  height: 12%;
+
+  button:nth-of-type(1) {
+    margin: 0;
+    position: fixed;
+    bottom: 5%;
+    left: 5%;
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 1.5% 5%;
+    border-radius: 7px;
+    border: none;
+    box-shadow: 0 3px 0 rgba(105, 104, 104, 0.25);
+
+    &:hover {
+      font-size: 0.9rem;
+    }
+  }
+
+  button:nth-of-type(2) {
+    position: fixed;
+    bottom: 7%;
+    left: 35%;
+    color: #de6565;
+    border-color: #de6565;
+  }
+}
+
+/* //modal status space */
+.main-modal-space-status {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  margin-top: 3%;
+  align-items: center;
+  height: 75%;
+
+  table tbody tr:nth-child(even) {
+    background-color: #d6d6d6;
+    /* Fundo para linhas pares */
+  }
+}
