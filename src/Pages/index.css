@@ -43,3 +43,43 @@ input:focus {
   border: none;
   outline: none;
 }
+
+/* style checkbox */
+input[type="checkbox"] {
+  appearance: none;
+  /* Remove o estilo padrão */
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 1px solid #FF8A5B;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  background-color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+/* Estilo quando marcado */
+input[type="checkbox"]:checked {
+  background-color: #FF8A5B;
+  border-color: #FF8A5B;
+}
+
+/* Ícone de check */
+input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  top: px;
+  left: 30%;
+  transform: rotate(45deg);
+  display: none;
+}
+
+/* Mostra o check quando marcado */
+input[type="checkbox"]:checked::after {
+  display: block;
+}

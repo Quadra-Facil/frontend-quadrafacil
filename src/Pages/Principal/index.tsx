@@ -9,6 +9,7 @@ import IconWatsApp from "./img/FiMessageSquare.svg"
 
 import { FiActivity, FiPlusCircle, FiSearch, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
+import { DatePickerReserve } from "../../components/DatePickerReserve";
 
 export default function Principal() {
   const authContext = useContext(AuthContext);
@@ -143,7 +144,9 @@ export default function Principal() {
 
         </section>
 
-        <section className="area-reserve"></section>
+        <section className="area-reserve">
+          horarios reservados
+        </section>
       </main >
 
     </>

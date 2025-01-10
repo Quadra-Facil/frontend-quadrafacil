@@ -1,0 +1,150 @@
+.header-modal-search {
+  background-image: url(../../img/bg-reserve.svg);
+  background-size: cover;
+  height: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .area-close {
+    position: fixed;
+    right: 5%;
+    top: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5%;
+    border-radius: 50%;
+    background-color: #8684846d;
+  }
+
+  .area-close:hover {
+    cursor: pointer;
+    background-color: #acacac6d;
+    color: var(--primary-color);
+    border: 0.1px solid var(--primary-color);
+  }
+
+  h1 {
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: 300;
+
+    strong {
+      color: var(--primary-color);
+      font-weight: 300;
+
+    }
+  }
+
+}
+
+.area-icons-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  position: fixed;
+  width: 100%;
+  margin-top: -4%;
+
+  .item-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    strong {
+      color: var(--primary-color);
+    }
+
+    .icons-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 100px;
+      background-color: antiquewhite;
+      border-radius: 50%;
+      /* background-color: var(--secundary-color); */
+      background-color: #f0f0f0;
+
+      .icon {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+
+  }
+}
+
+.main-modal-search {
+  height: 45%;
+  width: 100%;
+
+  .area-select-arena {
+    margin-top: 8%;
+    height: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    border-top: 1px solid #cdcdcd;
+    padding-top: 2%;
+
+    h3 {
+      font-weight: 350;
+    }
+  }
+
+  .area-checks {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 30%;
+    margin-top: 5%;
+
+    .area-checks-left {
+      h5 {
+        font-size: 18px;
+        font-weight: 400;
+        margin-bottom: 7%;
+      }
+
+      div {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        /* background-color: aqua; */
+      }
+    }
+
+    .area-checks-rigth {
+      margin-top: 7%;
+
+      div {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+      }
+    }
+  }
+
+  .area-btn-agendar {
+    position: fixed;
+    right: 5%;
+    bottom: 5%;
+
+    .btn-agendar {
+      background-color: var(--primary-color);
+      width: 200px;
+      height: 50px;
+      border-radius: 10px;
+      font-size: 16px;
+      color: #fff;
+
+      &:hover {
+        background-color: var(--hover-btn);
+      }
+    }
+  }
+}
