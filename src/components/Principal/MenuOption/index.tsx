@@ -4,6 +4,10 @@ import { FiMenu, FiX } from "react-icons/fi";
 import ReserveIcon from "./img/reserveIcon.svg"
 import LicencaIcon from "./img/licencaIcon.svg"
 import ArenaIcon from "./img/arenaIcon.svg"
+import ClientsIcon from "./img/icon-clients.svg"
+import DashIcon from "./img/icon-dashboard.svg"
+import RelatorioIcon from "./img/icon-relatorio.svg"
+import SpaceIcon from "./img/icon-space.svg"
 import FiSettings from "./img/FiSettings.svg"
 import { useNavigate } from "react-router-dom";
 import { FormEvent, useContext, useEffect, useState } from "react";
@@ -12,6 +16,8 @@ import Toast from "../../Toast";
 import Loading from "../../Loading";
 import { api } from "../../../services/axiosApi/apiClient";
 import { AuthContext } from "../../../services/contexts/AuthContext";
+import { DatePickerReserve } from "../../DatePickerReserve";
+import DatePickerHourReserved from "../../DatePickerHourReserved";
 
 interface GetPlanResponse {
   id: string;
@@ -113,13 +119,17 @@ export default function MenuOption() {
 
   async function handleNewSpace(e: FormEvent) {
     e.preventDefault();
-    if (selectedSports.length == 0) {
+    if (selectedSports.length === 0) {
       setSendTitle('error');
       setSendMessage(`Selecione os esportes.`);
       return;
     } else if (space == "") {
       setSendTitle('error');
       setSendMessage(`Preencha o espaço.`);
+      return;
+    } else if (space.length < 5) {
+      setSendTitle('error');
+      setSendMessage(`Nome do espaço muito curto`);
       return;
     } else {
       setIsLoading(true);
@@ -133,6 +143,7 @@ export default function MenuOption() {
         setSendTitle('success');
         setSendMessage(`Quadra inserida.`);
         setIsLoading(false);
+        setSelectedSports([])
       }).catch((error) => {
         setSendTitle('error');
         setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
@@ -264,7 +275,7 @@ export default function MenuOption() {
                   <FiMenu size={35} color="#868682" style={{ cursor: "pointer" }} />
                 </section>
 
-                <section className="menu-item">
+                <section className="menu-item" onClick={() => navigate("/searchArena")}>
                   <div className="divider-item"></div>
                   <img src={ReserveIcon} alt="Icon" width={28} height={28} />
                   <strong>Reservas</strong>
@@ -278,7 +289,7 @@ export default function MenuOption() {
 
                 <section className="menu-item" onClick={() => openModalSpace()}>
                   <div className="divider-item"></div>
-                  <img src={LicencaIcon} alt="Icon" width={28} height={28} />
+                  <img src={SpaceIcon} alt="Icon" width={28} height={28} />
                   <strong>Espaço</strong>
                 </section>
 
@@ -290,7 +301,7 @@ export default function MenuOption() {
 
                 <section className="menu-item" onClick={() => navigate("/client")}>
                   <div className="divider-item"></div>
-                  <img src={LicencaIcon} alt="Icon" width={28} height={28} />
+                  <img src={ClientsIcon} alt="Icon" width={28} height={28} />
                   <strong>Clientes</strong>
                 </section>
 
@@ -302,14 +313,14 @@ export default function MenuOption() {
 
                 <section className="menu-item">
                   <div className="divider-item"></div>
-                  <img src={FiSettings} alt="Icon" width={28} height={28} />
+                  <img src={DashIcon} alt="Icon" width={28} height={28} />
                   <strong>Dashboard</strong>
                 </section>
 
-                <section className="menu-item">
+                <section className="menu-item" onClick={() => navigate("/reserved")}>
                   <div className="divider-item"></div>
-                  <img src={FiSettings} alt="Icon" width={28} height={28} />
-                  <strong>Relatórios</strong>
+                  <img src={RelatorioIcon} alt="Icon" width={28} height={28} />
+                  <strong>Relatórios - agenda</strong>
                 </section>
               </nav>
 
