@@ -37,7 +37,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5%;
+  gap: 1%;
   width: 100%;
   margin-top: 2%;
 
@@ -51,6 +51,12 @@
     width: 40px;
     height: 40px;
     font-size: 9px;
+    transition: background-color 0.2s, transform 0.2s;
+
+    &:hover {
+      background-color: #f7cebe;
+      transform: scale(1.1);
+    }
 
     .number-week {
       font-weight: 700;

@@ -1,15 +1,11 @@
 import "./style.css";
 import Select from "react-select";
-import { Link } from "react-router-dom";
-import { FormEvent, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
-import { useNavigate } from "react-router-dom";
-import { IMaskInput } from "react-imask"
-import SelectSearchStatus from "../../components/SelectSearchStatus";
+import { redirect, useNavigate } from "react-router-dom";
 import Modal from "react-modal"
-import { SingleValue, ActionMeta, InputActionMeta } from "react-select";
 import { FiX } from "react-icons/fi";
 import { AuthContext } from "../../services/contexts/AuthContext";
 
@@ -53,26 +49,30 @@ interface GetAllArenasResponse {
 }
 
 export default function ModalSerchArena() {
-  const [arenaName, setarenaName] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [status, setStatus] = useState<string>('');
-  const [valueHour, setValueHour] = useState<any>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [modalIsOpenPlan, setIsOpenPlan] = useState(false);
-  const [getAllUsers, setGetAllUsers] = useState<{ value: string; label: string }[]>([]);
   const [getAllArenas, setGetAllArenas] = useState<{ value: string; label: string }[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedArena, setSelectedArena] = useState<any>();
-  const [selectedPlan, setSelectedPlan] = useState<any>();
+  const [selectedArenaAdress, setSelectedArenaAdress] = useState<any>();
   const [selectedSports, setSelectedSports] = useState<string[]>([]);
-  // const [selectedOption, setSelectedOption] = useState<SingleValue<OptionType>>(null);
 
   const navigate = useNavigate();
 
   const authContext = useContext(AuthContext);
+
+  useEffect(() => {
+    // setClassAreaUser(false)
+    if (sendTitle && sendMessage) {
+      const timer = setTimeout(() => {
+        setSendTitle('');
+        setSendMessage('');
+      }, 3000);
+
+      return () => clearTimeout(timer); // Limpar o timer ao desmontar o componente ou atualizar os estados
+    }
+  }, [sendTitle, sendMessage]);
 
   // Verificar se o authContext está disponível
   if (!authContext) {
@@ -88,7 +88,7 @@ export default function ModalSerchArena() {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
+      backgroundColor: '#f8f8f8',
       border: '0px solid #ccc',
       borderRadius: '10px',
       padding: '0px',
@@ -147,6 +147,7 @@ export default function ModalSerchArena() {
               .map((address: any) => `${address.state} - ${address.city}`)
               .join(", ") || "Sem endereço";
 
+
             return {
               value: String(item.id), // Transformar ID em string para o componente Select
               label: `${item.name} - ${stateCity}`, // Exibir nome, estado e cidade como rótulo
@@ -176,7 +177,26 @@ export default function ModalSerchArena() {
     });
   };
 
-
+  //redireciona para modal reserve passando dados
+  function redirectReserve() {
+    if (selectedArena == undefined || selectedArena == null) {
+      setSendTitle('error');
+      setSendMessage(`Selecione uma arena.`);
+      return;
+    } else if (selectedSports.length == 0) {
+      setSendTitle('error');
+      setSendMessage(`Selecione seu esporte.`);
+      return;
+    } else {
+      navigate('/reserve', {
+        state: {
+          arenaId: selectedArena,
+          arena: selectedArenaAdress,
+          sports: selectedSports,
+        },
+      })
+    }
+  }
 
   return (
     <>
@@ -227,23 +247,24 @@ export default function ModalSerchArena() {
                 <section className="main-modal-search">
 
                   <div className="area-select-arena">
-                    <h3>Selecione sua Arena, Estado ou Cidade:</h3>
+                    <h3>Selecione sua Arena</h3>
                     <Select
                       options={getAllArenas}
                       onChange={(selectedOption) => {
                         if (selectedOption) {
                           setSelectedArena(selectedOption.value); // Converte para número antes de atribuir
+                          setSelectedArenaAdress(selectedOption.label);
                         } else {
                           setSelectedArena('arena'); // Define como null se nada for selecionado
                         }
                       }}
-                      placeholder="Arena"
+                      placeholder="Digite o nome da arena, estado ou cidade"
                       styles={{
                         control: (baseStyles) => ({
                           ...baseStyles,
                           borderColor: "none",
                           border: 0,
-                          width: "30vw",
+                          width: "25vw",
                           height: "8vh",
                           backgroundColor: "#dfdfdf",
                           padding: "0 12px",
@@ -309,7 +330,7 @@ export default function ModalSerchArena() {
                     </div>
 
                     <div className="area-btn-agendar">
-                      <button className="btn-agendar">Agendar</button>
+                      <button className="btn-agendar" onClick={redirectReserve}> Agendar</button>
                     </div>
                   </div>
                 </section>

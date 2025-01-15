@@ -119,13 +119,17 @@ export default function MenuOption() {
 
   async function handleNewSpace(e: FormEvent) {
     e.preventDefault();
-    if (selectedSports.length == 0) {
+    if (selectedSports.length === 0) {
       setSendTitle('error');
       setSendMessage(`Selecione os esportes.`);
       return;
     } else if (space == "") {
       setSendTitle('error');
       setSendMessage(`Preencha o espaço.`);
+      return;
+    } else if (space.length < 5) {
+      setSendTitle('error');
+      setSendMessage(`Nome do espaço muito curto`);
       return;
     } else {
       setIsLoading(true);
@@ -139,6 +143,7 @@ export default function MenuOption() {
         setSendTitle('success');
         setSendMessage(`Quadra inserida.`);
         setIsLoading(false);
+        setSelectedSports([])
       }).catch((error) => {
         setSendTitle('error');
         setSendMessage(error.response?.data?.erro || 'Erro desconhecido');

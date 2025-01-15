@@ -3,9 +3,14 @@ import { useState } from "react";
 import { FaCircleArrowLeft } from "react-icons/fa6";
 import { FaCircleArrowRight } from "react-icons/fa6";
 
-function DatePickerHourReserved() {
+type DatePickerProps = {
+  selectedDate: string | null; // A data selecionada vinda do pai
+  setSelectedDate: (date: string | null) => void; // Função para atualizar a data no pai
+};
+
+function DatePickerHourReserved({ selectedDate, setSelectedDate }: DatePickerProps) {
   const [currentWeek, setCurrentWeek] = useState(new Date()); // Estado da semana atual
-  const [selectedDate, setSelectedDate] = useState<string | null>(null); // Estado para armazenar a data selecionada
+  const [hoveredDate, setHoveredDate] = useState<string | null>(null); // Estado para armazenar a data sobre a qual o mouse passou
 
   // Calcula o início da semana a partir da data atual
   const getFirstDayOfWeek = (date: Date) => {
@@ -57,21 +62,23 @@ function DatePickerHourReserved() {
     )
       .toString()
       .padStart(2, "0")}-${day.getDate().toString().padStart(2, "0")}`;
-    setSelectedDate(formattedDate); // Armazenar a data no estado
+    setSelectedDate(formattedDate); // Atualiza a data no estado do componente pai
   };
 
-  // Define o dia de hoje como selecionado por padrão
-  const today = new Date();
-  const defaultSelectedDate = `${today.getFullYear().toString().slice(2)}-${(
-    today.getMonth() + 1
-  )
-    .toString()
-    .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
+  // Função para lidar com o hover (quando o mouse passa sobre a data)
+  const handleMouseEnter = (day: Date) => {
+    const formattedDate = `${day.getFullYear().toString()}-${(
+      day.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}-${day.getDate().toString().padStart(2, "0")}`;
+    setHoveredDate(formattedDate); // Atualiza a data com o hover
+  };
 
-  // Se a data selecionada ainda não foi definida, usa o dia de hoje como padrão
-  if (!selectedDate) {
-    setSelectedDate(defaultSelectedDate);
-  }
+  // Função para lidar com o mouse saindo de um dia
+  const handleMouseLeave = () => {
+    setHoveredDate(null); // Remove o hover
+  };
 
   return (
     <div className='main-picker'>
@@ -94,9 +101,20 @@ function DatePickerHourReserved() {
             className='area-day-week'
             key={day.toDateString()}
             onClick={() => handleDayClick(day)} // Ao clicar no dia
+            onMouseEnter={() => handleMouseEnter(day)}
+            onMouseLeave={handleMouseLeave}
             style={{
-              backgroundColor: selectedDate === `${day.getFullYear().toString().slice(2)}-${(day.getMonth() + 1).toString().padStart(2, "0")}-${day.getDate().toString().padStart(2, "0")}` ? "#f7cebe" : "#fff", // Destaque para o dia selecionado
-              border: `1px solid ${selectedDate === `${day.getFullYear().toString().slice(2)}-${(day.getMonth() + 1).toString().padStart(2, "0")}-${day.getDate().toString().padStart(2, "0")}` ? "#FF8A5B" : "#fff"}`,
+              backgroundColor:
+                selectedDate === `${day.getFullYear()}-${(day.getMonth() + 1).toString().padStart(2, '0')}-${day.getDate().toString().padStart(2, '0')}`
+                  ? '#f7cebe' // Cor de fundo para o dia selecionado
+                  : (hoveredDate === `${day.getFullYear()}-${(day.getMonth() + 1).toString().padStart(2, '0')}-${day.getDate().toString().padStart(2, '0')}`)
+                    ? '#f7cebe' // Cor de fundo quando passar o mouse
+                    : '#eeeded', // Sem cor de fundo para outros dias
+              border:
+                selectedDate === `${day.getFullYear()}-${(day.getMonth() + 1).toString().padStart(2, '0')}-${day.getDate().toString().padStart(2, '0')}`
+                  ? '2px solid #FF8A5B' // Borda para o dia selecionado
+                  : 'none',
+              cursor: 'pointer',
             }}
           >
             <div className='day-week'>{weekDayNames[day.getDay()]}</div>
@@ -104,14 +122,7 @@ function DatePickerHourReserved() {
           </div>
         ))}
       </div>
-
-      {/* Exibe a data selecionada */}
-      {selectedDate && (
-        <div style={{ marginTop: "20px", fontSize: "16px", fontWeight: "bold" }}>
-          Data Selecionada: {selectedDate}
-        </div>
-      )}
-    </div>
+    </div >
   );
 }
 
