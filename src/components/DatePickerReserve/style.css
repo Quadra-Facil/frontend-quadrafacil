@@ -154,7 +154,10 @@
       justify-content: space-evenly;
       background-color: var(--primary-color);
       border-radius: 8px;
-      width: 30%;
+      width: 40%;
+      font-size: 16px;
+      font-weight: 300;
+      padding: 1% 2%;
     }
   }
 

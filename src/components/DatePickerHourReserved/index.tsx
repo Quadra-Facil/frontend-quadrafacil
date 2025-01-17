@@ -57,11 +57,13 @@ function DatePickerHourReserved({ selectedDate, setSelectedDate }: DatePickerPro
 
   // Função para lidar com o clique em um dia
   const handleDayClick = (day: Date) => {
+    // Formatar a data para o formato 'yyyy-mm-dd'
     const formattedDate = `${day.getFullYear().toString()}-${(
       day.getMonth() + 1
     )
       .toString()
       .padStart(2, "0")}-${day.getDate().toString().padStart(2, "0")}`;
+
     setSelectedDate(formattedDate); // Atualiza a data no estado do componente pai
   };
 
@@ -122,8 +124,9 @@ function DatePickerHourReserved({ selectedDate, setSelectedDate }: DatePickerPro
           </div>
         ))}
       </div>
-    </div >
+    </div>
   );
 }
 
 export default DatePickerHourReserved;
+

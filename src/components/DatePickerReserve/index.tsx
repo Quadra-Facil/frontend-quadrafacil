@@ -6,7 +6,7 @@ import { DayPicker, Locale } from "react-day-picker";
 import { ptBR } from "date-fns/locale";
 import Toast from "../Toast";
 import Loading from "../Loading";
-import LoadingReserve from "../../img/loadingreserve.json"
+import LoadingReserve from "../../img/loadingreserve.json";
 import Modal from "react-modal";
 import { FiX } from "react-icons/fi";
 import { MdOutlinePushPin } from "react-icons/md";
@@ -29,9 +29,9 @@ interface Reserve {
   userId: number;
   arenaId: number;
   spaceId: number;
-  dataReserve: string; // Considerando que "dataReserve" seja uma string no formato ISO (yyyy-mm-dd)
-  timeInitial: string; // Hora no formato HH:mm:ss
-  timeFinal: string; // Hora no formato HH:mm:ss
+  dataReserve: string;
+  timeInitial: string;
+  timeFinal: string;
   status: string;
   typeReserve: string;
   observation: string;
@@ -50,10 +50,10 @@ export function DatePickerReserve() {
   const [sendMessage, setSendMessage] = useState<string>('');
   const [modalIsOpenReserve, setIsOpenReserve] = useState(false);
   const [spaces, setSpaces] = useState<Space[]>([]);
-  const [selectedSpace, setSelectedSpace] = useState<number | null>(null); // Alterado para manter o id do espaço
+  const [selectedSpace, setSelectedSpace] = useState<number | null>(null);
   const [spacesReserved, setSpacesReserved] = useState<Space[]>([]);
-  const [selectedSpaceReserved, setSelectedSpaceReserved] = useState<number | null>(null); // Alterado para manter o id do espaço
-  const [reserveSpace, setReserveSpace] = useState<Reserve[]>([])
+  const [selectedSpaceReserved, setSelectedSpaceReserved] = useState<number | null>(null);
+  const [reserveSpace, setReserveSpace] = useState<Reserve[]>([]);
 
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
@@ -131,12 +131,6 @@ export function DatePickerReserve() {
     const [hour, minute] = time.split(":").map(Number);
     const roundedMinute = roundMinutes(minute);
     const formattedTime = `${String(hour).padStart(2, "0")}:${String(roundedMinute).padStart(2, "0")}:00`;
-    const [selectedDatePickerInline, setSelectedDatePickerInline] = useState<string | null>(null);
-
-    // Função para atualizar a data selecionada
-    const handleDateSelect = (date: string) => {
-      setSelectedDatePickerInline(date);
-    };
 
     if (isStart) {
       setStartTime(formattedTime);
@@ -145,21 +139,46 @@ export function DatePickerReserve() {
     }
   };
 
-  // Usamos o useEffect para garantir que a data selecionada seja definida como o dia atual
+  const getReserves = async () => {
+    if (!arenaId || !selectedSpace || !selectedDate) return;
+
+    setIsLoadingReserve(true);
+
+    try {
+      const response = await api.post("/getReserves/date", {
+        arenaId: arenaId,
+        spaceId: selectedSpace,
+        dataReserve: selectedDate,
+      });
+
+      setReserveSpace(response.data);
+    } catch (error) {
+      console.log("Erro ao buscar reservas:", error);
+    } finally {
+      setIsLoadingReserve(false);
+    }
+  };
+
+  useEffect(() => {
+    if (arenaId && selectedSpace && selectedDate) {
+      getReserves();
+    }
+  }, [arenaId, selectedSpace, selectedDate]);
+
   useEffect(() => {
     if (!selectedDate) {
       const today = new Date();
       const formattedDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
       setSelectedDate(formattedDate);
     }
-  }, [selectedDate]); // Este efeito roda apenas se o selectedDate for null
+  }, [selectedDate]);
 
   const calculateDifference = (start: string, end: string, selectedDate: Date) => {
-    const [startHour, startMinute, startSecond] = start.split(":").map(Number);
-    const [endHour, endMinute, endSecond] = end.split(":").map(Number);
+    const [startHour, startMinute] = start.split(":").map(Number);
+    const [endHour, endMinute] = end.split(":").map(Number);
 
-    const startDateStart = setSeconds(setMinutes(setHours(selectedDate, startHour), startMinute), startSecond);
-    const startDateEnd = setSeconds(setMinutes(setHours(selectedDate, endHour), endMinute), endSecond);
+    const startDateStart = setSeconds(setMinutes(setHours(selectedDate, startHour), startMinute), 0);
+    const startDateEnd = setSeconds(setMinutes(setHours(selectedDate, endHour), endMinute), 0);
 
     const diffInMilliseconds = differenceInMilliseconds(startDateEnd, startDateStart);
     const hours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
@@ -214,26 +233,19 @@ export function DatePickerReserve() {
     }
   };
 
-  const handleSpace = (id: any) => {
+  const handleSpace = (id: number) => {
     setSelectedSpace(id);
-  };
-
-  const handleSpaceReserved = async (id: any) => {
     setSelectedSpaceReserved(id);
-    setIsLoadingReserve(true)
-
-    await api.post("/getReserves/date", {//bsca todas reservas por arena,space e date
-      arenaId: arenaId,
-      spaceId: id,
-      dataReserve: selectedDate
-    }).then((response) => {
-      setReserveSpace(response.data);
-      setIsLoadingReserve(false)
-    }).catch((error) => {
-      console.log("Erro ao buscar reservas", error)
-      setIsLoadingReserve(false)
-    })
   };
+
+  // const handleSpaceReserved = (id: number) => {
+  //   setSelectedSpaceReserved(id);
+  // };
+
+  //seleciono o primeiro space por padrão
+  useEffect(() => {
+    handleSpace(spaces[0]?.spaceId)
+  })
 
   return (
     <>
@@ -242,7 +254,6 @@ export function DatePickerReserve() {
         <>
           <Modal isOpen={modalIsOpenReserve} onRequestClose={closeModalReserve} style={customStylesModalReserve} shouldCloseOnOverlayClick={false}>
             <header className="header-modal">
-              {/* titulo do modal */}
               <h1><strong>{arena}</strong></h1>
               <div className="area-close" onClick={closeModalReserve}><FiX size={24} /></div>
             </header>
@@ -252,7 +263,7 @@ export function DatePickerReserve() {
                   <h5 className="title-reserved">Horários já reservados</h5>
                   <p>Selecione à direita um horário diferente dos listados abaixo.</p>
                 </div>
-                <div className="area-picker">
+                <div className="area-picker" onMouseUp={() => getReserves()}>
                   <DatePickerHourReserved
                     selectedDate={selectedDate}
                     setSelectedDate={setSelectedDate}
@@ -270,13 +281,12 @@ export function DatePickerReserve() {
                       spacesReserved.map((item) => (
                         <div
                           className="space"
-                          onClick={() => handleSpaceReserved(item.spaceId)}
+                          onClick={() => handleSpace(item.spaceId)}
                           style={{ backgroundColor: selectedSpaceReserved === item.spaceId ? '#f7cebe' : '' }}
                         >
                           <p className="name-space">{item.name}</p>
                         </div>
-                      )
-                      )
+                      ))
                   }
                 </section>
 
@@ -291,34 +301,35 @@ export function DatePickerReserve() {
                       />
                     </div>
                     :
-                    reserveSpace.map((item) => (
-                      <>
-                        <div
-                          className="card-reserve"
-                          onClick={() => {
-                            setSendTitle('error');
-                            setSendMessage(`Horário já reservado.`);
-                          }}
-                        >
-                          <strong>18:00 às 18:30</strong>
-                          <div className="type-reserve">
-                            <p>fixo</p>
-                            <MdOutlinePushPin />
+                    reserveSpace.length != 0 ?
+                      reserveSpace
+                        .sort((a, b) => {
+                          const timeA = new Date(`1970-01-01T${a.timeInitial}Z`).getTime();
+                          const timeB = new Date(`1970-01-01T${b.timeInitial}Z`).getTime();
+                          return timeA - timeB;
+                        })
+                        .map((item) => (
+                          <div
+                            key={item.id_reserve}
+                            className="card-reserve"
+                            onClick={() => {
+                              setSendTitle('error');
+                              setSendMessage(`Horário já reservado.`);
+                            }}
+                          >
+                            <strong style={{ fontWeight: '450' }}>
+                              {format(new Date(`1970-01-01T${item.timeInitial}`), "HH:mm")} {" "}
+                              às {" "}
+                              {format(new Date(`1970-01-01T${item.timeFinal}`), "HH:mm")}
+                            </strong>
+                            <div className="type-reserve">
+                              <p>{item.typeReserve == 'reserva' ? "Reservado" : "Fixo"}</p>
+                              {item.typeReserve == 'reserva' ? <BsEmojiSunglasses /> : <MdOutlinePushPin />}
+                            </div>
                           </div>
-                        </div>
-                      </>
-                    ))
-                }
-
-                {/* <div className="card-reserve">
-                  <strong>19:00 às 19:30</strong>
-                  <BsEmojiSunglasses />
-                </div> */}
-
-                {
-                  selectedDate && (
-                    <h1>Datinha: {selectedDate}</h1>
-                  )
+                        ))
+                      :
+                      <div style={{ borderBottom: '1px solid #FF8A5B' }}>Sem reservas feitas para esta data.</div>
                 }
 
               </section>
@@ -341,8 +352,7 @@ export function DatePickerReserve() {
                         >
                           <p className="name-space">{item.name}</p>
                         </div>
-                      )
-                      )
+                      ))
                   }
                 </section>
 
@@ -351,7 +361,6 @@ export function DatePickerReserve() {
                   selected={selected}
                   onSelect={setSelected}
                   locale={ptBR as Locale}
-                // footer={`Data selecionada: ${selected ? selected.toLocaleString() : "nenhuma"} `}
                 />
 
                 <form>
