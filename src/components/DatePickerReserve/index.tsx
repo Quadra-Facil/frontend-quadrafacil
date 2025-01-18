@@ -233,6 +233,13 @@ export function DatePickerReserve() {
     }
   };
 
+  //seleciono o primeiro space por padrão
+  useEffect(() => {
+    if (modalIsOpenReserve && spaces.length > 0) {
+      handleSpace(spaces[0]?.spaceId);
+    }
+  }, [modalIsOpenReserve, spaces]);
+
   const handleSpace = (id: number) => {
     setSelectedSpace(id);
     setSelectedSpaceReserved(id);
@@ -241,11 +248,6 @@ export function DatePickerReserve() {
   // const handleSpaceReserved = (id: number) => {
   //   setSelectedSpaceReserved(id);
   // };
-
-  //seleciono o primeiro space por padrão
-  useEffect(() => {
-    handleSpace(spaces[0]?.spaceId)
-  })
 
   return (
     <>

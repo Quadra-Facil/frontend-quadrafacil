@@ -305,7 +305,7 @@ export default function MenuOption() {
                   <strong>Clientes</strong>
                 </section>
 
-                <section className="menu-item">
+                <section className="menu-item" onClick={() => navigate("/configArena")}>
                   <div className="divider-item"></div>
                   <img src={FiSettings} alt="Icon" width={28} height={28} />
                   <strong>Configuração</strong>
