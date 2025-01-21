@@ -1,5 +1,5 @@
 import "./style-config.css"
-import { FiActivity, FiArrowDownRight, FiChevronRight, FiLogOut, FiX } from "react-icons/fi";
+import { FiActivity, FiArrowDownRight, FiCheck, FiChevronRight, FiEdit, FiLogOut, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-modal";
@@ -8,6 +8,7 @@ import Toast from "../../components/Toast";
 import Loading from "../../components/Loading";
 import { api } from "../../services/axiosApi/apiClient";
 import { CiUser, CiPower, CiStar, CiClock2 } from "react-icons/ci";
+import { IMaskInput } from "react-imask";
 
 // Tipagem de AddressArena conforme a estrutura fornecida
 type AddressArena = {
@@ -69,6 +70,18 @@ export default function ConfigArena() {
   const [getAllArenas, setGetAllArenas] = useState<GetAllArenasResponse | null>(null);
   const [selectedMenu, setSelectedMenu] = useState('')
 
+  const [modoEdicao, setModoEdicao] = useState(false);
+
+  const [arenaName, setArenaName] = useState<string>('')
+  const [phone, setPhone] = useState<string>('')
+  const [valueHour, setValueHour] = useState<number>()
+  const [state, setState] = useState<string>('')
+  const [city, setCity] = useState<string>('')
+  const [street, setStreet] = useState<string>('')
+  const [neighborhood, setNeighborhood] = useState<string>('')
+  const [number, setNumber] = useState<number>()
+  const [reference, setReference] = useState<string>('')
+
   const authContext = useContext(AuthContext);
   const { user }: any = authContext;
 
@@ -84,6 +97,52 @@ export default function ConfigArena() {
     }
   }, [sendTitle, sendMessage]);
 
+  useEffect(() => {
+    if (getAllArenas) {
+      setArenaName(getAllArenas.name); // Atualiza o estado arenaName
+      setPhone(getAllArenas.phone)
+      setValueHour(Number(getAllArenas.valueHour))
+
+      setState(getAllArenas.adressArenas.$values[0].state)
+      setCity(getAllArenas.adressArenas.$values[0].city)
+      setStreet(getAllArenas.adressArenas.$values[0].street)
+      setNeighborhood(getAllArenas.adressArenas.$values[0].neighborhood)
+      setNumber(Number(getAllArenas.adressArenas.$values[0].number))
+      setReference(getAllArenas.adressArenas.$values[0].reference)
+    }
+  }, [getAllArenas]); // Esse efeito só é executado quando getAllArenas é atualizado
+
+  // Função para alternar o modo de edição
+  const alternarModoEdicao = async () => {
+    setModoEdicao(!modoEdicao);
+
+    //se edição desbloqueada libera para confirmar edição
+    if (modoEdicao) {
+      if (arenaName === "" || phone === "" || valueHour == 0 || state === "" || city === "" ||
+        street === "" || neighborhood === "" || number == 0 || reference === ""
+      ) {
+        setSendTitle('error');
+        setSendMessage('Preencha os dados.');
+        return;
+      } else {
+
+        await api.put("/api/Arena/arena-edit", {
+          arenaId: user.arena,
+          name: arenaName,
+          phone: phone,
+          valueHour: valueHour,
+          state: state,
+          city: city,
+          street: street,
+          neighborhood: neighborhood,
+          number: number,
+          reference: reference
+        })
+        setSendTitle('success');
+        setSendMessage(`Alteração realizada.`);
+      }
+    }
+  };
 
   // style modal opening Hours
   const customStylesModalPrincipal = {
@@ -212,9 +271,11 @@ export default function ConfigArena() {
                 <main className="main-modal-config">
                   <section className="left-config">
                     <h1>{getAllArenas?.name}</h1>
+
                     <div className="item-menu-config"
                       onClick={() => handleClickMenu("perfil")}
                       title="Visualize ou edite os dados da sua arena."
+                      style={{ backgroundColor: `${selectedMenu === 'perfil' ? 'var(--secundary-color)' : ''}` }}
                     >
                       <div className="first">
                         <CiUser size={20} />
@@ -226,6 +287,7 @@ export default function ConfigArena() {
                     <div className="item-menu-config"
                       onClick={() => handleClickMenu("expediente")}
                       title="Registre o horário de funcionamento da sua arena."
+                      style={{ backgroundColor: `${selectedMenu === 'expediente' ? 'var(--secundary-color)' : ''}` }}
                     >
                       <div className="first">
                         <CiClock2 size={20} />
@@ -237,6 +299,7 @@ export default function ConfigArena() {
                     <div className="item-menu-config"
                       onClick={() => handleClickMenu("desativar")}
                       title="Desative temporariamente sua arena."
+                      style={{ backgroundColor: `${selectedMenu === 'desativar' ? 'var(--secundary-color)' : ''}` }}
                     >
                       <div className="first">
                         <CiPower size={20} />
@@ -256,7 +319,7 @@ export default function ConfigArena() {
                   <section className="rigth-config">
                     <header>
                       <h3>{
-                        selectedMenu === "perfil" ? `Dados da arena` :
+                        selectedMenu === "perfil" ? `Visualize ou edite os dados da arena.` :
                           selectedMenu === "expediente" ? "Registre o horário de funcionamento" :
                             selectedMenu === "desativar" ? "Desative temporariamente sua arena" : ""
 
@@ -270,10 +333,125 @@ export default function ConfigArena() {
                     {
                       selectedMenu === "perfil" && (
                         <section className="perfil">
-                          <div className="area-input">
-                            <label>Arena</label>
-                            <input type="text" />
-                          </div>
+                          <h3>Dados Arena:</h3>
+                          <section className="data-arena">
+                            <div className="area-input">
+                              <label>Arena:</label>
+                              <input
+                                type="text"
+                                value={arenaName}
+                                // onChange={handleChangeEditDataArena}
+                                onChange={(e) => setArenaName(e.target.value)}
+                                disabled={!modoEdicao}
+                              />
+                            </div>
+                            <div className="area-input">
+                              <label>Telefone:</label>
+                              <IMaskInput
+                                mask={"(00)00000-0000"}
+                                type="text"
+                                placeholder='Telefone'
+                                value={phone}
+                                disabled={!modoEdicao}
+                                onChange={(e) => setPhone((e.target as HTMLInputElement).value)}
+                              />
+                            </div>
+                            <div className="area-input">
+                              <label>Valor Hora:</label>
+                              <input
+                                type="number"
+                                value={valueHour}
+                                placeholder="Valor Hora"
+                                onChange={(e) => setValueHour((e.target as any).value)}
+                                disabled={!modoEdicao}
+                              />
+                            </div>
+                            <div className="area-status">
+                              <label>Status</label>
+                              <div
+                                style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '50%',
+                                  backgroundColor: `${getAllArenas?.status === 'ativo' ? '#1DE9B6' : '#E53935'}`
+                                }}
+                              ></div>
+                            </div>
+                          </section>
+
+                          <h3>Endereço:</h3>
+                          <section className="adress-arena">
+                            <section className="lineOne">
+                              <div className="area-input">
+                                <label>Estado:</label>
+                                <input
+                                  type="text"
+                                  value={state}
+                                  onChange={(e) => setState(e.target.value)}
+                                  disabled={!modoEdicao}
+                                />
+                              </div>
+                              <div className="area-input">
+                                <label>Cidade:</label>
+                                <input
+                                  type="text"
+                                  value={city}
+                                  onChange={(e) => setCity(e.target.value)}
+                                  disabled={!modoEdicao}
+                                />
+                              </div>
+                              <div className="area-input">
+                                <label>Rua:</label>
+                                <input
+                                  type="text"
+                                  value={street}
+                                  onChange={(e) => setStreet(e.target.value)}
+                                  disabled={!modoEdicao}
+                                />
+                              </div>
+                            </section>
+
+                            <section className="line-two-adress">
+                              <div className="area-input">
+                                <label>Bairro:</label>
+                                <input
+                                  type="text"
+                                  value={neighborhood}
+                                  onChange={(e) => setNeighborhood(e.target.value)}
+                                  disabled={!modoEdicao}
+                                />
+                              </div>
+                              <div className="area-input">
+                                <label>Número:</label>
+                                <input
+                                  type="text"
+                                  value={number}
+                                  onChange={(e) => setNumber((e.target as any).value)}
+                                  disabled={!modoEdicao}
+                                />
+                              </div>
+
+                              <div className="area-input">
+                                <label>Referência:</label>
+                                <input
+                                  type="text"
+                                  value={reference}
+                                  onChange={(e) => setReference(e.target.value)}
+                                  disabled={!modoEdicao}
+                                />
+                              </div>
+                            </section>
+                          </section>
+                          <button onClick={alternarModoEdicao}
+                            style={{
+                              backgroundColor: modoEdicao ? 'var(--primary-color)' : 'var(--secundary-color)',
+                              color: modoEdicao ? '#fff' : '#515a5a'
+                            }}
+                          >
+
+                            {modoEdicao ? <FiCheck size={20} /> : <FiEdit size={20} />}
+                            {modoEdicao ? 'Confirmar' : 'Editar'}
+                          </button>
                         </section>
                       )
                     }
