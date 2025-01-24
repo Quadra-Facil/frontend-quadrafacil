@@ -1,5 +1,5 @@
 import "./style-config.css"
-import { FiActivity, FiArrowDownRight, FiCheck, FiChevronRight, FiEdit, FiLogOut, FiX } from "react-icons/fi";
+import { FiActivity, FiArrowDownRight, FiCheck, FiChevronRight, FiEdit, FiLogOut, FiTrash, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-modal";
@@ -9,6 +9,8 @@ import Loading from "../../components/Loading";
 import { api } from "../../services/axiosApi/apiClient";
 import { CiUser, CiPower, CiStar, CiClock2 } from "react-icons/ci";
 import { IMaskInput } from "react-imask";
+import Switch from "react-switch"
+import { format } from "date-fns";
 
 // Tipagem de AddressArena conforme a estrutura fornecida
 type AddressArena = {
@@ -29,10 +31,10 @@ type AddressArena = {
 type Plan = {
   $id: string;
   id: number;
-  planSelect: string; // Tipo de plano (ex: mensal, teste)
-  planExpiry: string; // Data de expiração do plano
+  planSelect: string;
+  planExpiry: string;
   arenaId: number;
-  status: string; // Status do plano (ativo, inativo, etc)
+  status: string;
   arena: {
     $ref: string;
   };
@@ -48,16 +50,31 @@ type Arena = {
   valueHour: number;
   adressArenas: {
     $id: string;
-    $values: AddressArena[]; // Lista de endereços da arena
+    $values: AddressArena[];
   };
   plans: {
     $id: string;
-    $values: Plan[]; // Lista de planos da arena
+    $values: Plan[];
   };
 };
 
 // Tipagem ajustada para refletir a estrutura retornada pela API
 type GetAllArenasResponse = Arena; // Agora é um único objeto Arena, não uma lista
+
+interface Program {
+  $id: string;
+  id: number;
+  startDate: string; // ou Date, dependendo de como você deseja tratar a data
+  endDate: string; // ou Date
+  arenaId: number;
+  reason: string;
+}
+
+interface ProgramResponse {
+  $id: string;
+  $values: Program[];
+}
+
 
 
 export default function ConfigArena() {
@@ -81,6 +98,16 @@ export default function ConfigArena() {
   const [neighborhood, setNeighborhood] = useState<string>('')
   const [number, setNumber] = useState<number>()
   const [reference, setReference] = useState<string>('')
+
+  const [isCheckedSwitch, setIsCheckeSwith] = useState<boolean>(false)
+
+  const [isShowProg, setIsShowProg] = useState<boolean>(false)
+
+  const [startDate, setStartDate] = useState<Date | null>(null)
+  const [endDate, setEndDate] = useState<Date | null>(null)
+  const [reason, setReason] = useState<string>('')
+
+  const [programs, setPrograms] = useState<Program[]>([]);
 
   const authContext = useContext(AuthContext);
   const { user }: any = authContext;
@@ -142,7 +169,40 @@ export default function ConfigArena() {
         setSendMessage(`Alteração realizada.`);
       }
     }
+
   };
+
+  async function handleDesativeProgram() {
+    if (startDate === null || endDate === null || reason === "") {
+
+      setSendTitle('error');
+      setSendMessage(`Preencha corretamente.`);
+      return;
+
+    } else {
+      await api.post("/api/DesativeProgram/desative/program", {
+        startDate: format(startDate as any, 'yyyy-MM-dd'),
+        endDate: format(endDate as any, 'yyyy-MM-dd'),
+        arenaId: user.arena,
+        reason: reason
+      }
+      ).then((response) => {
+        setSendTitle('success');
+        setSendMessage(`Arena será desativada.`);
+
+        setStartDate(null)
+        setEndDate(null)
+        setReason("")
+
+        setIsShowProg(false)
+        return;
+      }).catch((error: any) => {
+        setSendTitle('error');
+        setSendMessage(`Preencha corretamente.`);
+        return;
+      })
+    }
+  }
 
   // style modal opening Hours
   const customStylesModalPrincipal = {
@@ -253,6 +313,53 @@ export default function ConfigArena() {
     handleClickMenu("perfil")
   }, [])
 
+  useEffect(() => {
+    setIsCheckeSwith(getAllArenas?.status === 'ativo');
+  }, [getAllArenas]);
+
+  useEffect(() => {
+    async function getDesativeProgram() {
+      await api.post<ProgramResponse>("/api/DesativeProgram/get", {
+        "arenaId": user.arena
+      }).then((response) => {
+        return setPrograms(response.data.$values);
+      }).catch((error: any) => {
+        setSendTitle('error');
+        setSendMessage('Erro ao buscar programação.');
+      })
+    }
+    getDesativeProgram();
+  })
+
+  const handleChangeSwitch = async (nextChecked: boolean) => {
+    setIsCheckeSwith(nextChecked); // Atualiza o estado do switch
+    try {
+      await api.put('/api/Arena/status-edit', {
+        realArenaId: user.arena,
+        newStatus: nextChecked ? 'ativo' : 'inativo',
+      });
+      setSendTitle('success');
+      setSendMessage(`Arena ${nextChecked ? 'ativada' : 'desativada'}.`);
+    } catch (error) {
+      setSendTitle('error');
+      setSendMessage('Erro ao alterar o status da arena.');
+    }
+  }
+
+  async function handleDeleteProgram(id: number) {
+    try {
+      const response = await api.delete("/api/DesativeProgram/delete", {
+        data: { id: id }  // Envia o id no corpo da requisição (de forma semelhante ao POST)
+      });
+      setSendTitle('success');
+      setSendMessage(response.data);
+    } catch (error: any) {
+      setSendTitle('error');
+      setSendMessage('Erro ao excluir programação.');
+    }
+  }
+
+
   return (
     <>
       <Toast title={sendTitle} message={sendMessage} />
@@ -340,7 +447,6 @@ export default function ConfigArena() {
                               <input
                                 type="text"
                                 value={arenaName}
-                                // onChange={handleChangeEditDataArena}
                                 onChange={(e) => setArenaName(e.target.value)}
                                 disabled={!modoEdicao}
                               />
@@ -369,11 +475,13 @@ export default function ConfigArena() {
                             <div className="area-status">
                               <label>Status</label>
                               <div
+                                onClick={() => setSelectedMenu("desativar")}
                                 style={{
+                                  cursor: 'pointer',
                                   width: '20px',
                                   height: '20px',
                                   borderRadius: '50%',
-                                  backgroundColor: `${getAllArenas?.status === 'ativo' ? '#1DE9B6' : '#E53935'}`
+                                  backgroundColor: `${getAllArenas?.status === 'ativo' ? '#69F0AE' : '#FF3D00'}`
                                 }}
                               ></div>
                             </div>
@@ -466,16 +574,94 @@ export default function ConfigArena() {
                     {
                       selectedMenu === "desativar" && (
                         /* desativar */
-                        < section className="desativar">
-                          <h1>section desativar</h1>
+                        <section className="desativar">
+                          <div className="status-atual-area"
+                            style={{ backgroundColor: isCheckedSwitch ? '#69F0AE' : '#FF3D00' }}
+                          ></div>
+                          <div className="area-desativar-temp">
+                            <h3
+                              style={{
+                                textDecoration: 'underline',
+                                textDecorationColor: isCheckedSwitch ? '#69F0AE' : '#FF3D00'
+                              }}
+                            ><strong>Status atual: </strong>{isCheckedSwitch ? 'Ativo' : 'Inativo'}</h3>
+                            <Switch
+                              checked={isCheckedSwitch}
+                              onChange={handleChangeSwitch}
+                              offColor="#888"
+                              onColor="#69F0AE"
+                              uncheckedIcon={false}
+                              checkedIcon={false}
+                            />
+                          </div>
+
+                          <div className="area-divisor">
+                            <div className="left"></div>
+                            <strong>Ou</strong>
+                            <div className="righ"></div>
+                          </div>
+
+                          <div className={!isShowProg ? 'area-desativar-prog-none' : 'area-desativar-prog'}>
+                            <button className="btn-show" onClick={() => setIsShowProg(!isShowProg)}>
+
+                              {!isShowProg ? 'Desativar de forma programada' : 'Cancelar programação de desativação'}
+                            </button>
+
+                            {!isShowProg &&
+                              programs.length === 0 ?
+                              <h4>Sem agendamento de desativação.</h4>
+                              :
+                              programs.map((item) => (
+                                <h4>Sua arena será desativada de
+                                  <strong>{format(item.startDate, "dd/MM/yyyy")}</strong>
+                                  até
+                                  <strong>{format(item.endDate, "dd/MM/yyyy")}</strong>
+                                  <FiTrash title="Excluir"
+                                    onClick={() => handleDeleteProgram(item.id)}
+                                  />
+                                </h4>
+                              ))
+                            }
+
+                            {
+                              isShowProg && (
+                                <>
+                                  <div className="area-prog">
+
+                                    <div className="inputs-prog">
+                                      <input type="datetime-local"
+                                        value={startDate ? startDate.toLocaleString('sv-SE').slice(0, 16) : ''} // Formatação correta para o input datetime-local
+                                        onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : null)}
+                                      />
+                                      até
+                                      <input type="datetime-local"
+                                        value={endDate ? endDate.toLocaleString('sv-SE').slice(0, 16) : ''} // Formatação correta para o input datetime-local
+                                        onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : null)}
+                                      />
+                                    </div>
+
+                                    <div className="footer-prog">
+                                      <textarea
+                                        placeholder="Motivo (opcional)"
+                                        value={reason}
+                                        onChange={(e) => setReason(e.target.value)}
+                                      />
+                                      <button className="confirm-prog" onClick={() => handleDesativeProgram()}>
+                                        <FiCheck size={20} />
+                                        Desativar
+                                      </button>
+                                    </div>
+
+                                  </div>
+                                </>
+                              )
+                            }
+
+
+                          </div>
                         </section>
                       )
                     }
-
-
-
-
-
                   </section>
                 </main>
 
