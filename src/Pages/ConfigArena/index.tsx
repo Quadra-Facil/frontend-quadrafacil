@@ -546,7 +546,7 @@ export default function ConfigArena() {
                                   width: '20px',
                                   height: '20px',
                                   borderRadius: '50%',
-                                  backgroundColor: `${getAllArenas?.status === 'ativo' ? '#69F0AE' : '#FF3D00'}`
+                                  backgroundColor: `${isCheckedSwitch ? '#69F0AE' : '#FF3D00'}`
                                 }}
                               ></div>
                             </div>
