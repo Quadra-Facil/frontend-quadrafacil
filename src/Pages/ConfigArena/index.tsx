@@ -109,6 +109,13 @@ export default function ConfigArena() {
 
   const [programs, setPrograms] = useState<Program[]>([]);
 
+  const [IdDesativeProgram, setIdDesativeProgram] = useState<number>()
+  const [getstartDate, setGetsetStartDate] = useState<Date | null>(null)
+  const [getEndDate, setGetEndDate] = useState<Date | null>(null)
+
+  const [shouldFetchPrograms, setShouldFetchPrograms] = useState(false); // Variável de controle
+
+
   const authContext = useContext(AuthContext);
   const { user }: any = authContext;
 
@@ -154,7 +161,7 @@ export default function ConfigArena() {
       } else {
 
         await api.put("/api/Arena/arena-edit", {
-          arenaId: user.arena,
+          arenaId: user?.arena,
           name: arenaName,
           phone: phone,
           valueHour: valueHour,
@@ -173,36 +180,57 @@ export default function ConfigArena() {
   };
 
   async function handleDesativeProgram() {
+    // Validação dos dados de entrada
     if (startDate === null || endDate === null || reason === "") {
-
       setSendTitle('error');
-      setSendMessage(`Preencha corretamente.`);
+      setSendMessage('Preencha corretamente.');
       return;
+    }
 
-    } else {
-      await api.post("/api/DesativeProgram/desative/program", {
-        startDate: format(startDate as any, 'yyyy-MM-dd'),
-        endDate: format(endDate as any, 'yyyy-MM-dd'),
-        arenaId: user.arena,
+    try {
+      // Envia a solicitação para desativar o programa
+      const response = await api.post("/api/DesativeProgram/desative/program", {
+        startDate: format(startDate, 'yyyy-MM-dd'), // Formata as datas
+        endDate: format(endDate, 'yyyy-MM-dd'),
+        arenaId: user?.arena,
         reason: reason
+      });
+
+      // Exibe a mensagem de sucesso
+      setSendTitle('success');
+      setSendMessage('Arena será desativada.');
+
+      // Limpa os campos após o sucesso
+      setStartDate(null);
+      setEndDate(null);
+      setReason("");
+
+      // Oculta o programa agendado
+      setIsShowProg(false);
+      setShouldFetchPrograms(shouldFetchPrograms ? false : true)
+
+      // Verifica se a data atual está dentro do intervalo de desativação
+      const currentDate = new Date();
+      const programStartDate = new Date(response.data.startDate);
+      const programEndDate = new Date(response.data.endDate);
+
+      if (currentDate >= programStartDate && currentDate <= programEndDate) {
+        // Se a data atual estiver dentro do intervalo, desativa a arena
+        await api.put("/api/Arena/status-edit", {
+          realArenaId: user?.arena,
+          newStatus: "inativo"
+        });
+        setIsCheckeSwith(false)
+        setShouldFetchPrograms(true)
       }
-      ).then((response) => {
-        setSendTitle('success');
-        setSendMessage(`Arena será desativada.`);
 
-        setStartDate(null)
-        setEndDate(null)
-        setReason("")
-
-        setIsShowProg(false)
-        return;
-      }).catch((error: any) => {
-        setSendTitle('error');
-        setSendMessage(`Preencha corretamente.`);
-        return;
-      })
+    } catch (error: any) {
+      // Em caso de erro, exibe a mensagem de erro
+      setSendTitle('error');
+      setSendMessage(error.response.data);
     }
   }
+
 
   // style modal opening Hours
   const customStylesModalPrincipal = {
@@ -278,7 +306,7 @@ export default function ConfigArena() {
     async function getArena() {
       setIsLoading(true)
       await api.post<GetAllArenasResponse>("/api/Arena/getArena", {
-        arenaId: user.arena
+        arenaId: user?.arena
       }).then((response) => {
         setIsLoading(false)
         setGetAllArenas(response.data);
@@ -320,44 +348,81 @@ export default function ConfigArena() {
   useEffect(() => {
     async function getDesativeProgram() {
       await api.post<ProgramResponse>("/api/DesativeProgram/get", {
-        "arenaId": user.arena
+        arenaId: user?.arena
       }).then((response) => {
-        return setPrograms(response.data.$values);
+        setPrograms(response.data.$values);
+        setShouldFetchPrograms(true)
+        return;
       }).catch((error: any) => {
         setSendTitle('error');
         setSendMessage('Erro ao buscar programação.');
       })
     }
     getDesativeProgram();
-  })
+  }, [shouldFetchPrograms])
 
   const handleChangeSwitch = async (nextChecked: boolean) => {
-    setIsCheckeSwith(nextChecked); // Atualiza o estado do switch
+    const currentDate = new Date();
+
+    // Verificar se o array de programas está vazio ou não
+    if (programs && programs.length > 0) {
+      const programStartDate = new Date(programs[0].startDate);
+      const programEndDate = new Date(programs[0].endDate);
+
+      // Verificar se a data atual está dentro do intervalo do programa
+      if (currentDate >= programStartDate && currentDate <= programEndDate) {
+        try {
+          const response = await api.delete("/api/DesativeProgram/delete", {
+            data: { id: programs[0].id }  // Envia o id no corpo da requisição
+          });
+          setPrograms((prevPrograms) => prevPrograms.filter(program => program.id !== programs[0].id));
+          console.log("Program deleted:", response.data); // Log da resposta
+        } catch (error) {
+          console.error("Error deleting program:", error); // Log de erro
+          setSendTitle('error');
+          setSendMessage('Erro ao excluir programação.');
+        }
+      }
+    }
+
+    // Atualiza o estado do switch
+    setIsCheckeSwith(nextChecked);
+
+    // Agora, independentemente do programa, alteramos o status da arena
     try {
       await api.put('/api/Arena/status-edit', {
-        realArenaId: user.arena,
+        realArenaId: user?.arena,
         newStatus: nextChecked ? 'ativo' : 'inativo',
       });
+
       setSendTitle('success');
       setSendMessage(`Arena ${nextChecked ? 'ativada' : 'desativada'}.`);
     } catch (error) {
       setSendTitle('error');
       setSendMessage('Erro ao alterar o status da arena.');
     }
-  }
+  };
+
+
 
   async function handleDeleteProgram(id: number) {
     try {
       const response = await api.delete("/api/DesativeProgram/delete", {
-        data: { id: id }  // Envia o id no corpo da requisição (de forma semelhante ao POST)
+        data: { id: id }  // Envia o id no corpo da requisição
       });
+
+      // Atualiza a lista de programas após a exclusão
+      setPrograms((prevPrograms) => prevPrograms.filter(program => program.id !== id));
+
       setSendTitle('success');
-      setSendMessage(response.data);
+      setSendMessage(response.data); // Mensagem de sucesso
+      setShouldFetchPrograms(true)
     } catch (error: any) {
       setSendTitle('error');
-      setSendMessage('Erro ao excluir programação.');
+      setSendMessage(error.response.data);
     }
   }
+
 
 
   return (
@@ -612,7 +677,7 @@ export default function ConfigArena() {
                               <h4>Sem agendamento de desativação.</h4>
                               :
                               programs.map((item) => (
-                                <h4>Sua arena será desativada de
+                                <h4 key={item.id}>Sua arena estará desativada de
                                   <strong>{format(item.startDate, "dd/MM/yyyy")}</strong>
                                   até
                                   <strong>{format(item.endDate, "dd/MM/yyyy")}</strong>
@@ -629,14 +694,22 @@ export default function ConfigArena() {
                                   <div className="area-prog">
 
                                     <div className="inputs-prog">
-                                      <input type="datetime-local"
-                                        value={startDate ? startDate.toLocaleString('sv-SE').slice(0, 16) : ''} // Formatação correta para o input datetime-local
-                                        onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : null)}
+                                      <input
+                                        type="date"
+                                        value={startDate ? startDate.toLocaleDateString('sv-SE') : ''}
+                                        onChange={(e) => {
+                                          const selectedDate = e.target.value ? new Date(e.target.value + 'T00:00:00') : null;
+                                          setStartDate(selectedDate);
+                                        }}
                                       />
                                       até
-                                      <input type="datetime-local"
-                                        value={endDate ? endDate.toLocaleString('sv-SE').slice(0, 16) : ''} // Formatação correta para o input datetime-local
-                                        onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : null)}
+                                      <input
+                                        type="date"
+                                        value={endDate ? endDate.toLocaleDateString('sv-SE') : ''}
+                                        onChange={(e) => {
+                                          const selectedDate = e.target.value ? new Date(e.target.value + 'T00:00:00') : null;
+                                          setEndDate(selectedDate);
+                                        }}
                                       />
                                     </div>
 

@@ -355,6 +355,10 @@
         flex-direction: column;
         margin-top: 1%;
 
+        h4 {
+          display: none;
+        }
+
         .btn-show {
           background-color: transparent;
           border: 1px solid var(--primary-color);
@@ -385,6 +389,7 @@
               height: 40px;
               border-radius: 10px;
               width: 40%;
+              padding: 0 5%;
             }
           }
 

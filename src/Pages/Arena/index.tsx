@@ -207,7 +207,7 @@ export default function Arena() {
       .catch((err) => {
         console.error("Erro ao buscar dados:", err);
       });
-  }, []);
+  }, [getAllArenas]);
 
 
   async function handleAddArena(e: FormEvent) {
