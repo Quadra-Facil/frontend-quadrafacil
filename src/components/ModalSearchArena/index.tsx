@@ -408,7 +408,7 @@ export default function ModalSerchArena() {
 
                   <img src={Logo} alt="logo" />
 
-                  <div className="area-close" onClick={closeModal}>
+                  <div className="area-close" onClick={closeModalInformeArenaDisable}>
                     <FiX size={24} />
                   </div>
                 </header>

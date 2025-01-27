@@ -91,7 +91,7 @@ export default function MenuOption() {
   useEffect(() => {
     async function getSpaces() {
       await api.post<SpaceResponse>("/api/newSpace/get-spaces", {
-        arenaId: Number(user.arena)
+        arenaId: user?.arena
       }).then((response) => {
         seTSpacesData(response.data);
 
@@ -138,7 +138,7 @@ export default function MenuOption() {
       await api.post("/api/newSpace", {
         name: space,
         sports: checksConvert,
-        arenaId: user.arena
+        arenaId: user?.arena
       }).then(() => {
         setSendTitle('success');
         setSendMessage(`Quadra inserida.`);
@@ -281,47 +281,91 @@ export default function MenuOption() {
                   <strong>Reservas</strong>
                 </section>
 
-                <section className="menu-item" onClick={() => { navigate("/arena") }}>
-                  <div className="divider-item"></div>
-                  <img src={ArenaIcon} alt="Icon" width={28} height={28} />
-                  <strong>Arena</strong>
-                </section>
 
-                <section className="menu-item" onClick={() => openModalSpace()}>
-                  <div className="divider-item"></div>
-                  <img src={SpaceIcon} alt="Icon" width={28} height={28} />
-                  <strong>Espaço</strong>
-                </section>
+                {
+                  user?.role === "dev" && (
+                    <>
+                      <section className="menu-item" onClick={() => { navigate("/arena") }}>
+                        <div className="divider-item"></div>
+                        <img src={ArenaIcon} alt="Icon" width={28} height={28} />
+                        <strong>Arena</strong>
+                      </section>
+                    </>
+                  )
+                }
 
-                <section className="menu-item" onClick={() => openModalLicence()}>
-                  <div className="divider-item"></div>
-                  <img src={LicencaIcon} alt="Icon" width={28} height={28} />
-                  <strong>Licença</strong>
-                </section>
+                {
+                  user?.role !== "client" && (
+                    <>
+                      <section className="menu-item" onClick={() => openModalSpace()}>
+                        <div className="divider-item"></div>
+                        <img src={SpaceIcon} alt="Icon" width={28} height={28} />
+                        <strong>Espaço</strong>
+                      </section>
+                    </>
+                  )
+                }
 
-                <section className="menu-item" onClick={() => navigate("/client")}>
-                  <div className="divider-item"></div>
-                  <img src={ClientsIcon} alt="Icon" width={28} height={28} />
-                  <strong>Clientes</strong>
-                </section>
+                {
+                  user?.role !== "client" && (
+                    <>
+                      <section className="menu-item" onClick={() => openModalLicence()}>
+                        <div className="divider-item"></div>
+                        <img src={LicencaIcon} alt="Icon" width={28} height={28} />
+                        <strong>Licença</strong>
+                      </section>
+                    </>
+                  )
+                }
 
-                <section className="menu-item" onClick={() => navigate("/configArena")}>
-                  <div className="divider-item"></div>
-                  <img src={FiSettings} alt="Icon" width={28} height={28} />
-                  <strong>Configuração</strong>
-                </section>
+                {
+                  user?.role === "dev" && (
+                    <>
+                      <section className="menu-item" onClick={() => navigate("/client")}>
+                        <div className="divider-item"></div>
+                        <img src={ClientsIcon} alt="Icon" width={28} height={28} />
+                        <strong>Clientes</strong>
+                      </section>
+                    </>
+                  )
+                }
 
-                <section className="menu-item">
-                  <div className="divider-item"></div>
-                  <img src={DashIcon} alt="Icon" width={28} height={28} />
-                  <strong>Dashboard</strong>
-                </section>
+                {
+                  user?.role !== "client" && (
+                    <>
+                      <section className="menu-item">
+                        <div className="divider-item"></div>
+                        <img src={DashIcon} alt="Icon" width={28} height={28} />
+                        <strong>Dashboard</strong>
+                      </section>
+                    </>
+                  )
+                }
 
-                <section className="menu-item" onClick={() => navigate("/reserved")}>
-                  <div className="divider-item"></div>
-                  <img src={RelatorioIcon} alt="Icon" width={28} height={28} />
-                  <strong>Relatórios - agenda</strong>
-                </section>
+                {
+                  user?.role !== "client" && (
+                    <>
+                      <section className="menu-item" onClick={() => navigate("/reserved")}>
+                        <div className="divider-item"></div>
+                        <img src={RelatorioIcon} alt="Icon" width={28} height={28} />
+                        <strong>Relatórios</strong>
+                      </section>
+                    </>
+                  )
+                }
+
+                {
+                  user?.role !== "client" && (
+                    <>
+                      <section className="menu-item" onClick={() => navigate("/configArena")}>
+                        <div className="divider-item"></div>
+                        <img src={FiSettings} alt="Icon" width={28} height={28} />
+                        <strong>Configurações</strong>
+                      </section>
+                    </>
+                  )
+                }
+
               </nav>
 
               {/* Modal licence */}

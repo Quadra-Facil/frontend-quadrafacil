@@ -117,7 +117,7 @@ export default function ConfigArena() {
 
 
   const authContext = useContext(AuthContext);
-  const { user }: any = authContext;
+  const { user, logout }: any = authContext;
 
   useEffect(() => {
     // setClassAreaUser(false)
@@ -481,7 +481,7 @@ export default function ConfigArena() {
                     </div>
 
                     <footer className="btn-logout">
-                      <button>
+                      <button onClick={() => logout()}>
                         <FiLogOut size={20} />
                         Log out
                       </button>

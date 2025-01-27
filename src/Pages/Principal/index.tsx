@@ -6,10 +6,21 @@ import UserIcon from "./img/user.svg"
 import SettingsIcon from "./img/FiSettings.svg"
 import IconInstagran from "./img/FiInstagram.svg"
 import IconWatsApp from "./img/FiMessageSquare.svg"
+import Modal from "react-modal"
+import Logo from "../../img/logomarca.svg"
 
 import { FiActivity, FiPlusCircle, FiSearch, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 import { DatePickerReserve } from "../../components/DatePickerReserve";
+
+import { format } from "date-fns";
+
+interface DataProgram {
+  id: number;
+  startDate: Date | any;
+  endDate: Date | any;
+  reason: string;
+}
 
 export default function Principal() {
   const authContext = useContext(AuthContext);
@@ -26,6 +37,8 @@ export default function Principal() {
   const [classAreaUser, setClassAreaUser] = useState(false);
   const [Arena, setArena] = useState<string>('')
 
+  const [isOpenInforme, setIsOpenInforme] = useState<boolean>(false)
+  const [dataDesativeProgrma, setDataDesativeProgrma] = useState<DataProgram[]>()
 
   useEffect(() => {
     // setClassAreaUser(false)
@@ -39,14 +52,45 @@ export default function Principal() {
     }
   }, [sendTitle, sendMessage]);
 
+  const customStylesModalInforme = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#fff',
+      border: '0px solid #ccc',
+      borderRadius: '10px',
+      padding: '0px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '40vw',
+      height: '50vh',
+      maxWidth: '100%',
+      color: '#6c6c6c'
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+  };
+
+  function openModalInformeArenaDisable() {
+    setIsOpenInforme(true);
+  }
+
+  function closeModalInformeArenaDisable() {
+    setIsOpenInforme(false);
+  }
+
   // dando erro aqui
   useEffect(() => {
     const fetchArena = async () => {
       try {
         const response = await api.post("/api/Arena/getArena", {
-          arenaId: user.arena // 'params' é o correto para enviar parâmetros na URL
+          arenaId: user?.arena
         });
-        setArena(response.data.name)
+        setArena(response?.data?.name)
       } catch (error) {
         console.log("Erro ao buscar arena: ", error);
       }
@@ -54,6 +98,71 @@ export default function Principal() {
 
     fetchArena(); // Agora estamos chamando a função assíncrona
   }, [Arena]);
+
+  useEffect(() => {
+    if (user?.role !== "client" && user?.role !== "dev") {
+
+      async function verifyStatusArena() {
+        try {
+          const response = await api.post("/api/DesativeProgram/get", {
+            arenaId: user?.arena
+          });
+
+          // Verifique se a resposta contém dados válidos
+          if (response?.data?.$values?.length > 0) {
+
+            setDataDesativeProgrma(response?.data?.$values)
+
+            // Extrair as datas brutas
+            const startDateRaw = response.data.$values[0]?.startDate;
+            const endDateRaw = response.data.$values[0]?.endDate;
+
+            // Garantir que as datas sejam válidas
+            const startDate = startDateRaw ? new Date(startDateRaw) : null;
+            const endDate = endDateRaw ? new Date(endDateRaw) : null;
+
+            // Verifique se as datas são válidas
+            if (startDate && !isNaN(startDate.getTime()) && endDate && !isNaN(endDate.getTime())) {
+              const currentDate = new Date();
+              const formattedCurrentDate = format(currentDate as any, "dd/MM/yyyy");
+              const formattedStartDate = format(startDate as any, "dd/MM/yyyy");
+              const formattedEndDate = format(endDate as any, "dd/MM/yyyy");
+
+              // verifica se está no periodo
+              if (formattedCurrentDate >= formattedStartDate && formattedCurrentDate <= formattedEndDate) {
+                await api.put("/api/Arena/status-edit", {
+                  realArenaId: user?.arena,
+                  newStatus: "inativo"
+                })
+                openModalInformeArenaDisable()
+
+                return;
+              } else {
+                await api.put("/api/Arena/status-edit", {
+                  realArenaId: user?.arena,
+                  newStatus: "ativo"
+                })
+                return;
+              }
+
+            } else {
+              console.warn('Datas de início ou fim inválidas:', { startDateRaw, endDateRaw });
+            }
+          } else {
+            console.warn('não temos nenhuma programação de desativação');
+          }
+        } catch (error) {
+          console.error('Erro ao verificar o status da arena:', error);
+        }
+      }
+
+      verifyStatusArena();
+    }
+  }, [user]);
+
+
+
+
 
   const classUser = () => {
     setClassAreaUser(true); // Mostra a área de usuário
@@ -73,7 +182,7 @@ export default function Principal() {
         <section className="area-content">
 
           <div className="header-principal">
-            <h1>Olá<strong>,</strong> {user ? user.userName : 'Usuário'} <strong>=)</strong></h1>
+            <h1>Olá<strong>,</strong> {user ? user?.userName : 'Usuário'} <strong>=)</strong></h1>
             <img
               src={UserIcon}
               alt="icon"
@@ -148,6 +257,41 @@ export default function Principal() {
           horarios reservados
         </section>
       </main >
+
+      <Modal
+        isOpen={isOpenInforme}
+        onRequestClose={closeModalInformeArenaDisable}
+        style={customStylesModalInforme}
+        shouldCloseOnOverlayClick={false}
+      >
+        <header className="header-modal-informe">
+
+          <img src={Logo} alt="logo" />
+
+          <div className="area-close" onClick={closeModalInformeArenaDisable}>
+            <FiX size={24} />
+          </div>
+        </header>
+        <section className="main-modal-informe">
+          <h1>Arena Desativada =(</h1>
+
+          {
+            dataDesativeProgrma && dataDesativeProgrma.length > 0 && dataDesativeProgrma[0]?.startDate && dataDesativeProgrma[0]?.endDate
+              ? (
+                <>
+                  <h5><strong>Período:</strong> {format(new Date(dataDesativeProgrma[0]?.startDate), "dd/MM/yyyy")} até {format(new Date(dataDesativeProgrma[0]?.endDate), "dd/MM/yyyy")}</h5>
+                  <h5 style={{ marginTop: '-0.1%' }}>{dataDesativeProgrma[0]?.reason}</h5>
+                </>
+              ) : (
+                <h5><strong>{Arena}</strong> está desativada temporariamente.</h5>
+              )
+          }
+
+          <button onClick={() => closeModalInformeArenaDisable()}>Fechar</button>
+
+        </section>
+
+      </Modal>
 
     </>
   );
