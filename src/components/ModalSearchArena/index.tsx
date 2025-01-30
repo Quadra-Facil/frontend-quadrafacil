@@ -162,19 +162,6 @@ export default function ModalSerchArena() {
     openModal();
   })
 
-  // Exibir Toast após mudança de sendTitle e sendMessage
-  useEffect(() => {
-    if (sendTitle && sendMessage) {
-      // Exibe o Toast com os valores atuais
-      const timer = setTimeout(() => {
-        setSendTitle('');  // Limpa o título para esconder o Toast após 3 segundos
-        setSendMessage('');  // Limpa a mensagem
-      }, 3000);
-
-      return () => clearTimeout(timer); // Limpar o timer quando o componente for desmontado ou o estado mudar
-    }
-  }, [sendTitle, sendMessage]);
-
   //get all arenas
   useEffect(() => {
     api
@@ -253,6 +240,8 @@ export default function ModalSerchArena() {
         setDataDesativeProgrma(response.data.$values)
 
         openModalInformeArenaDisable()
+
+        // sfkdsj
         return;
       }
     }

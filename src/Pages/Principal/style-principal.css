@@ -282,6 +282,9 @@ main {
     font-size: 16px;
     font-weight: 350;
     margin-top: 8%;
+    flex-wrap: wrap;
+    text-align: center;
+    padding: 0 7%;
 
     strong {
       color: #e57373;

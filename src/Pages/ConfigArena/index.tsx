@@ -109,9 +109,9 @@ export default function ConfigArena() {
 
   const [programs, setPrograms] = useState<Program[]>([]);
 
-  const [IdDesativeProgram, setIdDesativeProgram] = useState<number>()
-  const [getstartDate, setGetsetStartDate] = useState<Date | null>(null)
-  const [getEndDate, setGetEndDate] = useState<Date | null>(null)
+  const [weekDays, setWeekDays] = useState<number[]>([]); // Começa vazio até carregar do backend
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
 
   const [shouldFetchPrograms, setShouldFetchPrograms] = useState(false); // Variável de controle
 
@@ -209,6 +209,8 @@ export default function ConfigArena() {
       setIsShowProg(false);
       setShouldFetchPrograms(shouldFetchPrograms ? false : true)
 
+      navigate("/principal")
+
       // Verifica se a data atual está dentro do intervalo de desativação
       const currentDate = new Date();
       const programStartDate = new Date(response.data.startDate);
@@ -228,6 +230,7 @@ export default function ConfigArena() {
       // Em caso de erro, exibe a mensagem de erro
       setSendTitle('error');
       setSendMessage(error.response.data);
+      setIsShowProg(false)
     }
   }
 
@@ -321,6 +324,10 @@ export default function ConfigArena() {
     getArena();
   }, [])
 
+  useEffect(() => {
+    handleClickMenu("perfil")
+  }, [])
+
   function handleClickMenu(click: string) {
     if (selectedMenu === "") {
       setSelectedMenu('perfil')
@@ -337,9 +344,7 @@ export default function ConfigArena() {
     }
   }
 
-  useEffect(() => {
-    handleClickMenu("perfil")
-  }, [])
+
 
   useEffect(() => {
     setIsCheckeSwith(getAllArenas?.status === 'ativo');
@@ -423,7 +428,23 @@ export default function ConfigArena() {
     }
   }
 
+  //expediente
+  // Função para alternar os dias da semana
+  const toggleDay = (day: number) => {
+    setWeekDays((prevWeekDays: any) =>
+      prevWeekDays.includes(day)
+        ? prevWeekDays.filter((d: any) => d !== day) // Remove o dia se já estiver
+        : [...prevWeekDays, day] // Adiciona o dia se não estiver
+    );
 
+  };
+
+  // Funções para manipular o tempo
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => setStartTime(e.target.value);
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => setEndTime(e.target.value);
+
+  // Mapeando os dias da semana para o layout
+  const daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
   return (
     <>
@@ -632,7 +653,43 @@ export default function ConfigArena() {
                       selectedMenu === "expediente" && (
                         /* expediente */
                         <section className="expediente">
-                          <h1>section expediente</h1>
+
+                          {/* Exibindo botões para os dias da semana */}
+                          <div className="weekdays">
+                            {daysOfWeek.map((day, index) => {
+                              const dayNumber = index + 1; // Mapeando de 1 a 7 (seg a dom)
+                              return (
+                                <button
+                                  key={dayNumber}
+                                  className={weekDays.includes(dayNumber) ? 'selected' : ''}
+                                  onClick={() => toggleDay(dayNumber)}
+                                >
+                                  {day}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Exibindo o temporizador para início e fim */}
+                          <div className="time-picker">
+                            <label>
+                              Hora de Início:
+                              <input
+                                type="time"
+                                value={startTime}
+                                onChange={handleStartTimeChange}
+                              />
+                            </label>
+
+                            <label>
+                              Hora de Término:
+                              <input
+                                type="time"
+                                value={endTime}
+                                onChange={handleEndTimeChange}
+                              />
+                            </label>
+                          </div>
                         </section>
                       )
                     }

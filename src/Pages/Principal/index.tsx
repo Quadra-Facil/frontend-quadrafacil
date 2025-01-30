@@ -97,11 +97,10 @@ export default function Principal() {
     };
 
     fetchArena(); // Agora estamos chamando a função assíncrona
-  }, [Arena]);
+  }, [user?.arena]);
 
   useEffect(() => {
     if (user?.role !== "client" && user?.role !== "dev") {
-
       async function verifyStatusArena() {
         try {
           const response = await api.post("/api/DesativeProgram/get", {
@@ -110,46 +109,53 @@ export default function Principal() {
 
           // Verifique se a resposta contém dados válidos
           if (response?.data?.$values?.length > 0) {
+            setDataDesativeProgrma(response?.data?.$values);
 
-            setDataDesativeProgrma(response?.data?.$values)
-
-            // Extrair as datas brutas
             const startDateRaw = response.data.$values[0]?.startDate;
             const endDateRaw = response.data.$values[0]?.endDate;
 
-            // Garantir que as datas sejam válidas
             const startDate = startDateRaw ? new Date(startDateRaw) : null;
             const endDate = endDateRaw ? new Date(endDateRaw) : null;
 
-            // Verifique se as datas são válidas
+            // Garantir que as datas sejam válidas
             if (startDate && !isNaN(startDate.getTime()) && endDate && !isNaN(endDate.getTime())) {
+              // Normalizar as datas para meia-noite (00:00:00)
               const currentDate = new Date();
-              const formattedCurrentDate = format(currentDate as any, "dd/MM/yyyy");
-              const formattedStartDate = format(startDate as any, "dd/MM/yyyy");
-              const formattedEndDate = format(endDate as any, "dd/MM/yyyy");
+              const normalizedCurrentDate = new Date(currentDate.setHours(0, 0, 0, 0));
+              const normalizedStartDate = new Date(startDate.setHours(0, 0, 0, 0));
+              const normalizedEndDate = new Date(endDate.setHours(0, 0, 0, 0));
 
-              // verifica se está no periodo
-              if (formattedCurrentDate >= formattedStartDate && formattedCurrentDate <= formattedEndDate) {
+              // Verifica se está no período
+              if (normalizedCurrentDate >= normalizedStartDate && normalizedCurrentDate <= normalizedEndDate) {
                 await api.put("/api/Arena/status-edit", {
                   realArenaId: user?.arena,
                   newStatus: "inativo"
-                })
-                openModalInformeArenaDisable()
-
-                return;
+                });
+                openModalInformeArenaDisable();
               } else {
                 await api.put("/api/Arena/status-edit", {
                   realArenaId: user?.arena,
                   newStatus: "ativo"
+                });
+                const response = await api.post("/api/DesativeProgram/get", {
+                  arenaId: user?.arena
                 })
-                return;
-              }
+                const endDateResponse = new Date(response.data.$values[0].endDate)
+                const currentDate = new Date();
 
+                //se ja tiver passado a data excluir auto
+                if (endDateResponse < currentDate) {
+                  await api.delete("/api/DesativeProgram/delete", {
+                    data: { id: response.data.$values[0].id }  // Envia o id no corpo da requisição
+                  });
+                  return;
+                }
+              }
             } else {
               console.warn('Datas de início ou fim inválidas:', { startDateRaw, endDateRaw });
             }
           } else {
-            console.warn('não temos nenhuma programação de desativação');
+            console.warn('Não temos nenhuma programação de desativação');
           }
         } catch (error) {
           console.error('Erro ao verificar o status da arena:', error);
@@ -158,7 +164,9 @@ export default function Principal() {
 
       verifyStatusArena();
     }
-  }, [user]);
+  }, [user]); // O efeito depende apenas do `user`
+
+
 
 
 
