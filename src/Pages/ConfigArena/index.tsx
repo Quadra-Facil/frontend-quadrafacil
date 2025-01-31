@@ -75,6 +75,18 @@ interface ProgramResponse {
   $values: Program[];
 }
 
+interface WeekSchedule {
+  id: number;
+  arenaId: number;
+  weekDays: {
+    $id: string;
+    $values: number[];  // O valor real do array de dias da semana
+  };
+  startTime: string;
+  endTime: string;
+  open: boolean;
+}
+
 
 
 export default function ConfigArena() {
@@ -436,7 +448,6 @@ export default function ConfigArena() {
         ? prevWeekDays.filter((d: any) => d !== day) // Remove o dia se já estiver
         : [...prevWeekDays, day] // Adiciona o dia se não estiver
     );
-
   };
 
   // Funções para manipular o tempo
@@ -445,6 +456,102 @@ export default function ConfigArena() {
 
   // Mapeando os dias da semana para o layout
   const daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+
+  const [isOpen, setIsOpen] = useState(true); // Exemplo de estado para controlar a abertura
+
+  const [valueOpen, setValueOpen] = useState<boolean>(true);
+  const handleOpenClick = () => {
+    setValueOpen(true); // Altera para "aberto"
+  };
+
+  const handleCloseClick = () => {
+    setValueOpen(false); // Altera para "fechado"
+  };
+
+  async function handleAddHour() {
+    try {
+      if (weekDays.length === 0) {
+        setSendTitle('error');
+        setSendMessage('Selecione os dias da semana.');
+        return;
+      } else if (valueOpen && (startTime === '' || endTime === '')) {
+        setSendTitle('error');
+        setSendMessage('Selecione os horários');
+        return;
+      }
+      else {
+        await api.post("/api/ArenaHours/arena-hours", {
+          ArenaId: user?.arena,
+          WeekDays: weekDays,
+          StartTime: !valueOpen ? '00:00:00' : startTime + ':00',
+          EndTime: !valueOpen ? '00:00:00' : endTime + ':00',
+          Open: valueOpen
+        })
+          .then(async (response: any) => {
+            setSendTitle('success');
+            setSendMessage(response?.data);
+            await fetchHours();
+            setWeekDays([])
+            setValueOpen(true)
+            setEndTime("")
+            setStartTime("")
+            return;
+          }).catch((error: any) => {
+            setSendTitle('error');
+
+            // Extrair mensagens de erro detalhadas da resposta
+            if (error?.response?.data?.errors) {
+              const errorMessages = Object.keys(error.response.data.errors).map(field => {
+                return `${field}: ${error.response.data.errors[field].join(', ')}`;
+              }).join(', ');
+
+              setSendMessage(`Erro(s): ${errorMessages}`);
+            } else {
+              // Caso não tenha erros detalhados, mostre a mensagem geral
+              setSendMessage(error?.response?.data?.title || 'Erro desconhecido');
+            }
+            return;
+          });
+      }
+    } catch (error: any) {
+      setSendTitle('error');
+      setSendMessage('Erro desconhecido');
+      console.log(error.response.data)
+      return;
+    }
+  }
+
+  const [getHours, setGetHours] = useState<WeekSchedule[]>([]);
+
+  async function fetchHours() {
+    try {
+      const response = await api.post("/api/ArenaHours/get", {
+        arenaId: user?.arena
+      });
+      setGetHours(response?.data?.$values);
+      console.log(getHours)
+    } catch (error: any) {
+      console.log(error?.response?.data || "Erro desconhecido");
+    }
+  }
+
+  useEffect(() => {
+    fetchHours(); // Chama a função para obter os dados
+  }, []);
+
+  async function deleteHour(id: number) {
+    await api.delete("/api/ArenaHours/delete", {
+      data: {
+        Id: id
+      }
+    }).then((response) => {
+      setSendTitle('success');
+      setSendMessage(response.data);
+      setGetHours(prevHours => prevHours.filter(hour => hour.id !== id));
+    }).catch((error: any) => {
+      console.log(error?.response?.data || "Erro desconhecido");
+    })
+  }
 
   return (
     <>
@@ -656,40 +763,128 @@ export default function ConfigArena() {
 
                           {/* Exibindo botões para os dias da semana */}
                           <div className="weekdays">
-                            {daysOfWeek.map((day, index) => {
-                              const dayNumber = index + 1; // Mapeando de 1 a 7 (seg a dom)
-                              return (
-                                <button
-                                  key={dayNumber}
-                                  className={weekDays.includes(dayNumber) ? 'selected' : ''}
-                                  onClick={() => toggleDay(dayNumber)}
-                                >
-                                  {day}
-                                </button>
-                              );
-                            })}
+                            <h5>Selecione os dias desejados</h5>
+                            <div className="btns">
+                              {daysOfWeek.map((day, index) => {
+                                const dayNumber = index + 1; // Mapeando de 1 a 7 (seg a dom)
+                                const isSelected = weekDays.includes(dayNumber);
+                                return (
+                                  <button
+                                    key={dayNumber}
+                                    className={weekDays.includes(dayNumber) ? 'selected' : ''}
+                                    onClick={() => toggleDay(dayNumber)}
+                                    style={{
+                                      backgroundColor: isSelected ? '#f7cebe' : '#fff', // Cor de fundo condicional
+                                      color: isSelected ? '#FF8A5B' : '#FF8A5B', // Cor do texto condicional
+                                      padding: '10px',
+                                      border: '1px solid #FF8A5B',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    {day}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div className="status-open-close">
+                            <h5>Agora defina o status da arena</h5>
+
+                            <div className="area-select">
+                              <div
+                                className="open"
+                                onClick={handleOpenClick}
+                                style={{
+                                  backgroundColor: valueOpen ? '#f7cebe' : '',
+                                  color: 'ff8a5b',
+                                  padding: '10px',
+                                  cursor: 'pointer',
+                                  border: '1px solid #ff8a5b',
+                                }}
+                              >
+                                Aberto
+                              </div>
+                              <div
+                                className="close"
+                                onClick={handleCloseClick}
+                                style={{
+                                  backgroundColor: !valueOpen ? '#f7cebe' : '',
+                                  color: '#ff8a5b',
+                                  padding: '10px',
+                                  cursor: 'pointer',
+                                  border: '1px solid #ff8a5b',
+
+                                }}
+                              >
+                                Fechado
+                              </div>
+                            </div>
+
                           </div>
 
                           {/* Exibindo o temporizador para início e fim */}
                           <div className="time-picker">
-                            <label>
-                              Hora de Início:
-                              <input
-                                type="time"
-                                value={startTime}
-                                onChange={handleStartTimeChange}
-                              />
-                            </label>
+                            <h5>Quais os horários?</h5>
 
-                            <label>
-                              Hora de Término:
-                              <input
-                                type="time"
-                                value={endTime}
-                                onChange={handleEndTimeChange}
-                              />
-                            </label>
+                            <div className="area-timers">
+                              <label>
+                                Horário Inicial:
+                                <input
+                                  type="time"
+                                  value={startTime}
+                                  onChange={handleStartTimeChange}
+                                  disabled={!valueOpen ? true : false}
+                                  style={{
+                                    cursor: !valueOpen ? 'not-allowed' : ''
+                                  }}
+                                />
+                              </label>
+
+                              <label>
+                                Horário Final:
+                                <input
+                                  type="time"
+                                  value={endTime}
+                                  onChange={handleEndTimeChange}
+                                  disabled={!valueOpen ? true : false}
+                                  style={{
+                                    cursor: !valueOpen ? 'not-allowed' : ''
+                                  }}
+                                />
+                              </label>
+                            </div>
                           </div>
+
+                          <div className="weeks-day-result">
+                            {
+                              getHours.map((item) => (
+                                <>
+                                  <h5 key={item.id}>
+                                    <strong>
+                                      {
+                                        Array.isArray(item.weekDays.$values)
+                                          ? item.weekDays.$values.includes(1) ? "Segunda" :
+                                            item.weekDays.$values.includes(2) ? "Terça" :
+                                              item.weekDays.$values.includes(3) ? "Quarta" :
+                                                item.weekDays.$values.includes(4) ? "Quinta" :
+                                                  item.weekDays.$values.includes(5) ? "Sexta" :
+                                                    item.weekDays.$values.includes(6) ? "Sábado" :
+                                                      item.weekDays.$values.includes(7) ? "Domingo" : ""
+                                          : ""
+                                      }
+                                    </strong> -
+                                    {item.open ? "Aberto" : "Fechado"} - {item.startTime.split(":").slice(0, 2).join(":")} às {item.endTime.split(":").slice(0, 2).join(":")}. <FiTrash style={{ marginLeft: item.open ? 20 : '' }} onClick={() => deleteHour(item.id)} /> </h5>
+                                </>
+                              ))
+                            }
+                          </div>
+
+                          <button
+                            className="btn-inserir"
+                            onClick={handleAddHour}
+
+                          >Inserir</button>
                         </section>
                       )
                     }
@@ -776,7 +971,11 @@ export default function ConfigArena() {
                                         value={reason}
                                         onChange={(e) => setReason(e.target.value)}
                                       />
-                                      <button className="confirm-prog" onClick={() => handleDesativeProgram()}>
+                                      <button
+                                        className="confirm-prog"
+                                        onClick={() => handleDesativeProgram()}
+
+                                      >
                                         <FiCheck size={20} />
                                         Desativar
                                       </button>
