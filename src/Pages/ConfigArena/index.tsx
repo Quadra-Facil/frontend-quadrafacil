@@ -1,5 +1,5 @@
 import "./style-config.css"
-import { FiActivity, FiArrowDownRight, FiCheck, FiChevronRight, FiEdit, FiLogOut, FiTrash, FiX } from "react-icons/fi";
+import { FiActivity, FiArrowDownRight, FiCheck, FiChevronRight, FiDollarSign, FiEdit, FiLogOut, FiTrash, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-modal";
@@ -7,7 +7,7 @@ import { AuthContext } from "../../services/contexts/AuthContext";
 import Toast from "../../components/Toast";
 import Loading from "../../components/Loading";
 import { api } from "../../services/axiosApi/apiClient";
-import { CiUser, CiPower, CiStar, CiClock2 } from "react-icons/ci";
+import { CiUser, CiPower, CiStar, CiClock2, CiBadgeDollar } from "react-icons/ci";
 import { IMaskInput } from "react-imask";
 import Switch from "react-switch"
 import { format } from "date-fns";
@@ -271,31 +271,6 @@ export default function ConfigArena() {
     },
   };
 
-  // style modal opening Hours
-  const customStylesModalOpeningHours = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
-      borderRadius: '10px',
-      padding: '20px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '40vw',
-      height: '50vh',
-      maxWidth: '90%',
-      color: '#6c6c6c'
-    },
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-  };
-
-
   function openModalPrincipal() {
     setModalIsOpenPrincipal(true);   // Abre o modal
   }
@@ -303,14 +278,6 @@ export default function ConfigArena() {
   function closeModalPrincipal() {
     setModalIsOpenPrincipal(false);
     navigate("/principal")
-  }
-  function openModalOpeningHours() {
-    setModalIsOpenOpeningHours(true);   // Abre o modal
-  }
-
-  function closeModalOpeningHours() {
-    setModalIsOpenOpeningHours(false);
-    openModalPrincipal();
   }
 
   useEffect(() => {
@@ -349,6 +316,9 @@ export default function ConfigArena() {
       return;
     } else if (click === "expediente") {
       setSelectedMenu("expediente")
+      return;
+    } else if (click === "promocao") {
+      setSelectedMenu("promocao")
       return;
     } else if (click === "desativar") {
       setSelectedMenu("desativar")
@@ -529,7 +499,6 @@ export default function ConfigArena() {
         arenaId: user?.arena
       });
       setGetHours(response?.data?.$values);
-      console.log(getHours)
     } catch (error: any) {
       console.log(error?.response?.data || "Erro desconhecido");
     }
@@ -552,6 +521,90 @@ export default function ConfigArena() {
       console.log(error?.response?.data || "Erro desconhecido");
     })
   }
+
+  //promotions -------------------
+
+  const [selectedPromotion, setSelectedPromotion] = useState('');
+  const [selectedValueRadio, setSelectedValueRadio] = useState<string>("todo-dia");
+  const [startDatePromotion, setStartDatePromotion] = useState<string>("")
+  const [endDatePromotion, setEndDatePromotion] = useState<string>("")
+  const [valuePromotion, setValuePromotion] = useState<number | undefined>(undefined)
+  const [QtdPeoplePromotion, setQtdPeoplePromotion] = useState<number | undefined>(undefined)
+  // wheekday
+  const [whenPromotion, setWhenPromotion] = useState<string>("")
+
+  // Função para lidar com a mudança no select
+  const handleChangePromotions = (event: any) => {
+    setSelectedPromotion(event.target.value);
+  };
+
+  // Função para lidar com a mudança do valor do radio
+  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedValueRadio(event.target.value);
+  };
+
+  async function handleRegisterPromotion() {
+
+    // Verifica se algum valor em schedule.weekDays.$values corresponde a algum valor em weekDays
+    // E também verifica se a coluna close é igual a 0 (indicando que está fechado)
+    const hasClose = getHours.some((schedule) =>
+      schedule.weekDays.$values.some((day) =>
+        weekDays.includes(day) && schedule.open === false
+      )
+    );
+
+    if (hasClose) {//se o dia do day use for o mesmo que foi configurado para está fechado
+
+      const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
+      const dayArray = getHours.filter(item => item.open === false);
+      const allDays = dayArray.flatMap(item => item.weekDays.$values);
+      const dayWeek = allDays.toString()
+
+      setSendTitle('error');
+      setSendMessage(`${daysOfWeek[Number(dayWeek) - 1]} - fechado na arena.`)
+      return
+    } else {
+      if (selectedPromotion === "dayuse") {
+        if (valuePromotion === undefined || QtdPeoplePromotion === undefined || weekDays.length === 0) {
+
+          setSendTitle('error');
+          setSendMessage(`Preencha todos os campos.`)
+          return;
+        }
+      }
+
+      try {
+        // Enviando a requisição
+        const response = await api.post("/api/Promotions/promotion", {
+          promotionType: selectedPromotion,
+          when: selectedValueRadio,
+          startDate: selectedPromotion === "dayuse" ? format(new Date(), "yyyy-MM-dd") : startDatePromotion,
+          endDate: selectedPromotion === "dayuse" ? format(new Date(), "yyyy-MM-dd") : endDatePromotion,
+          weekDays: weekDays,
+          value: Number(valuePromotion) * Number(QtdPeoplePromotion), // Garantindo que seja número
+          qtdPeople: QtdPeoplePromotion,
+          arenaId: user?.arena,
+        });
+
+        // Se a requisição for bem-sucedida
+        setSendTitle('success');
+        setSendMessage(response?.data);
+
+        setQtdPeoplePromotion(undefined)
+        setValuePromotion(undefined)
+        setWeekDays([])
+      } catch (error: any) {
+        // Se ocorrer algum erro durante a requisição
+        setSendTitle('error');
+
+        // Verifica se a resposta de erro da API existe e é válida
+        const errorMessage = error?.response?.data || 'Erro desconhecido'; // Valor padrão caso não tenha resposta da API
+        setSendMessage(errorMessage);
+      }
+    }
+  }
+
 
   return (
     <>
@@ -597,6 +650,18 @@ export default function ConfigArena() {
                     </div>
 
                     <div className="item-menu-config"
+                      onClick={() => handleClickMenu("promocao")}
+                      title="Registre as promoções de sua arena."
+                      style={{ backgroundColor: `${selectedMenu === 'promocao' ? 'var(--secundary-color)' : ''}` }}
+                    >
+                      <div className="first">
+                        <CiBadgeDollar size={20} />
+                        <p>Promoções</p>
+                      </div>
+                      <FiChevronRight size={20} />
+                    </div>
+
+                    <div className="item-menu-config"
                       onClick={() => handleClickMenu("desativar")}
                       title="Desative temporariamente sua arena."
                       style={{ backgroundColor: `${selectedMenu === 'desativar' ? 'var(--secundary-color)' : ''}` }}
@@ -621,7 +686,8 @@ export default function ConfigArena() {
                       <h3>{
                         selectedMenu === "perfil" ? `Visualize ou edite os dados da arena.` :
                           selectedMenu === "expediente" ? "Registre o horário de funcionamento" :
-                            selectedMenu === "desativar" ? "Desative temporariamente sua arena" : ""
+                            selectedMenu === "desativar" ? "Desative temporariamente sua arena" :
+                              selectedMenu === "promocao" ? "Registre suas promoções" : ""
 
                       }</h3>
                       <div className="area-close-modal" onClick={() => closeModalPrincipal()}>
@@ -889,6 +955,115 @@ export default function ConfigArena() {
                       )
                     }
                     {
+                      selectedMenu === "promocao" && (
+                        <section className="promocao">
+                          <section className="area-select">
+                            <select value={selectedPromotion} onChange={handleChangePromotions}>
+                              <option value="">Selecione</option>
+                              <option value="dayuse">Day Use</option>
+                              <option value="2h">2 horas pagando menos</option>
+                              <option value="3h">3 horas pagando menos</option>
+                              <option value="4h">4 horas pagando menos</option>
+                              <option value="5h">5 horas pagando menos</option>
+                              <option value="outra">Outra</option>
+                            </select>
+
+                            {
+                              selectedPromotion !== "dayuse" && (
+                                <div className="area-radio">
+                                  <div className="all-days">
+                                    <input
+                                      type="radio"
+                                      name="schedule"
+                                      id="todo-dia"
+                                      value="todo-dia"
+                                      onChange={handleRadioChange}
+                                      checked={selectedValueRadio === "todo-dia"}
+                                    />
+                                    <label htmlFor="todo-dia">Todo dia</label>
+                                  </div>
+                                  <div className="period">
+                                    <input
+                                      type="radio"
+                                      name="schedule"
+                                      id="por-periodo"
+                                      value="por-periodo"
+                                      onChange={handleRadioChange}
+                                      checked={selectedValueRadio === "por-periodo"}
+                                    />
+                                    <label htmlFor="por-periodo">Por período</label>
+                                  </div>
+                                </div>
+
+                              )
+                            }
+
+                            {
+                              selectedPromotion === "dayuse" && (
+                                <div className="btns">
+                                  <h3>Selecione o dia do Day Use</h3>
+                                  {daysOfWeek.map((day, index) => {
+                                    const dayNumber = index + 1; // Mapeando de 1 a 7 (seg a dom)
+                                    const isSelected = weekDays.includes(dayNumber);
+                                    return (
+                                      <button
+                                        key={dayNumber}
+                                        className={weekDays.includes(dayNumber) ? 'selected' : ''}
+                                        onClick={() => toggleDay(dayNumber)}
+                                        style={{
+                                          backgroundColor: isSelected ? '#f7cebe' : '#fff', // Cor de fundo condicional
+                                          color: isSelected ? '#FF8A5B' : '#FF8A5B', // Cor do texto condicional
+                                          padding: '10px',
+                                          border: '1px solid #FF8A5B',
+                                          cursor: 'pointer',
+                                        }}
+                                      >
+                                        {day}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )
+                            }
+                          </section>
+                          <section className="main-promotion">
+
+                            {
+                              selectedPromotion !== "dayuse" && selectedValueRadio !== "todo-dia" && (
+                                <div className="inputs-date">
+                                  <div className="start">
+                                    <label>Data inicial:</label>
+                                    <input type="date" onChange={(e) => setStartDatePromotion(e.target.value)} />
+                                  </div>
+                                  <div className="start">
+                                    <label>Data final:</label>
+                                    <input type="date" onChange={(e) => setEndDatePromotion(e.target.value)} />
+                                  </div>
+                                </div>
+                              )
+                            }
+
+                            <div className="value">
+                              <label>{selectedPromotion === "dayuse" ? "Valor por pessoa:" : "Valor:"}</label>
+                              <input value={valuePromotion} type="number" onChange={(e) => setValuePromotion(Number(e.target.value))} />
+                            </div>
+                            {
+                              selectedPromotion === "dayuse" && (
+                                <div className="qtd">
+                                  <label>{selectedPromotion === "dayuse" ? "Qtd pessoas:" : "Qtd:"}</label>
+                                  <input value={QtdPeoplePromotion} type="number" onChange={(e) => setQtdPeoplePromotion(Number(e.target.value))} />
+                                </div>
+                              )
+                            }
+
+                          </section>
+
+                          <button className="btn-salvar" onClick={handleRegisterPromotion}>Salvar</button>
+
+                        </section>
+                      )
+                    }
+                    {
                       selectedMenu === "desativar" && (
                         /* desativar */
                         <section className="desativar">
@@ -994,40 +1169,6 @@ export default function ConfigArena() {
                   </section>
                 </main>
 
-              </Modal>
-
-              {/* Modal opening Hours */}
-              <Modal
-                isOpen={modalIsOpenOpeningHours}
-                onRequestClose={closeModalOpeningHours}
-                style={customStylesModalOpeningHours}
-                shouldCloseOnOverlayClick={false}
-              >
-                <header className="header-modal">
-                  <div className="header-arena-licence">
-                    <h5>Horário de funcionamento</h5>
-                  </div>
-                  <div className="area-close" onClick={closeModalOpeningHours}>
-                    <FiX size={24} />
-                  </div>
-                </header>
-                <main className="main-modal-opening-hours">
-                  <h1>Horários</h1>
-                  <div className="timers">
-                    <h5>Início:</h5>
-                    <input type="time" />
-                    <h5>às</h5>
-                    <h5>Final:</h5>
-                    <input type="time" />
-                  </div>
-                  <div className="days-week">
-                    seg,ter,qua
-                  </div>
-                </main>
-                <div className="area-btn">
-                  <button>Editar</button>
-                  <button>Confirmar</button>
-                </div>
               </Modal>
             </>
           )
