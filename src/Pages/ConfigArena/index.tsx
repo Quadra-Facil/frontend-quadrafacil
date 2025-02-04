@@ -530,8 +530,6 @@ export default function ConfigArena() {
   const [endDatePromotion, setEndDatePromotion] = useState<string>("")
   const [valuePromotion, setValuePromotion] = useState<number | undefined>(undefined)
   const [QtdPeoplePromotion, setQtdPeoplePromotion] = useState<number | undefined>(undefined)
-  // wheekday
-  const [whenPromotion, setWhenPromotion] = useState<string>("")
 
   // Função para lidar com a mudança no select
   const handleChangePromotions = (event: any) => {
@@ -545,64 +543,117 @@ export default function ConfigArena() {
 
   async function handleRegisterPromotion() {
 
-    // Verifica se algum valor em schedule.weekDays.$values corresponde a algum valor em weekDays
-    // E também verifica se a coluna close é igual a 0 (indicando que está fechado)
-    const hasClose = getHours.some((schedule) =>
-      schedule.weekDays.$values.some((day) =>
-        weekDays.includes(day) && schedule.open === false
-      )
-    );
+    if (selectedPromotion === "dayuse") {
+      // Verifica se algum valor em schedule.weekDays.$values corresponde a algum valor em weekDays
+      // E também verifica se a coluna close é igual a 0 (indicando que está fechado)
+      const hasClose = getHours.some((schedule) =>
+        schedule.weekDays.$values.some((day) =>
+          weekDays.includes(day) && schedule.open === false
+        )
+      );
 
-    if (hasClose) {//se o dia do day use for o mesmo que foi configurado para está fechado
+      if (hasClose) {//se o dia do day use for o mesmo que foi configurado para está fechado
 
-      const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+        const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 
-      const dayArray = getHours.filter(item => item.open === false);
-      const allDays = dayArray.flatMap(item => item.weekDays.$values);
-      const dayWeek = allDays.toString()
+        const dayArray = getHours.filter(item => item.open === false);
+        const allDays = dayArray.flatMap(item => item.weekDays.$values);
+        const dayWeek = allDays.toString()
 
-      setSendTitle('error');
-      setSendMessage(`${daysOfWeek[Number(dayWeek) - 1]} - fechado na arena.`)
-      return
-    } else {
-      if (selectedPromotion === "dayuse") {
-        if (valuePromotion === undefined || QtdPeoplePromotion === undefined || weekDays.length === 0) {
+        setSendTitle('error');
+        setSendMessage(`${daysOfWeek[Number(dayWeek) - 1]} - fechado na arena.`)
+        return
+      } else {
+        if (selectedPromotion === "dayuse") {
+          if (valuePromotion === undefined || QtdPeoplePromotion === undefined || weekDays.length === 0) {
 
+            setSendTitle('error');
+            setSendMessage(`Preencha todos os campos.`)
+            return;
+          }
+        }
+
+        try {
+          const response = await api.post("/api/Promotions/promotion", {
+            promotionType: selectedPromotion,
+            when: "por-periodo",
+            startDate: selectedPromotion === "dayuse" ? null : startDatePromotion,
+            endDate: selectedPromotion === "dayuse" ? null : endDatePromotion,
+            weekDays: weekDays,
+            value: Number(valuePromotion) * Number(QtdPeoplePromotion), // Garantindo que seja número
+            qtdPeople: QtdPeoplePromotion,
+            arenaId: user?.arena,
+          });
+
+          setSendTitle('success');
+          setSendMessage(response?.data);
+
+          setQtdPeoplePromotion(undefined)
+          setValuePromotion(undefined)
+          setWeekDays([])
+        } catch (error: any) {
           setSendTitle('error');
-          setSendMessage(`Preencha todos os campos.`)
-          return;
+
+          const errorMessage = error?.response?.data || 'Erro desconhecido'; // Valor padrão caso não tenha resposta da API
+          setSendMessage(errorMessage);
         }
       }
+      return;
+    } else if (selectedPromotion === "2h" || selectedPromotion === "3h" || selectedPromotion === "4h" || selectedPromotion === "5h") {
+      if (selectedValueRadio === "todo-dia") {
+        try {
+          const response = await api.post("/api/Promotions/promotion", {
+            promotionType: selectedPromotion,
+            when: selectedValueRadio,
+            startDate: selectedValueRadio === "todo-dia" ? format(new Date(), "yyyy-MM-dd") : "",
+            endDate: selectedValueRadio === "todo-dia" ? format(new Date(), "yyyy-MM-dd") : "",
+            weekDays: [0],
+            value: valuePromotion,
+            qtdPeople: 0,
+            arenaId: user?.arena,
+          });
 
-      try {
-        // Enviando a requisição
-        const response = await api.post("/api/Promotions/promotion", {
-          promotionType: selectedPromotion,
-          when: selectedValueRadio,
-          startDate: selectedPromotion === "dayuse" ? format(new Date(), "yyyy-MM-dd") : startDatePromotion,
-          endDate: selectedPromotion === "dayuse" ? format(new Date(), "yyyy-MM-dd") : endDatePromotion,
-          weekDays: weekDays,
-          value: Number(valuePromotion) * Number(QtdPeoplePromotion), // Garantindo que seja número
-          qtdPeople: QtdPeoplePromotion,
-          arenaId: user?.arena,
-        });
+          setSendTitle('success');
+          setSendMessage(response?.data);
 
-        // Se a requisição for bem-sucedida
-        setSendTitle('success');
-        setSendMessage(response?.data);
+        } catch (error: any) {
+          setSendTitle('error');
 
-        setQtdPeoplePromotion(undefined)
-        setValuePromotion(undefined)
-        setWeekDays([])
-      } catch (error: any) {
-        // Se ocorrer algum erro durante a requisição
-        setSendTitle('error');
+          const errorMessage = error?.response?.data;
+          setSendMessage(errorMessage);
+        }
+        return;
+      } else {
+        try {
+          const response = await api.post("/api/Promotions/promotion", {
+            promotionType: selectedPromotion,
+            when: selectedValueRadio,
+            startDate: format(startDatePromotion, "yyyy-MM-dd"),
+            endDate: format(endDatePromotion, "yyyy-MM-dd"),
+            weekDays: [0],
+            value: valuePromotion,
+            qtdPeople: 0,
+            arenaId: user?.arena,
+          });
 
-        // Verifica se a resposta de erro da API existe e é válida
-        const errorMessage = error?.response?.data || 'Erro desconhecido'; // Valor padrão caso não tenha resposta da API
-        setSendMessage(errorMessage);
+          setSendTitle('success');
+          setSendMessage(response?.data);
+
+          setQtdPeoplePromotion(undefined)
+          setValuePromotion(undefined)
+          setWeekDays([])
+        } catch (error: any) {
+          setSendTitle('error');
+
+          const errorMessage = error?.response?.data || 'Erro desconhecido';
+          setSendMessage(errorMessage);
+        }
+        return;
       }
+
+      return;
     }
+
   }
 
 
