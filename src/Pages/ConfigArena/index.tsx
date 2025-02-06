@@ -591,6 +591,8 @@ export default function ConfigArena() {
           setQtdPeoplePromotion(undefined)
           setValuePromotion(undefined)
           setWeekDays([])
+
+          await loadPromotionsFunction();
         } catch (error: any) {
           setSendTitle('error');
 
@@ -599,7 +601,11 @@ export default function ConfigArena() {
         }
       }
       return;
-    } else if (selectedPromotion === "2h" || selectedPromotion === "3h" || selectedPromotion === "4h" || selectedPromotion === "5h") {
+    } else if (selectedPromotion === "2h" ||
+      selectedPromotion === "3h" ||
+      selectedPromotion === "4h" ||
+      selectedPromotion === "5h"
+    ) {
       if (selectedValueRadio === "todo-dia") {
         try {
           const response = await api.post("/api/Promotions/promotion", {
@@ -615,6 +621,8 @@ export default function ConfigArena() {
 
           setSendTitle('success');
           setSendMessage(response?.data);
+
+          await loadPromotionsFunction();
 
         } catch (error: any) {
           setSendTitle('error');
@@ -642,6 +650,8 @@ export default function ConfigArena() {
           setQtdPeoplePromotion(undefined)
           setValuePromotion(undefined)
           setWeekDays([])
+
+          await loadPromotionsFunction();
         } catch (error: any) {
           setSendTitle('error');
 
@@ -650,12 +660,64 @@ export default function ConfigArena() {
         }
         return;
       }
-
       return;
     }
-
   }
 
+  interface WeekDaysResponse {
+    $id: string;
+    $values: number[];
+  }
+
+  interface Promotion {
+    $id: string;
+    id: number;
+    promotionType: string;
+    when: string;
+    weekDays: WeekDaysResponse;
+    value: number;
+    qtdPeople: number;
+    arenaId: number;
+    startDate?: string;
+    endDate?: string;
+  }
+
+  interface PromotionResponse {
+    $id: string;
+    $values: Promotion[];
+  }
+
+  const [loadPromotions, setLoadPromotions] = useState<Promotion[]>([]);
+
+  async function loadPromotionsFunction() {
+    await api.post("/api/Promotions/get-promotion", {
+      arenaId: user?.arena
+    }).then((response) => {
+      setLoadPromotions(response?.data?.$values)
+    }).catch((error: any) => {
+      setSendTitle('error');
+      setSendMessage(error?.response?.data);
+    })
+  }
+
+  useEffect(() => {
+    loadPromotionsFunction();
+  }, [])
+
+  async function handleDeletePromotion(id: number) {
+    await api.delete("/api/Promotions/delete", {
+      data: {
+        arenaId: id
+      }
+    }).then(async (response) => {
+      setSendTitle('success');
+      setSendMessage(response?.data);
+      await loadPromotionsFunction();
+    }).catch((error: any) => {
+      setSendTitle('error');
+      setSendMessage(error?.response?.data);
+    })
+  }
 
   return (
     <>
@@ -1016,7 +1078,6 @@ export default function ConfigArena() {
                               <option value="3h">3 horas pagando menos</option>
                               <option value="4h">4 horas pagando menos</option>
                               <option value="5h">5 horas pagando menos</option>
-                              <option value="outra">Outra</option>
                             </select>
 
                             {
@@ -1107,6 +1168,47 @@ export default function ConfigArena() {
                               )
                             }
 
+                          </section>
+
+                          <section className="getAllPromotions">
+                            {
+                              loadPromotions.map((item) => (
+                                <h5 key={item.id}>
+                                  <strong>
+                                    {
+                                      item.promotionType === "dayuse" ? "Day Use" :
+                                        item.promotionType === "2h" ? "2h por menos" :
+                                          item.promotionType === "3h" ? "3h por menos" :
+                                            item.promotionType === "4h" ? "4h por menos" :
+                                              item.promotionType === "5h" ? "5h por menos" : ""
+                                    }
+                                  </strong>
+
+                                  {
+                                    item.promotionType === "dayuse"
+                                      ? item.when === "todo-dia"
+                                        ? "Todo dia "
+                                        : item.weekDays.$values.includes(1)
+                                          ? "Segunda "
+                                          : item.weekDays.$values.includes(2)
+                                            ? "Terça "
+                                            : item.weekDays.$values.includes(3)
+                                              ? "Quarta "
+                                              : item.weekDays.$values.includes(4)
+                                                ? "Quinta "
+                                                : item.weekDays.$values.includes(5)
+                                                  ? "Sexta "
+                                                  : item.weekDays.$values.includes(6)
+                                                    ? "Sábado "
+                                                    : item.weekDays.$values.includes(7)
+                                                      ? "Domingo "
+                                                      : "Não especificado"
+                                      : item.startDate ? format(item.startDate, "dd-MM-yy") + " até " + format(item.endDate as any, "dd-MM-yy") : "Todo dia "
+                                  }
+
+                                  - R$ {item.value.toFixed(2)} <FiTrash onClick={() => handleDeletePromotion(item.id)} /></h5>
+                              ))
+                            }
                           </section>
 
                           <button className="btn-salvar" onClick={handleRegisterPromotion}>Salvar</button>
