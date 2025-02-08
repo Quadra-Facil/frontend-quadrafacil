@@ -41,6 +41,7 @@ type Arena = {
   name: string;
   phone: string;
   status: string;
+  valueHour: number
   adressArenas: {
     $values: AddressArena[];
   };
@@ -224,12 +225,18 @@ export default function ModalSerchArena() {
     } else {
 
       const arenaS = allArenas.filter(item => item.id == selectedArena)
+      const selectedArenaData = allArenas.find(item => item.id == selectedArena);
+      const getvalueHour = selectedArenaData ? selectedArenaData.valueHour : null;
+
+      console.log("Value: ", getvalueHour)
+
       if (arenaS[0].status === "ativo") {
         navigate('/reserve', {
           state: {
             arenaId: selectedArena,
             arena: selectedArenaAdress,
             sports: selectedSports,
+            GetvalueHour: getvalueHour
           },
         })
         return;
@@ -241,7 +248,6 @@ export default function ModalSerchArena() {
 
         openModalInformeArenaDisable()
 
-        // sfkdsj
         return;
       }
     }

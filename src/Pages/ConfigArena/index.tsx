@@ -565,7 +565,7 @@ export default function ConfigArena() {
         return
       } else {
         if (selectedPromotion === "dayuse") {
-          if (valuePromotion === undefined || QtdPeoplePromotion === undefined || weekDays.length === 0) {
+          if (valuePromotion === undefined || weekDays.length === 0) {
 
             setSendTitle('error');
             setSendMessage(`Preencha todos os campos.`)
@@ -580,8 +580,8 @@ export default function ConfigArena() {
             startDate: selectedPromotion === "dayuse" ? null : startDatePromotion,
             endDate: selectedPromotion === "dayuse" ? null : endDatePromotion,
             weekDays: weekDays,
-            value: Number(valuePromotion) * Number(QtdPeoplePromotion), // Garantindo que seja número
-            qtdPeople: QtdPeoplePromotion,
+            value: valuePromotion, // Garantindo que seja número
+            qtdPeople: 0,
             arenaId: user?.arena,
           });
 
@@ -1160,12 +1160,12 @@ export default function ConfigArena() {
                               <input value={valuePromotion} type="number" onChange={(e) => setValuePromotion(Number(e.target.value))} />
                             </div>
                             {
-                              selectedPromotion === "dayuse" && (
-                                <div className="qtd">
-                                  <label>{selectedPromotion === "dayuse" ? "Qtd pessoas:" : "Qtd:"}</label>
-                                  <input value={QtdPeoplePromotion} type="number" onChange={(e) => setQtdPeoplePromotion(Number(e.target.value))} />
-                                </div>
-                              )
+                              // selectedPromotion === "dayuse" && (
+                              //   <div className="qtd">
+                              //     <label>{selectedPromotion === "dayuse" ? "Qtd pessoas:" : "Qtd:"}</label>
+                              //     <input value={QtdPeoplePromotion} type="number" onChange={(e) => setQtdPeoplePromotion(Number(e.target.value))} />
+                              //   </div>
+                              // )
                             }
 
                           </section>

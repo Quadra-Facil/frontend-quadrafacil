@@ -37,6 +37,30 @@ interface Reserve {
   observation: string;
 }
 
+interface WeekDaysResponse {
+  $id: string;
+  $values: number[];
+}
+
+interface Promotion {
+  $id: string;
+  id: number;
+  promotionType: string;
+  when: string;
+  weekDays: WeekDaysResponse;
+  value: number;
+  qtdPeople: number;
+  arenaId: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+interface PromotionResponse {
+  $id: string;
+  $values: Promotion[];
+}
+
+
 export function DatePickerReserve() {
   const [selected, setSelected] = useState<Date | undefined>(undefined);
   const [startTime, setStartTime] = useState<string>("00:00:00");
@@ -54,12 +78,18 @@ export function DatePickerReserve() {
   const [spacesReserved, setSpacesReserved] = useState<Space[]>([]);
   const [selectedSpaceReserved, setSelectedSpaceReserved] = useState<number | null>(null);
   const [reserveSpace, setReserveSpace] = useState<Reserve[]>([]);
+  const [loadPromotions, setLoadPromotions] = useState<Promotion[]>([]);
+
+  const [promoTypeResult, setPromoTypeResult] = useState<string>('')
+  const [getPromoType, setGetPromoType] = useState<string>('')
+
+  const [valueGetPromo, setValueGetPromo] = useState<any>()
 
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
   const { user }: any = authContext;
   const location = useLocation();
-  const { arenaId, arena, sports } = location.state || {};
+  const { arenaId, arena, sports, GetvalueHour } = location.state || {};
 
   function openModalReserve() {
     setIsOpenReserve(true);
@@ -139,6 +169,82 @@ export function DatePickerReserve() {
     }
   };
 
+  useEffect(() => {
+    if (user?.arena) {
+      api.post("/api/Promotions/get-promotion", {
+        arenaId: user?.arena,
+      })
+        .then((response) => {
+          setLoadPromotions(response?.data?.$values);
+        })
+        .catch((error: any) => {
+          setSendTitle("error");
+          setSendMessage(error?.response?.data);
+        });
+    }
+  }, [user?.arena]); // Só executa quando o arenaId mudar
+
+  useEffect(() => {
+    if (startTime && endTime && loadPromotions.length > 0) {
+      const [startHour, startMinute] = startTime.split(":").map(Number);
+      const [endHour, endMinute] = endTime.split(":").map(Number);
+
+      // Converter os horários em minutos
+      const startTotalMinutes = startHour * 60 + startMinute;
+      const endTotalMinutes = endHour * 60 + endMinute;
+
+      // Calcular a diferença em minutos
+      let diffInMinutes = endTotalMinutes - startTotalMinutes;
+
+      // Se a diferença for negativa, significa que o horário final é no dia seguinte
+      if (diffInMinutes < 0) {
+        diffInMinutes += 24 * 60; // Adicionar 24 horas em minutos
+      }
+
+      // Calcular as horas
+      const hours = Math.floor(diffInMinutes / 60);
+
+      // Atualiza a diferença em horas no estado
+      const timeDiff = `${hours}h`;
+      setTimeDiff(timeDiff);
+
+      // Filtrar as promoções com base no tipo de promoção igual à diferença de horas
+      const filterPromo = loadPromotions.filter(
+        (item) => item.promotionType === timeDiff
+      );
+
+      const getDay = new Date().getDay();
+      const filterDayUse = loadPromotions.filter(
+        (item) => item.promotionType === "dayuse"
+      );
+
+      // Verifica se o dia atual está presente no array `weekDays` da promoção dayuse
+      const dayUseValid = filterDayUse.filter((item) => item.weekDays.$values.includes(getDay));
+
+      //se o dia atual for dayuse
+      if (dayUseValid.length > 0) {
+        setPromoTypeResult(`Day use - R$ ${dayUseValid[0].value.toString()} por pessoa.`);
+        setGetPromoType(filterPromo[0].promotionType);
+        setValueGetPromo(filterPromo[0]?.value as any);
+        return;
+        // Se houver promoções no intervalo
+      } else if (filterPromo.length > 0) {
+        setPromoTypeResult(
+          `${filterPromo[0].promotionType} pagando menos - R$ ${filterPromo[0].value.toFixed(2)}`
+        );
+        setGetPromoType(filterPromo[0].promotionType);
+        setValueGetPromo(filterPromo[0]?.value as any);
+      } else {
+        setPromoTypeResult("Nenhuma promoção encontrada.");
+        setGetPromoType("Nenhuma");
+        setValueGetPromo(GetvalueHour);
+      }
+
+
+    }
+  }, [startTime, endTime, loadPromotions]); // Apenas quando startTime, endTime ou loadPromotions mudarem
+
+
   const getReserves = async () => {
     if (!arenaId || !selectedSpace || !selectedDate) return;
 
@@ -184,7 +290,7 @@ export function DatePickerReserve() {
     const hours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
     const minutes = Math.floor((diffInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
 
-    setTimeDiff(`${hours}h ${minutes}m`);
+    setTimeDiff(`${hours}h`);
   };
 
   const calculeHoursAndCreateReserve = async () => {
@@ -211,25 +317,35 @@ export function DatePickerReserve() {
       setSendTitle('error');
       setSendMessage(`Horário final incorreto.`);
       return;
-    } else {
+    }
+
+    else {
       selected && startTime && endTime && calculateDifference(startTime, endTime, selected);
 
-      await api.post("/api/reserve", {
-        userId: user.userId,
-        arenaId: arenaId,
-        spaceId: selectedSpace,
-        dataReserve: selected == undefined ? format(new Date(), "yyyy-MM-dd") : format(selected as Date, "yyyy-MM-dd"),
-        timeInitial: startTime,
-        timeFinal: endTime,
-        typeReserve: "reserva",
-        observation: ""
-      }).then((response) => {
+      try {
+        // Fazer a reserva com os dados da promoção selecionada
+        const response = await api.post("/api/reserve", {
+          userId: user.userId,
+          arenaId: arenaId,
+          spaceId: selectedSpace,
+          dataReserve: selected === undefined ? format(new Date(), "yyyy-MM-dd") : format(selected as Date, "yyyy-MM-dd"),
+          timeInitial: startTime,
+          timeFinal: endTime,
+          typeReserve: "avulsa",
+          observation: "",
+          promotion: getPromoType !== "Nenhuma" ? true : false,
+          promotionType: getPromoType !== "Nenhuma" ? getPromoType : null, // Enviar o tipo da promoção selecionada
+          value: valueGetPromo
+        });
+
+        // Se a reserva for bem-sucedida
         setSendTitle('success');
-        setSendMessage(`${response.data.message} `);
-      }).catch((error: any) => {
+        setSendMessage(`${response?.data?.message}`);
+      } catch (error: any) {
+        // Se ocorrer um erro
         setSendTitle('error');
-        setSendMessage(`${error.response.data} `);
-      });
+        setSendMessage(`${error?.response?.data}`);
+      }
     }
   };
 
@@ -244,10 +360,6 @@ export function DatePickerReserve() {
     setSelectedSpace(id);
     setSelectedSpaceReserved(id);
   };
-
-  // const handleSpaceReserved = (id: number) => {
-  //   setSelectedSpaceReserved(id);
-  // };
 
   return (
     <>
@@ -373,6 +485,9 @@ export function DatePickerReserve() {
                     <input type="time" value={endTime.slice(0, 5)} onChange={(e) => handleTimeChange(e, false)} />
                   </label>
                 </form>
+
+                <h5>Promoção: {promoTypeResult || 'Nenhuma promoção encontrada'}</h5>
+
 
                 <button className="btn-reserve" onClick={calculeHoursAndCreateReserve}>Reservar</button>
               </section>
