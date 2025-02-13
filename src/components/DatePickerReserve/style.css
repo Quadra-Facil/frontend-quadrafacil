@@ -216,10 +216,10 @@
     }
 
     form {
-      width: 70%;
+      width: 80%;
       display: flex;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
       margin-top: 5%;
 
       label {
@@ -233,8 +233,20 @@
           border-radius: 10px;
           color: var(--primary-color);
           font-size: 16px;
+          width: 100%;
         }
       }
+    }
+
+    h5 {
+      width: 80%;
+      text-align: center;
+      margin-top: 10%;
+      padding: 2% 0;
+      border-bottom: 1px solid #a5a5a5;
+      border-radius: 10px;
+      font-weight: 350;
+      font-size: 15px;
     }
 
     .btn-reserve {

@@ -147,7 +147,8 @@ export function DatePickerReserve() {
       width: '70vw',
       height: '95vh',
       maxWidth: '80%',
-      color: '#6c6c6c'
+      color: '#6c6c6c',
+      zIndex: 10000,
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -188,28 +189,7 @@ export function DatePickerReserve() {
   const roundMinutes = (minutes: number): number => minutes <= 15 ? 0 : 30;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // funciona
+  // verificação dos inputs timers 
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>, isStart: boolean) => {
     const time = event.target.value;
     const [hour, minute] = time.split(":").map(Number);
@@ -231,6 +211,7 @@ export function DatePickerReserve() {
   };
 
   const checkTimeValidity = (selectedTime: string, type: "start" | "end") => {
+
     if (!loadExpedient) {
       console.log("Expediente não carregado.");
       return;
@@ -297,7 +278,14 @@ export function DatePickerReserve() {
             setStartTime('00:00');
             return;
           }
+          if (selectedTimeObj >= expStart) {
+            setMessageInformeError(`Horário fora do expediente.`);
+            openModalInformeExp();
+            setStartTime('00:00');
+            return;
+          }
         }
+
       }
 
       // Validação para endTime
@@ -340,50 +328,6 @@ export function DatePickerReserve() {
       return;
     }
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   useEffect(() => {
     if (user?.arena) {
@@ -689,7 +633,8 @@ export function DatePickerReserve() {
       width: '40vw',
       height: '50vh',
       maxWidth: '100%',
-      color: '#6c6c6c'
+      color: '#6c6c6c',
+      zIndex: 10000,
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -841,7 +786,7 @@ export function DatePickerReserve() {
                   </label>
                 </form>
 
-                <h5>Promoção: {promoTypeResult || 'Nenhuma promoção encontrada'}</h5>
+                <h5><strong>Promoção: </strong> {promoTypeResult || 'Nenhuma promoção encontrada'}</h5>
 
                 <button className="btn-reserve" onClick={calculeHoursAndCreateReserve}>Reservar</button>
               </section>
