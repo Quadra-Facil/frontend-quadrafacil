@@ -18,6 +18,8 @@ import { api } from "../../../services/axiosApi/apiClient";
 import { AuthContext } from "../../../services/contexts/AuthContext";
 import { DatePickerReserve } from "../../DatePickerReserve";
 import DatePickerHourReserved from "../../DatePickerHourReserved";
+import { MdOutlinePushPin } from "react-icons/md";
+import { BsEmojiSunglasses } from "react-icons/bs";
 
 interface GetPlanResponse {
   id: string;
@@ -44,6 +46,54 @@ interface SpaceResponse {
   $values: Space[];
 }
 
+interface Arena {
+  $ref: string;
+}
+
+interface Address {
+  $id: string;
+  id: number;
+  state: string;
+  city: string;
+  street: string;
+  neighborhood: string;
+  number: number;
+  reference: string;
+  arenaId: number;
+  arena: Arena;
+}
+
+interface AddressArenas {
+  $id: string;
+  $values: Address[];
+}
+
+interface ArenaData {
+  $id: string;
+  id: number;
+  name: string;
+  phone: string;
+  status: string;
+  valueHour: number;
+  adressArenas: AddressArenas;
+}
+
+interface Space {
+  $id: string;
+  spaceId: number;
+  name: string;
+  status: string;
+  sports: string; // A chave 'sports' contém uma string com esportes separados por vírgula
+  arenaId: number;
+}
+
+// Definindo a interface para o formato da resposta da API
+interface ApiResponse {
+  $id: string;
+  $values: Space[];
+}
+
+
 export default function MenuOption() {
   const navigate = useNavigate();
   const [modalIsOpenLicence, setIsOpenLicence] = useState<boolean>(false);
@@ -57,6 +107,10 @@ export default function MenuOption() {
   const [isLoading, setIsLoading] = useState(false);
   const [spacesData, seTSpacesData] = useState<SpaceResponse | null>(null);
   const [isChecked, setIsChecked] = useState<string>('')
+
+  const [arenaData, setArenaData] = useState<ArenaData | null>(null);
+  const [esportes, setEsportes] = useState<String[]>([]);
+
 
   const authContext = useContext(AuthContext);
   const { user }: any = authContext;
@@ -261,6 +315,55 @@ export default function MenuOption() {
     })
   }
 
+  //dados de arena para o admin carregar para reservas
+  useEffect(() => {
+    async function getDataArena() {
+      await api.post('/api/Arena/getArena', {
+        arenaId: user?.arena
+      }).then((response) => {
+        setArenaData(response?.data)
+      }).catch((error: any) => {
+        console.error(error?.response?.data)
+      })
+    }
+    getDataArena();
+  }, [])
+
+  useEffect(() => {
+    async function getSports() {
+      try {
+        const response = await api.post("/api/newSpace/get-spaces", {
+          arenaId: user?.arena // Aqui você deve garantir que o valor de `user?.arena` está correto
+        });
+
+        // Verifique se a resposta possui os dados esperados
+        const dados = response?.data?.$values;
+
+        // Pegando todos os esportes, dividindo e removendo repetições
+        const esportesArray: string[] = [];
+
+        dados?.forEach((item: { sports: string }) => {
+          // Dividindo a string 'sports' em um array de esportes
+          const esportesSeparados = item.sports.split(',').map((sport: string) => sport.trim());
+
+          // Adicionando esportes ao array, garantindo que não haja repetições
+          esportesArray.push(...esportesSeparados);
+        });
+
+        // Remover duplicatas usando Set
+        const esportesUnicos = [...new Set(esportesArray)];
+
+        // Atualizando o estado com os esportes únicos
+        setEsportes(esportesUnicos);
+      } catch (error: any) {
+        console.error(error?.response?.data);
+      }
+    }
+
+    getSports();
+  }, []); // Recarrega quando o componente for montado
+
+
   return (
     <>
       <Toast title={sendTitle} message={sendMessage} />
@@ -275,10 +378,37 @@ export default function MenuOption() {
                   <FiMenu size={35} color="#868682" style={{ cursor: "pointer" }} />
                 </section>
 
-                <section className="menu-item" onClick={() => navigate("/searchArena")}>
-                  <div className="divider-item"></div>
-                  <img src={ReserveIcon} alt="Icon" width={28} height={28} />
-                  <strong>Reservas</strong>
+                <section className="menu-item-reserve" onClick={user?.role === "client" ? () => navigate("/searchArena") : () => { }}>
+                  <section className="menu-item">
+                    <img src={ReserveIcon} alt="Icon" width={28} height={28} />
+                    <strong>Reservas</strong>
+                  </section>
+                  {
+                    user?.role !== "client" && (
+                      <div className="type-reserve">
+                        <div className="area-btn">
+                          <p title="Cria uma reserva sem recorrência"
+                            onClick={() => navigate('/reserve', {
+                              state: {
+                                arenaId: user?.arena,
+                                arena: `${arenaData?.name} - ${arenaData?.adressArenas.$values[0].state}-${arenaData?.adressArenas.$values[0].city}`,
+                                sports: esportes,
+                                GetvalueHour: arenaData?.valueHour
+                              }
+                            })
+                            }
+                          >
+                            Avulsa
+                            <BsEmojiSunglasses />
+                          </p>
+                          <p title="Cria uma reserva para um dia em toda semana" onClick={() => console.log(esportes)}>
+                            Fixa
+                            <MdOutlinePushPin />
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  }
                 </section>
 
 

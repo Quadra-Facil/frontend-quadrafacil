@@ -92,7 +92,7 @@ export default function Arena() {
       padding: '20px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       width: '40vw',
-      height: '60vh',
+      height: '70vh',
       maxWidth: '90%',
       color: '#6c6c6c'
     },

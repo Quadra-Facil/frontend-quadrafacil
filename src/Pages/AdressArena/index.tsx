@@ -54,6 +54,8 @@ export default function AdressArena() {
   const [getAllArenas, setGetAllArenas] = useState<{ value: string; label: string }[]>([]);
   const [selectedArena, setSelectedArena] = useState<any>();
 
+  const [isLoadingSelect, setIsLoadingSelect] = useState<boolean>(false)
+
   const navigate = useNavigate();
 
   // Exibir Toast
@@ -103,6 +105,7 @@ export default function AdressArena() {
 
   //get all arenas
   useEffect(() => {
+    setIsLoadingSelect(true)
     api
       .get<GetAllArenasResponse>("/api/Arena")
       .then((response) => {
@@ -122,14 +125,16 @@ export default function AdressArena() {
               label: `${item.name} - ${stateCity}`, // Exibir nome, estado e cidade como rótulo
             };
           });
-
+          setIsLoadingSelect(false);
           setGetAllArenas(formattedArena);
         } else {
           console.error("Os dados retornados não são um array:", response.data);
+          setIsLoadingSelect(false);
         }
       })
       .catch((err) => {
         console.error("Erro ao buscar dados:", err);
+        setIsLoadingSelect(false);
       });
   }, []);
 
@@ -283,7 +288,8 @@ export default function AdressArena() {
                     setSelectedArena('arena'); // Define como null se nada for selecionado
                   }
                 }}
-                placeholder="Arena"
+                placeholder={isLoadingSelect ? "Carregando..." : "Arena"} // Exibe "Carregando..." enquanto carrega
+                isLoading={isLoadingSelect} // Prop de loading
                 styles={{
                   control: (baseStyles) => ({
                     ...baseStyles,

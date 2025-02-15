@@ -66,7 +66,7 @@
   align-items: center;
   justify-content: space-between;
   width: 70%;
-  height: 75vh;
+  height: 70vh;
   margin-top: 12%;
   color: #6c6c6c;
 }
@@ -124,13 +124,15 @@
 .cadastrar {
   background-color: var(--primary-color);
   color: #fff;
-  width: 60%;
+  width: 20%;
   height: 50px;
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
   box-shadow: 0 3px 0 #d6d6d697;
   transition: background-color 0.7s ease;
+  position: fixed;
+  bottom: 2%;
 }
 
 /* area modal ------------------ */
@@ -194,6 +196,8 @@
     height: 60px;
     border-radius: 10px;
     font-size: 16px;
+    position: fixed;
+    bottom: 5%;
   }
 
   .btn-vincular:hover {

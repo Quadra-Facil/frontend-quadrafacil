@@ -384,15 +384,15 @@ export function DatePickerReserve() {
       //se o dia atual for dayuse
       if (dayUseValid.length > 0) {
         setPromoTypeResult(`Day use - R$ ${dayUseValid[0].value.toString()} por pessoa.`);
-        setGetPromoType(filterPromo[0].promotionType);
+        setGetPromoType(filterPromo[0]?.promotionType);
         setValueGetPromo(filterPromo[0]?.value as any);
         return;
         // Se houver promoções no intervalo
       } else if (filterPromo.length > 0) {
         setPromoTypeResult(
-          `${filterPromo[0].promotionType} pagando menos - R$ ${filterPromo[0].value.toFixed(2)}`
+          `${filterPromo[0]?.promotionType} pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}`
         );
-        setGetPromoType(filterPromo[0].promotionType);
+        setGetPromoType(filterPromo[0]?.promotionType);
         setValueGetPromo(filterPromo[0]?.value as any);
       } else {
         setPromoTypeResult("Nenhuma promoção encontrada.");
