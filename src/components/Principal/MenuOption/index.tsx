@@ -20,6 +20,7 @@ import { DatePickerReserve } from "../../DatePickerReserve";
 import DatePickerHourReserved from "../../DatePickerHourReserved";
 import { MdOutlinePushPin } from "react-icons/md";
 import { BsEmojiSunglasses } from "react-icons/bs";
+import ModalReserveFixed from "../../ModalReserveFixed";
 
 interface GetPlanResponse {
   id: string;
@@ -401,7 +402,13 @@ export default function MenuOption() {
                             Avulsa
                             <BsEmojiSunglasses />
                           </p>
-                          <p title="Cria uma reserva para um dia em toda semana" onClick={() => console.log(esportes)}>
+                          <p title="Cria uma reserva para um dia em toda semana" onClick={
+                            () => navigate("/reserve-fixed", {
+                              state: {
+                                sports: esportes,
+                              }
+                            })
+                          }>
                             Fixa
                             <MdOutlinePushPin />
                           </p>

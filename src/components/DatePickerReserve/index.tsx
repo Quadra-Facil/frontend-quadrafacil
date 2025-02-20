@@ -737,8 +737,8 @@ export function DatePickerReserve() {
                               {format(new Date(`1970-01-01T${item.timeFinal}`), "HH:mm")}
                             </strong>
                             <div className="type-reserve">
-                              <p>{item.typeReserve == 'reserva' ? "Reservado" : "Fixo"}</p>
-                              {item.typeReserve == 'reserva' ? <BsEmojiSunglasses /> : <MdOutlinePushPin />}
+                              <p>{item.typeReserve == 'avulsa' ? "Reservado" : "Fixo"}</p>
+                              {item.typeReserve == 'avulsa' ? <BsEmojiSunglasses /> : <MdOutlinePushPin />}
                             </div>
                           </div>
                         ))

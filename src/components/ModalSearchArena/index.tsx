@@ -228,7 +228,6 @@ export default function ModalSerchArena() {
       const selectedArenaData = allArenas.find(item => item.id == selectedArena);
       const getvalueHour = selectedArenaData ? selectedArenaData.valueHour : null;
 
-      console.log("Value: ", getvalueHour)
 
       if (arenaS[0].status === "ativo") {
         navigate('/reserve', {

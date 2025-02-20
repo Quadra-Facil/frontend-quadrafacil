@@ -14,6 +14,7 @@ import { DatePickerReserve } from '../components/DatePickerReserve/index.tsx';
 import DatePickerHourReserved from '../components/DatePickerHourReserved/index.tsx';
 import ModalSerchArena from '../components/ModalSearchArena/index.tsx';
 import ConfigArena from './ConfigArena/index.tsx';
+import ModalReserveFixed from '../components/ModalReserveFixed/index.tsx';
 
 Modal.setAppElement("#root");
 
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path='/reserve' element={<DatePickerReserve />} />
           <Route path='/searchArena' element={<ModalSerchArena />} />
           <Route path='/configArena' element={<ConfigArena />} />
+          <Route path='/reserve-fixed' element={<ModalReserveFixed />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
