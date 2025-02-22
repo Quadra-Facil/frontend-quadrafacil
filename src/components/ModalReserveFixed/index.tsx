@@ -15,18 +15,54 @@ interface Space {
   sports: string;
 }
 
+// Definindo os tipos para a resposta da API
+
+interface Arena {
+  $id: string;
+  id: number;
+  name: string;
+  phone: string;
+  status: string;
+  valueHour: number;
+  adressArenas: AdressArenas;
+}
+
+interface AdressArenas {
+  $id: string;
+  $values: Address[];
+}
+
+interface Address {
+  $id: string;
+  id: number;
+  state: string;
+  city: string;
+  street: string;
+  neighborhood: string;
+  number: number;
+  reference: string;
+  arenaId: number;
+  arena: ArenaReference;
+}
+
+interface ArenaReference {
+  $ref: string;
+}
+
+
 export default function ModalReserveFixed() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [getAllArenas, setGetAllArenas] = useState<{ value: string; label: string }[]>([]);
-  const [selectedArena, setSelectedArena] = useState<any>();
-  const [selectedArenaAdress, setSelectedArenaAdress] = useState<any>();
-  const [selectedSports, setSelectedSports] = useState<string[]>([]);
+
+  const [arenaData, setArenaData] = useState<Arena | null>(null);
+
+  const [startTime, setStartTime] = useState<string>('');
+  const [endTime, setEndTime] = useState<string>('');
+  const [observations, setObservations] = useState<string>('');
 
   const [selectedSpace, setSelectedSpace] = useState<number | null>(null);
-  const [spacesReserved, setSpacesReserved] = useState<Space[]>([]);
   const [spaces, setSpaces] = useState<Space[]>([]);
   const location = useLocation();
   const { sports } = location.state || {};
@@ -68,6 +104,10 @@ export default function ModalReserveFixed() {
   }, []);
 
   useEffect(() => {
+    console.log("Teste: ", sports)
+  }, []);
+
+  useEffect(() => {
     if (sendTitle && sendMessage) {
       const timer = setTimeout(() => {
         setSendTitle('');
@@ -77,16 +117,31 @@ export default function ModalReserveFixed() {
     }
   }, [sendTitle, sendMessage]);
 
-  function openModal() {
-    setIsOpen(true);
-  }
+  useEffect(() => {
+    async function getArena() {
+      setIsLoading(true);
+      try {
+        const response = await api.post("/api/Arena/getArena", {
+          arenaId: Number(user?.arena),
+        });
+        setArenaData(response.data);  // Armazenando os dados
+        setIsLoading(false);
+      } catch (error: any) {
+        setSendTitle('error');
+        setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
+        setIsLoading(false);
+      }
+    }
+    getArena();
+  }, [user?.arena]);  // Dependência ajustada para reexecutar quando 'user?.arena' mudar
 
-  function closeModal() {
-    setIsOpen(false);
-    navigate("/principal");
-  }
 
   useEffect(() => {
+    if (!user?.arena || !sports) {
+      setIsLoading(true)
+      return; // Não faz a requisição até que os valores necessários estejam presentes
+    }
+
     async function getSpaceSearch() {
       setIsLoading(true);
       try {
@@ -95,10 +150,10 @@ export default function ModalReserveFixed() {
           sports: String(sports),
         });
 
-        if (Array.isArray(response.data.$values)) {
-          setSpaces(response.data.$values);
+        if (response.data && Array.isArray(response.data.$values)) {
+          setSpaces(response.data.$values); // Armazenando os espaços
         } else {
-          setSpaces([]);
+          setSpaces([]); // Caso não tenha espaços ou a estrutura não seja válida
         }
       } catch (error: any) {
         setSendTitle('error');
@@ -109,7 +164,17 @@ export default function ModalReserveFixed() {
     }
 
     getSpaceSearch();
-  }, [user?.arena, sports]);
+  }, [user?.arena, sports]);  // Certifique-se de que os valores são válidos
+
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+    navigate("/principal");
+  }
 
   const handleSpace = (id: number) => {
     setSelectedSpace(id);
@@ -171,42 +236,90 @@ export default function ModalReserveFixed() {
     }
   }
 
-  // Função para fazer a reserva
-  async function ReserveFixed() {
-    setIsLoading(true);
-    for (let i = 0; i < dates.length; i++) {
-      const currentDate = dates[i];
-      try {
-        await api.post("/api/reserve", {
-          userId: user?.userId,
-          arenaId: user?.arena,
-          spaceId: selectedSpace,
-          dataReserve: currentDate,
-          timeInitial: `${startTime}:00`,
-          timeFinal: `${endTime}:00`,
-          typeReserve: "fixa",
-          observation: observations,
-          promotion: true,
-          promotionType: "2h",
-          value: 80
-        }).then((response) => {
-          setSendTitle('success');
-          setSendMessage(`${response?.data?.message}`);
-        }).catch((error: any) => {
-          setSendTitle('error');
-          setSendMessage(`${error?.response?.data}`);
-        });
-      } catch (error) {
-        setSendTitle('error');
-        setSendMessage('Erro desconhecido');
-      }
-    }
-    setIsLoading(false);
+  // Função para corrigir os minutos 30 em 30 minutos
+  function correctMinutes(time: string): string {
+    const [hours, minutes] = time.split(":").map(Number);
+
+    // Se os minutos forem de 00 a 29, ajusta para 00
+    // Se forem de 30 a 59, ajusta para 30
+    const correctedMinutes = minutes < 30 ? 0 : 30;
+
+    return `${hours.toString().padStart(2, "0")}:${correctedMinutes.toString().padStart(2, "0")}`;
   }
 
-  const [startTime, setStartTime] = useState<string>('');
-  const [endTime, setEndTime] = useState<string>('');
-  const [observations, setObservations] = useState<string>('');
+  // Modificando a função de manipulação de horário para usar a correção
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = e.target.value;
+    const correctedTime = correctMinutes(time);
+    setStartTime(correctedTime);
+  };
+
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = e.target.value;
+    const correctedTime = correctMinutes(time);
+    setEndTime(correctedTime);
+  };
+
+
+  // Função para fazer a reserva
+  async function ReserveFixed() {
+
+    //validações
+    if (!selectedSpace) {
+      setSendTitle('error');
+      setSendMessage("Selecione um espaço, quadra...");
+      return;
+    } else if (dates.length === 0) {
+      setSendTitle('error');
+      setSendMessage("Selecione o dia e período");
+      return;
+    } else if (startTime === '' || endTime === '') {
+      setSendTitle('error');
+      setSendMessage("Horário incorreto.");
+      return;
+    } else if (startTime >= endTime) {
+      setSendTitle('error');
+      setSendMessage("Horário incorreto.");
+      return;
+    }
+    else if (observations === '') {
+      setSendTitle('error');
+      setSendMessage("Informe uma observação.");
+      return;
+    }
+
+    else {
+      setIsLoading(true);
+      for (let i = 0; i < dates.length; i++) {
+        const currentDate = dates[i];
+        try {
+          await api.post("/api/reserve", {
+            userId: user?.userId,
+            arenaId: user?.arena,
+            spaceId: selectedSpace,
+            dataReserve: currentDate,
+            timeInitial: `${startTime}:00`,
+            timeFinal: `${endTime}:00`,
+            typeReserve: "fixa",
+            observation: observations,
+            promotion: true,
+            promotionType: "2h",
+            value: arenaData?.valueHour
+          }).then((response) => {
+            setSendTitle('success');
+            setSendMessage(`${response?.data?.message}`);
+          }).catch((error: any) => {
+            setSendTitle('error');
+            setSendMessage(`${error?.response?.data}`);
+          });
+        } catch (error) {
+          setSendTitle('error');
+          setSendMessage('Erro desconhecido');
+        }
+      }
+      setIsLoading(false);
+    }
+  }
 
   return (
     <>
@@ -302,11 +415,13 @@ export default function ModalReserveFixed() {
                 <div className="area-timers-div">
                   <div className="area-initial-time">
                     <label htmlFor="initial">Hr. Inicial:</label>
-                    <input type="time" name="" id="initial" onChange={(e) => setStartTime(e.target.value)} />
+                    <input type="time" id="initial" value={startTime}
+                      onChange={handleStartTimeChange} />
                   </div>
                   <div className="area-end-time">
                     <label htmlFor="end">Hr. Final:</label>
-                    <input type="time" name="" id="end" onChange={(e) => setEndTime(e.target.value)} />
+                    <input type="time" name="" id="end" value={endTime}
+                      onChange={handleEndTimeChange} />
                   </div>
                 </div>
                 <h5>Promoção: 2h por menos.</h5>
