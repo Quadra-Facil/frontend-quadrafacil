@@ -7,15 +7,13 @@ import Loading from "../Loading";
 import Modal from "react-modal";
 import { FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
-import { addDays, isBefore, format, addMonths } from 'date-fns';
+import { addDays, isBefore, format, addMonths, parse, differenceInHours } from 'date-fns';
 
 interface Space {
   spaceId: number;
   name: string;
   sports: string;
 }
-
-// Definindo os tipos para a resposta da API
 
 interface Arena {
   $id: string;
@@ -49,27 +47,44 @@ interface ArenaReference {
   $ref: string;
 }
 
+interface Promotion {
+  $id: string;
+  id: number;
+  promotionType: string;
+  when: string;
+  weekDays: {
+    $id: string;
+    $values: number[];
+  };
+  value: number;
+  qtdPeople: number;
+  arenaId: number;
+}
+
 
 export default function ModalReserveFixed() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
   const [modalIsOpen, setIsOpen] = useState(false);
-
   const [arenaData, setArenaData] = useState<Arena | null>(null);
-
   const [startTime, setStartTime] = useState<string>('');
   const [endTime, setEndTime] = useState<string>('');
   const [observations, setObservations] = useState<string>('');
-
   const [selectedSpace, setSelectedSpace] = useState<number | null>(null);
   const [spaces, setSpaces] = useState<Space[]>([]);
   const location = useLocation();
   const { sports } = location.state || {};
-
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
   const { user }: any = authContext;
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [filterPromo, setFilterPromo] = useState<Promotion[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<number | string>('');
+  const [weekDaySigla, setWeekDaySigla] = useState<string | null>(null);
+  const [dates, setDates] = useState<string[]>([]);
+
+  const WeekDay = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'] as const;
 
   const customStylesModalReservFixed = {
     content: {
@@ -104,27 +119,13 @@ export default function ModalReserveFixed() {
   }, []);
 
   useEffect(() => {
-    console.log("Teste: ", sports)
-  }, []);
-
-  useEffect(() => {
-    if (sendTitle && sendMessage) {
-      const timer = setTimeout(() => {
-        setSendTitle('');
-        setSendMessage('');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [sendTitle, sendMessage]);
-
-  useEffect(() => {
     async function getArena() {
       setIsLoading(true);
       try {
         const response = await api.post("/api/Arena/getArena", {
           arenaId: Number(user?.arena),
         });
-        setArenaData(response.data);  // Armazenando os dados
+        setArenaData(response.data);
         setIsLoading(false);
       } catch (error: any) {
         setSendTitle('error');
@@ -133,13 +134,12 @@ export default function ModalReserveFixed() {
       }
     }
     getArena();
-  }, [user?.arena]);  // Dependência ajustada para reexecutar quando 'user?.arena' mudar
-
+  }, [user?.arena]);
 
   useEffect(() => {
     if (!user?.arena || !sports) {
       setIsLoading(true)
-      return; // Não faz a requisição até que os valores necessários estejam presentes
+      return;
     }
 
     async function getSpaceSearch() {
@@ -151,9 +151,9 @@ export default function ModalReserveFixed() {
         });
 
         if (response.data && Array.isArray(response.data.$values)) {
-          setSpaces(response.data.$values); // Armazenando os espaços
+          setSpaces(response.data.$values);
         } else {
-          setSpaces([]); // Caso não tenha espaços ou a estrutura não seja válida
+          setSpaces([]);
         }
       } catch (error: any) {
         setSendTitle('error');
@@ -164,8 +164,26 @@ export default function ModalReserveFixed() {
     }
 
     getSpaceSearch();
-  }, [user?.arena, sports]);  // Certifique-se de que os valores são válidos
+  }, [user?.arena, sports]);
 
+  useEffect(() => {
+    setIsLoading(true)
+    async function loadPromotions() {
+      await api.post("/api/Promotions/get-promotion", {
+        arenaId: user?.arena
+      }).then((response) => {
+        setPromotions(response?.data?.$values);
+        setIsLoading(false);
+      }).catch((error: any) => {
+        setSendTitle('error');
+        setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
+        setIsLoading(false);
+      }).finally(() => {
+        setIsLoading(false);
+      })
+    }
+    loadPromotions();
+  }, [user?.arena]);
 
   function openModal() {
     setIsOpen(true);
@@ -179,12 +197,6 @@ export default function ModalReserveFixed() {
   const handleSpace = (id: number) => {
     setSelectedSpace(id);
   };
-
-  const [selectedPeriod, setSelectedPeriod] = useState<number | string>('');
-  const [weekDaySigla, setWeekDaySigla] = useState<string | null>(null);
-  const [dates, setDates] = useState<string[]>([]);
-
-  const WeekDay = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'] as const;
 
   const handlePeriodChange = (event: any) => {
     const period = event.target.value;
@@ -236,18 +248,12 @@ export default function ModalReserveFixed() {
     }
   }
 
-  // Função para corrigir os minutos 30 em 30 minutos
   function correctMinutes(time: string): string {
     const [hours, minutes] = time.split(":").map(Number);
-
-    // Se os minutos forem de 00 a 29, ajusta para 00
-    // Se forem de 30 a 59, ajusta para 30
     const correctedMinutes = minutes < 30 ? 0 : 30;
-
     return `${hours.toString().padStart(2, "0")}:${correctedMinutes.toString().padStart(2, "0")}`;
   }
 
-  // Modificando a função de manipulação de horário para usar a correção
   const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const time = e.target.value;
     const correctedTime = correctMinutes(time);
@@ -260,11 +266,19 @@ export default function ModalReserveFixed() {
     setEndTime(correctedTime);
   };
 
+  useEffect(() => {
+    if (startTime && endTime) {
+      const parseTime = (timeStr: string) => parse(timeStr, 'HH:mm', new Date());
+      const start = parseTime(startTime);
+      const end = parseTime(endTime);
+      const horas = differenceInHours(end, start);
+      const result = `${horas}h`;
+      const promoFilter = promotions.filter((item) => item.promotionType === result);
+      setFilterPromo(promoFilter);
+    }
+  }, [startTime, endTime, promotions]);
 
-  // Função para fazer a reserva
   async function ReserveFixed() {
-
-    //validações
     if (!selectedSpace) {
       setSendTitle('error');
       setSendMessage("Selecione um espaço, quadra...");
@@ -281,14 +295,11 @@ export default function ModalReserveFixed() {
       setSendTitle('error');
       setSendMessage("Horário incorreto.");
       return;
-    }
-    else if (observations === '') {
+    } else if (observations === '') {
       setSendTitle('error');
       setSendMessage("Informe uma observação.");
       return;
-    }
-
-    else {
+    } else {
       setIsLoading(true);
       for (let i = 0; i < dates.length; i++) {
         const currentDate = dates[i];
@@ -424,7 +435,11 @@ export default function ModalReserveFixed() {
                       onChange={handleEndTimeChange} />
                   </div>
                 </div>
-                <h5>Promoção: 2h por menos.</h5>
+                <h5>Promoção:
+                  {
+                    filterPromo[0]?.promotionType
+                  }
+                </h5>
                 <textarea name="" id=""
                   placeholder="Ex: Turma do José."
                   onChange={(e) => setObservations(e.target.value)}
