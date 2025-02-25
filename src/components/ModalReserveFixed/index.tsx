@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../services/contexts/AuthContext";
 import Toast from "../Toast";
 import Loading from "../Loading";
-import Modal from "react-modal";
+import Modal, { prototype } from "react-modal";
 import { FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 import { addDays, isBefore, format, addMonths, parse, differenceInHours } from 'date-fns';
@@ -52,6 +52,8 @@ interface Promotion {
   id: number;
   promotionType: string;
   when: string;
+  startDate: string;
+  endDate: string;
   weekDays: {
     $id: string;
     $values: number[];
@@ -185,6 +187,7 @@ export default function ModalReserveFixed() {
     loadPromotions();
   }, [user?.arena]);
 
+
   function openModal() {
     setIsOpen(true);
   }
@@ -271,12 +274,47 @@ export default function ModalReserveFixed() {
       const parseTime = (timeStr: string) => parse(timeStr, 'HH:mm', new Date());
       const start = parseTime(startTime);
       const end = parseTime(endTime);
+
+      // Verifica se a diferença é válida
       const horas = differenceInHours(end, start);
+
+      if (isNaN(horas) || horas <= 0) {
+        setSendTitle('error');
+        setSendMessage("A diferença de horários é inválida.");
+        return;
+      }
+
       const result = `${horas}h`;
+
       const promoFilter = promotions.filter((item) => item.promotionType === result);
-      setFilterPromo(promoFilter);
+
+      if (promoFilter.length > 0) {
+        const promotion = promoFilter[0]; // Acessando com segurança, pois o array não está vazio
+
+        if (promotion.when === "todo-dia") {
+          setFilterPromo(promoFilter);
+          return;
+        } else if (promotion.when === "por-periodo") {
+          const currentDate = new Date(); // Data atual como objeto Date
+          const initialPeriod = new Date(promotion.startDate); // StartDate convertido para objeto Date
+          const endPeriod = new Date(promotion.endDate); // EndDate convertido para objeto Date
+
+          // Comparação direta de objetos Date
+          if (currentDate >= initialPeriod && currentDate <= endPeriod) {
+            setFilterPromo(promoFilter)
+            return;
+          }
+
+        } else {
+          // Se o tipo de promoção não for reconhecido, retorne ou faça algo aqui
+          return;
+        }
+      } else {
+        setFilterPromo([])
+      }
     }
   }, [startTime, endTime, promotions]);
+
 
   async function ReserveFixed() {
     if (!selectedSpace) {
@@ -435,11 +473,20 @@ export default function ModalReserveFixed() {
                       onChange={handleEndTimeChange} />
                   </div>
                 </div>
-                <h5>Promoção:
-                  {
-                    filterPromo[0]?.promotionType
-                  }
-                </h5>
+                {
+                  filterPromo.length !== 0 && (
+                    <h5>Promoção:
+                      <strong>{
+                        filterPromo[0]?.promotionType === '2h' ? `2h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}` :
+                          filterPromo[0]?.promotionType === '3h' ? `3h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}` :
+                            filterPromo[0]?.promotionType === '4h' ? `4h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}` :
+                              filterPromo[0]?.promotionType === '5h' ? `5h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}` :
+
+                                'Nenhuma promoção.'
+                      }</strong>
+                    </h5>
+                  )
+                }
                 <textarea name="" id=""
                   placeholder="Ex: Turma do José."
                   onChange={(e) => setObservations(e.target.value)}
