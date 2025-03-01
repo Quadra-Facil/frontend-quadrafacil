@@ -135,8 +135,10 @@
       /* padding-top: 20%; */
     }
 
+
+
     .card-reserve {
-      background-color: #ffffff;
+      background-color: #d67272;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -148,17 +150,6 @@
       margin-bottom: 5%;
     }
 
-    .type-reserve {
-      display: flex;
-      align-items: center;
-      justify-content: space-evenly;
-      background-color: var(--primary-color);
-      border-radius: 8px;
-      width: 40%;
-      font-size: 16px;
-      font-weight: 300;
-      padding: 1% 2%;
-    }
   }
 
   .area-rigth {

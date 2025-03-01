@@ -5,9 +5,11 @@ import { AuthContext } from "../../services/contexts/AuthContext";
 import Toast from "../Toast";
 import Loading from "../Loading";
 import Modal, { prototype } from "react-modal";
-import { FiX } from "react-icons/fi";
+import { FiTrash, FiTrash2, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 import { addDays, isBefore, format, addMonths, parse, differenceInHours } from 'date-fns';
+import Logo from "../../img/logomarca.svg"
+import { CiCalendar, CiGrid42, CiPlay1, CiStopwatch } from "react-icons/ci";
 
 interface Space {
   spaceId: number;
@@ -63,6 +65,38 @@ interface Promotion {
   arenaId: number;
 }
 
+interface WeekDays {
+  $id: string;
+  $values: number[]; // Array de números representando os dias da semana (1 = Segunda, 2 = Terça, etc.)
+}
+
+interface Schedule {
+  $id: string;
+  id: number;
+  arenaId: number;
+  weekDays: WeekDays; // Relacionando "weekDays" com a interface WeekDays
+  startTime: string;
+  endTime: string;
+  open: boolean; // Se a arena está aberta ou não
+}
+
+interface ArenaScheduleResponse {
+  $id: string;
+  $values: Schedule[]; // Array de objetos "Schedule"
+}
+
+interface Reserve {
+  id_reserve: number;
+  userId: number;
+  arenaId: number;
+  spaceId: number;
+  dataReserve: string;
+  timeInitial: string;
+  timeFinal: string;
+  status: string;
+  typeReserve: string;
+  observation: string;
+}
 
 export default function ModalReserveFixed() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -86,6 +120,20 @@ export default function ModalReserveFixed() {
   const [weekDaySigla, setWeekDaySigla] = useState<string | null>(null);
   const [dates, setDates] = useState<string[]>([]);
 
+  const [expedientData, setExpedientData] = useState<Schedule[]>([])
+
+  const [startTimeSelect, setStartTimeSelect] = useState<string>('')
+  const [endTimeSelect, setEndTimeSelect] = useState<string>('')
+  const [isOpenInforme, setIsOpenInforme] = useState<boolean>(false)
+
+  const [weekSelect, setWeekSelect] = useState<string>('')
+  const [validationType, setValidationType] = useState<boolean>(true)
+
+  const [reserveSpace, setReserveSpace] = useState<Reserve[]>([]);
+
+  const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false)
+
+
   const WeekDay = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'] as const;
 
   const customStylesModalReservFixed = {
@@ -101,7 +149,7 @@ export default function ModalReserveFixed() {
       borderRadius: '10px',
       padding: '20px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '70vw',
+      width: '60vw',
       height: '95vh',
       maxWidth: '80%',
       color: '#6c6c6c',
@@ -111,6 +159,59 @@ export default function ModalReserveFixed() {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
   };
+
+  const customStylesModalInforme = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#fff',
+      border: '0px solid #ccc',
+      borderRadius: '10px',
+      padding: '0px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '40vw',
+      height: '50vh',
+      maxWidth: '100%',
+      color: '#6c6c6c'
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+  };
+  const customStylesModalDetails = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#fff',
+      border: '0px solid #ccc',
+      borderRadius: '10px',
+      padding: '0px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '40vw',
+      height: '60vh',
+      maxWidth: '100%',
+      color: '#6c6c6c'
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+  };
+
+  function openModalInformeArenaDisable() {
+    setIsOpenInforme(true);
+  }
+
+  function closeModalInformeArenaDisable() {
+    setIsOpenInforme(false);
+  }
 
   useEffect(() => {
     navigate("/reserve-fixed");
@@ -160,6 +261,7 @@ export default function ModalReserveFixed() {
       } catch (error: any) {
         setSendTitle('error');
         setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
+        navigate("/principal")
       } finally {
         setIsLoading(false);
       }
@@ -197,18 +299,129 @@ export default function ModalReserveFixed() {
     navigate("/principal");
   }
 
-  const handleSpace = (id: number) => {
+
+  const [uniqueReserves, setUniqueReserves] = useState<Reserve[]>([]); // Estado para armazenar as reservas únicas
+
+
+  const handleSpace = async (id: number) => {
     setSelectedSpace(id);
   };
+
+  useEffect(() => {
+    const fetchReserves = async () => {
+      try {
+        const response = await api.post("/getReservesfixed", {
+          arenaId: Number(user?.arena),
+          spaceId: Number(selectedSpace),
+          typeReserve: 'fixa',
+        });
+
+        // Cria um Set para obter as observações únicas
+        const uniqueObservations = [...new Set(response.data.map((reserve: any) => reserve.observation))];
+
+        // Filtra os dados para pegar o primeiro de cada observação
+        const uniqueReserveData = uniqueObservations.map((observation) => {
+          return response.data.find((reserve: any) => reserve.observation === observation);
+        });
+
+        // Atualiza o estado com as reservas únicas
+        setUniqueReserves(uniqueReserveData);
+
+        // Exibe as reservas únicas no console
+        console.log("Reservas com observações únicas:", uniqueReserveData);
+      } catch (error) {
+        console.log("Erro ao buscar reservas:", error);
+      }
+    };
+
+    // Se selectedSpace foi atualizado, fazer a requisição
+    if (selectedSpace) {
+      fetchReserves();
+    }
+  }, [selectedSpace]); // Este effect é executado toda vez que selectedSpace mudar
+
+
 
   const handlePeriodChange = (event: any) => {
     const period = event.target.value;
     setSelectedPeriod(period);
   };
 
-  const handleWeekDayClick = (sigla: typeof WeekDay[number]) => {
+  async function getExpedientArena() {
+    try {
+      const response = await api.post("/api/ArenaHours/get", {
+        arenaId: Number(user?.arena)
+      });
+      setExpedientData(response?.data?.$values);
+      setIsLoading(false);
+    } catch (error: any) {
+      setSendTitle('error');
+      setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
+      setIsLoading(false);
+    }
+  }
+
+
+  useEffect(() => {
+    getExpedientArena()
+  }, [])
+
+
+  const handleWeekDayClick = async (sigla: typeof WeekDay[number]) => {
     setWeekDaySigla(sigla);
+    setIsLoading(true);
+
+    let weekDayGet = 0;
+
+    // Mapeamento de sigla para valor numérico
+    if (sigla === "Seg") {
+      weekDayGet = 1;
+      setWeekSelect("Segunda-feira");
+
+    } else if (sigla === "Ter") {
+      weekDayGet = 2;
+      setWeekSelect("Terça-feira");
+
+    } else if (sigla === "Qua") {
+      weekDayGet = 3;
+      setWeekSelect("Quarta-feira");
+
+    } else if (sigla === "Qui") {
+      weekDayGet = 4;
+      setWeekSelect("Quinta-feira");
+
+    } else if (sigla === "Sex") {
+      weekDayGet = 5;
+      setWeekSelect("Sexta-feira");
+
+    } else if (sigla === "Sáb") {
+      weekDayGet = 6;
+      setWeekSelect("Sábado");
+
+    } else if (sigla === "Dom") {
+      weekDayGet = 7;
+      setWeekSelect("Domingo");
+
+    }
+
+    const filterSelectDay = expedientData.filter((item) => Number(item.weekDays.$values) === weekDayGet)
+
+
+    //se estiver fechado abre o modal
+    if (!filterSelectDay[0]?.open) {
+      openModalInformeArenaDisable();
+      setWeekDaySigla('')
+      setIsLoading(false);
+      return;
+    } else {
+      console.log(filterSelectDay)
+      setStartTimeSelect(filterSelectDay[0]?.startTime)
+      setEndTimeSelect(filterSelectDay[0]?.endTime)
+    }
+
+    setIsLoading(false);
   };
+
 
   useEffect(() => {
     if (weekDaySigla && selectedPeriod) {
@@ -228,6 +441,8 @@ export default function ModalReserveFixed() {
     };
 
     const selectedDay = dayMapping[sigla];
+
+    // alert(selectedDay)
     if (selectedDay !== undefined) {
       const today = new Date();
       const currentDay = today.getDay() === 0 ? 7 : today.getDay();
@@ -257,23 +472,28 @@ export default function ModalReserveFixed() {
     return `${hours.toString().padStart(2, "0")}:${correctedMinutes.toString().padStart(2, "0")}`;
   }
 
+  // Função para controlar a mudança de horário inicial
   const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const time = e.target.value;
-    const correctedTime = correctMinutes(time);
+    const correctedTime = correctMinutes(time);  // Garantir que a mudança de minutos esteja certa
     setStartTime(correctedTime);
   };
 
+  // Função para controlar a mudança de horário final
   const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const time = e.target.value;
-    const correctedTime = correctMinutes(time);
+    const correctedTime = correctMinutes(time);  // Garantir que a mudança de minutos esteja certa
     setEndTime(correctedTime);
   };
+
 
   useEffect(() => {
     if (startTime && endTime) {
       const parseTime = (timeStr: string) => parse(timeStr, 'HH:mm', new Date());
       const start = parseTime(startTime);
       const end = parseTime(endTime);
+
+      validationTimers();
 
       // Verifica se a diferença é válida
       const horas = differenceInHours(end, start);
@@ -315,8 +535,48 @@ export default function ModalReserveFixed() {
     }
   }, [startTime, endTime, promotions]);
 
+  // Função para validação dos horários
+  function validationTimers() {
+    if (dates.length === 0) {
+      setSendTitle('error');
+      setSendMessage("Selecione o dia e período");
+      setValidationType(false);
+      return;
+    }
+
+    // Validação para verificar se o horário inicial está correto
+    if (startTime < startTimeSelect) {
+      setSendTitle('error');
+      setSendMessage(`Horário inicial incorreto - a partir das ${startTimeSelect}`);
+      setValidationType(false);
+      return;
+    }
+
+    // Validação para verificar se o horário final está correto
+    if (endTime > endTimeSelect) {
+      setSendTitle('error');
+      setSendMessage(`Horário final incorreto - até as ${endTimeSelect}`);
+      setValidationType(false);
+      return;
+    }
+
+    // Verificar se o horário de início é menor que o de fim
+    if (startTime >= endTime) {
+      setSendTitle('error');
+      setSendMessage("Horário inicial não pode ser maior ou igual ao horário final.");
+      setValidationType(false);
+      return;
+    }
+
+    // Se a validação estiver ok
+    setValidationType(true);
+  }
+
+
 
   async function ReserveFixed() {
+    validationTimers();
+
     if (!selectedSpace) {
       setSendTitle('error');
       setSendMessage("Selecione um espaço, quadra...");
@@ -330,6 +590,10 @@ export default function ModalReserveFixed() {
       setSendMessage("Horário incorreto.");
       return;
     } else if (startTime >= endTime) {
+      setSendTitle('error');
+      setSendMessage("Horário incorreto.");
+      return;
+    } else if (String(new Date().getHours()) >= startTime) {
       setSendTitle('error');
       setSendMessage("Horário incorreto.");
       return;
@@ -351,9 +615,9 @@ export default function ModalReserveFixed() {
             timeFinal: `${endTime}:00`,
             typeReserve: "fixa",
             observation: observations,
-            promotion: true,
-            promotionType: "2h",
-            value: arenaData?.valueHour
+            promotion: filterPromo.length !== 0 ? true : false,
+            promotionType: filterPromo.length !== 0 ? filterPromo[0]?.promotionType : "",
+            value: filterPromo.length !== 0 ? filterPromo[0]?.value : arenaData?.valueHour
           }).then((response) => {
             setSendTitle('success');
             setSendMessage(`${response?.data?.message}`);
@@ -370,15 +634,23 @@ export default function ModalReserveFixed() {
     }
   }
 
+  function openModalDetails() {
+    setIsOpenDetails(true)
+  }
+
+  function closeModalDetails() {
+    setIsOpenDetails(false)
+  }
+
   return (
     <>
       <Toast title={sendTitle} message={sendMessage} />
       {isLoading ? (
         <Loading />
       ) : (
-        <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStylesModalReservFixed} shouldCloseOnOverlayClick={false}>
+        <><Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStylesModalReservFixed} shouldCloseOnOverlayClick={false}>
           <header className="header-modal-reserve-fixed">
-            <h1><strong>Nome arena</strong></h1>
+            <h1><strong>{arenaData?.name} - {arenaData?.adressArenas?.$values[0]?.city} - {arenaData?.adressArenas?.$values[0]?.state}</strong></h1>
             <div className="area-close-reserve-fixed" onClick={closeModal}><FiX size={24} /></div>
           </header>
           <div className="main-reserve-fixed">
@@ -412,91 +684,171 @@ export default function ModalReserveFixed() {
               ))}
             </section>
             <section className="main-fixed">
-              <section className="area-period-fixed">
-                <h2>Pelos próximos:</h2>
-                <div className="area-inputs">
-                  <input
-                    type="radio"
-                    name="period"
-                    id="period-1"
-                    value="1"
-                    checked={selectedPeriod === '1'}
-                    onChange={handlePeriodChange}
-                  />
-                  <label htmlFor="period-1">01 mês</label>
-                </div>
-                <div className="area-inputs">
-                  <input
-                    type="radio"
-                    name="period"
-                    id="period-3"
-                    value="3"
-                    checked={selectedPeriod === '3'}
-                    onChange={handlePeriodChange}
-                  />
-                  <label htmlFor="period-3">03 meses</label>
-                </div>
-                <div className="area-inputs">
-                  <input
-                    type="radio"
-                    name="period"
-                    id="period-6"
-                    value="6"
-                    checked={selectedPeriod === '6'}
-                    onChange={handlePeriodChange}
-                  />
-                  <label htmlFor="period-6">06 meses</label>
-                </div>
-                <div className="area-inputs">
-                  <input
-                    type="radio"
-                    name="period"
-                    id="period-12"
-                    value="12"
-                    checked={selectedPeriod === '12'}
-                    onChange={handlePeriodChange}
-                  />
-                  <label htmlFor="period-12">12 meses</label>
-                </div>
-              </section>
+              <div className="area-cards">
+                {
+                  uniqueReserves.map(item => (
+                    <div className="card-reserve">
+                      {/* continuar populando  */}
+                      {/* <p>{item.timeInitial} às {item.timeFinal}</p> */}
+                      <p>18:30 às 20h</p>
+                      <p onClick={() => openModalDetails()} style={{ backgroundColor: '#FF8A5B', paddingInline: 10, borderRadius: 10, cursor: 'pointer' }}>Fixo</p>
+                      <FiTrash2 style={{ cursor: 'pointer', color: '#FF8A5B' }} />
+                    </div>
+                  ))
+                }
+              </div>
               <section className="area-timers">
-
+                <div className="area-radio">
+                  <div className="area-title-period">
+                    <h2>Pelos próximos:</h2>
+                  </div>
+                  <div className="area-radio-options">
+                    <div className="area-inputs">
+                      <input
+                        type="radio"
+                        name="period"
+                        id="period-1"
+                        value="1"
+                        checked={selectedPeriod === '1'}
+                        onChange={handlePeriodChange} />
+                      <label htmlFor="period-1">01 mês</label>
+                    </div>
+                    <div className="area-inputs">
+                      <input
+                        type="radio"
+                        name="period"
+                        id="period-3"
+                        value="3"
+                        checked={selectedPeriod === '3'}
+                        onChange={handlePeriodChange} />
+                      <label htmlFor="period-3">03 meses</label>
+                    </div>
+                    <div className="area-inputs">
+                      <input
+                        type="radio"
+                        name="period"
+                        id="period-6"
+                        value="6"
+                        checked={selectedPeriod === '6'}
+                        onChange={handlePeriodChange} />
+                      <label htmlFor="period-6">06 meses</label>
+                    </div>
+                    <div className="area-inputs">
+                      <input
+                        type="radio"
+                        name="period"
+                        id="period-12"
+                        value="12"
+                        checked={selectedPeriod === '12'}
+                        onChange={handlePeriodChange} />
+                      <label htmlFor="period-12">12 meses</label>
+                    </div>
+                  </div>
+                </div>
                 <div className="area-timers-div">
                   <div className="area-initial-time">
                     <label htmlFor="initial">Hr. Inicial:</label>
-                    <input type="time" id="initial" value={startTime}
-                      onChange={handleStartTimeChange} />
+                    <input
+                      type="time"
+                      id="initial"
+                      value={startTime}
+                      onChange={handleStartTimeChange}
+                      min={startTimeSelect}  // Limitar para o horário inicial permitido pela arena
+                      max={endTimeSelect}    // Limitar para o horário final permitido pela arena
+                    />
                   </div>
                   <div className="area-end-time">
                     <label htmlFor="end">Hr. Final:</label>
-                    <input type="time" name="" id="end" value={endTime}
-                      onChange={handleEndTimeChange} />
+                    <input
+                      type="time"
+                      id="end"
+                      value={endTime}
+                      onChange={handleEndTimeChange}
+                      min={startTimeSelect}  // Limitar para o horário inicial permitido pela arena
+                      max={endTimeSelect}    // Limitar para o horário final permitido pela arena
+                    />
                   </div>
                 </div>
-                {
-                  filterPromo.length !== 0 && (
-                    <h5>Promoção:
-                      <strong>{
-                        filterPromo[0]?.promotionType === '2h' ? `2h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}` :
-                          filterPromo[0]?.promotionType === '3h' ? `3h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}` :
-                            filterPromo[0]?.promotionType === '4h' ? `4h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}` :
-                              filterPromo[0]?.promotionType === '5h' ? `5h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}` :
-
-                                'Nenhuma promoção.'
-                      }</strong>
-                    </h5>
-                  )
-                }
-                <textarea name="" id=""
-                  placeholder="Ex: Turma do José."
-                  onChange={(e) => setObservations(e.target.value)}
-                ></textarea>
+                {filterPromo.length !== 0 && validationType && (
+                  <h5>Promoção:
+                    <strong>{filterPromo[0]?.promotionType === '2h' ? `2h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}(hora).` :
+                      filterPromo[0]?.promotionType === '3h' ? `3h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}(hora).` :
+                        filterPromo[0]?.promotionType === '4h' ? `4h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}(hora).` :
+                          filterPromo[0]?.promotionType === '5h' ? `5h pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}(hora).` : 'Nenhuma promoção.'}</strong>
+                  </h5>
+                )}
+                <textarea placeholder="Turma do zé..." value={observations} onChange={(e) => setObservations(e.target.value)}></textarea>
               </section>
+
             </section>
 
             <button className="btn-reserve-fixed" onClick={() => ReserveFixed()}>Criar reserva fixa</button>
           </div>
         </Modal>
+
+          {/* modal informe */}
+          <Modal
+            isOpen={isOpenInforme}
+            onRequestClose={closeModalInformeArenaDisable}
+            style={customStylesModalInforme}
+            shouldCloseOnOverlayClick={false}
+          >
+            <header className="header-modal-informe">
+
+              <img src={Logo} alt="logo" />
+
+              <div className="area-close" onClick={closeModalInformeArenaDisable}>
+                <FiX size={24} />
+              </div>
+            </header>
+            <section className="main-modal-informe">
+              <h1>Arena Desativada =(</h1>
+
+
+
+              <h5> Arena desativada nesta {weekSelect}</h5>
+
+              <button onClick={() => closeModalInformeArenaDisable()}>Fechar</button>
+
+            </section>
+
+          </Modal>
+
+          {/* modal detalhes da reserva */}
+          <Modal
+            isOpen={isOpenDetails}
+            onRequestClose={closeModalDetails}
+            style={customStylesModalDetails}
+            shouldCloseOnOverlayClick={false}
+          >
+            <header className="header-modal-informe">
+
+              <img src={Logo} alt="logo" />
+
+              <div className="area-close" onClick={closeModalDetails}>
+                <FiX size={24} />
+              </div>
+            </header>
+            <section className="main-modal-details">
+              <h1>Turma do ze</h1>
+
+              <div className="area-data-details">
+                <p><CiStopwatch size={22} color="#FF8A5B" />13h às 17h</p>
+                <strong><CiGrid42 size={22} color="#FF8A5B" />Quadra 1</strong>
+              </div>
+
+              <h5><CiCalendar size={22} color="#FF8A5B" />Fixo até 28/05/2025</h5>
+
+              <button onClick={() => closeModalDetails()}>Fechar</button>
+
+            </section>
+
+          </Modal>
+
+
+        </>
+
+
       )}
     </>
   );
