@@ -4,12 +4,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../services/contexts/AuthContext";
 import Toast from "../Toast";
 import Loading from "../Loading";
-import Modal, { prototype } from "react-modal";
-import { FiTrash, FiTrash2, FiX } from "react-icons/fi";
+import Modal from "react-modal";
+import { FiTrash2, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 import { addDays, isBefore, format, addMonths, parse, differenceInHours } from 'date-fns';
 import Logo from "../../img/logomarca.svg"
-import { CiCalendar, CiGrid42, CiPlay1, CiStopwatch } from "react-icons/ci";
+import { CiCalendar, CiGrid42, CiStopwatch } from "react-icons/ci";
+import { ptBR } from 'date-fns/locale/pt-BR';
 
 interface Space {
   spaceId: number;
@@ -80,11 +81,6 @@ interface Schedule {
   open: boolean; // Se a arena está aberta ou não
 }
 
-interface ArenaScheduleResponse {
-  $id: string;
-  $values: Schedule[]; // Array de objetos "Schedule"
-}
-
 interface Reserve {
   id_reserve: number;
   userId: number;
@@ -128,8 +124,6 @@ export default function ModalReserveFixed() {
 
   const [weekSelect, setWeekSelect] = useState<string>('')
   const [validationType, setValidationType] = useState<boolean>(true)
-
-  const [reserveSpace, setReserveSpace] = useState<Reserve[]>([]);
 
   const [isOpenDetails, setIsOpenDetails] = useState<boolean>(false)
 
@@ -307,33 +301,34 @@ export default function ModalReserveFixed() {
     setSelectedSpace(id);
   };
 
+  const fetchReserves = async () => {
+    try {
+      const response = await api.post("/getReservesfixed", {
+        arenaId: Number(user?.arena),
+        spaceId: Number(selectedSpace),
+        typeReserve: 'fixa',
+      });
+
+      // Cria um Set para obter as observações únicas
+      const uniqueObservations = [...new Set(response.data.map((reserve: any) => reserve.observation))];
+
+      // Filtra os dados para pegar o primeiro de cada observação
+      const uniqueReserveData = uniqueObservations.map((observation) => {
+        return response.data.find((reserve: any) => reserve.observation === observation);
+      });
+
+      // Atualiza o estado com as reservas únicas
+      setUniqueReserves(uniqueReserveData);
+
+      // Exibe as reservas únicas no console
+      console.log("Reservas com observações únicas:", uniqueReserveData);
+    } catch (error) {
+      console.log("Erro ao buscar reservas:", error);
+    }
+  };
   useEffect(() => {
-    const fetchReserves = async () => {
-      try {
-        const response = await api.post("/getReservesfixed", {
-          arenaId: Number(user?.arena),
-          spaceId: Number(selectedSpace),
-          typeReserve: 'fixa',
-        });
 
-        // Cria um Set para obter as observações únicas
-        const uniqueObservations = [...new Set(response.data.map((reserve: any) => reserve.observation))];
-
-        // Filtra os dados para pegar o primeiro de cada observação
-        const uniqueReserveData = uniqueObservations.map((observation) => {
-          return response.data.find((reserve: any) => reserve.observation === observation);
-        });
-
-        // Atualiza o estado com as reservas únicas
-        setUniqueReserves(uniqueReserveData);
-
-        // Exibe as reservas únicas no console
-        console.log("Reservas com observações únicas:", uniqueReserveData);
-      } catch (error) {
-        console.log("Erro ao buscar reservas:", error);
-      }
-    };
-
+    fetchReserves();
     // Se selectedSpace foi atualizado, fazer a requisição
     if (selectedSpace) {
       fetchReserves();
@@ -415,8 +410,9 @@ export default function ModalReserveFixed() {
       return;
     } else {
       console.log(filterSelectDay)
-      setStartTimeSelect(filterSelectDay[0]?.startTime)
-      setEndTimeSelect(filterSelectDay[0]?.endTime)
+      setStartTimeSelect(filterSelectDay[0]?.startTime.split(':').slice(0, 2).join(':'));
+      setEndTimeSelect(filterSelectDay[0]?.endTime.split(':').slice(0, 2).join(':'));
+
     }
 
     setIsLoading(false);
@@ -501,6 +497,8 @@ export default function ModalReserveFixed() {
       if (isNaN(horas) || horas <= 0) {
         setSendTitle('error');
         setSendMessage("A diferença de horários é inválida.");
+        setStartTime('')
+        setEndTime('')
         return;
       }
 
@@ -548,6 +546,8 @@ export default function ModalReserveFixed() {
     if (startTime < startTimeSelect) {
       setSendTitle('error');
       setSendMessage(`Horário inicial incorreto - a partir das ${startTimeSelect}`);
+      setStartTime('')
+      setEndTime('')
       setValidationType(false);
       return;
     }
@@ -557,6 +557,8 @@ export default function ModalReserveFixed() {
       setSendTitle('error');
       setSendMessage(`Horário final incorreto - até as ${endTimeSelect}`);
       setValidationType(false);
+      setStartTime('')
+      setEndTime('')
       return;
     }
 
@@ -565,6 +567,8 @@ export default function ModalReserveFixed() {
       setSendTitle('error');
       setSendMessage("Horário inicial não pode ser maior ou igual ao horário final.");
       setValidationType(false);
+      setStartTime('')
+      setEndTime('')
       return;
     }
 
@@ -588,14 +592,14 @@ export default function ModalReserveFixed() {
     } else if (startTime === '' || endTime === '') {
       setSendTitle('error');
       setSendMessage("Horário incorreto.");
+      setStartTime('')
+      setEndTime('')
       return;
     } else if (startTime >= endTime) {
       setSendTitle('error');
       setSendMessage("Horário incorreto.");
-      return;
-    } else if (String(new Date().getHours()) >= startTime) {
-      setSendTitle('error');
-      setSendMessage("Horário incorreto.");
+      setStartTime('')
+      setEndTime('')
       return;
     } else if (observations === '') {
       setSendTitle('error');
@@ -621,6 +625,15 @@ export default function ModalReserveFixed() {
           }).then((response) => {
             setSendTitle('success');
             setSendMessage(`${response?.data?.message}`);
+
+            // Atualiza as reservas locais após 
+            fetchReserves();
+
+            setStartTime('')
+            setEndTime('')
+            setObservations('')
+            setFilterPromo([])
+
           }).catch((error: any) => {
             setSendTitle('error');
             setSendMessage(`${error?.response?.data}`);
@@ -640,6 +653,38 @@ export default function ModalReserveFixed() {
 
   function closeModalDetails() {
     setIsOpenDetails(false)
+  }
+
+  const [resultCard, setResultCard] = useState<Reserve[]>([]);
+
+  function handleDataCardReserveFixed(item: Reserve) {
+    openModalDetails();
+
+    //guarda os dados do card
+    setResultCard([item]);
+  }
+
+  async function handleDeleteReserves(observation: string) {
+    setIsLoading(true);
+    try {
+      const response = await api.delete("/DeleteReserve-id", {
+        data: { observation: observation }
+      });
+
+      setSendTitle('success');
+      setSendMessage(response?.data?.message || 'Reserva deletada com sucesso');
+
+      // Remover a reserva deletada do estado
+      setUniqueReserves((prevReserves) =>
+        prevReserves.filter((reserve) => reserve.observation !== observation)
+      );
+    } catch (error: any) {
+      setSendTitle('error');
+      setSendMessage(error?.response?.data?.message || 'Erro desconhecido');
+    } finally {
+      setIsLoading(false);
+    }
+
   }
 
   return (
@@ -686,17 +731,22 @@ export default function ModalReserveFixed() {
             <section className="main-fixed">
               <div className="area-cards">
                 {
-                  uniqueReserves.map(item => (
-                    <div className="card-reserve">
-                      {/* continuar populando  */}
-                      {/* <p>{item.timeInitial} às {item.timeFinal}</p> */}
-                      <p>18:30 às 20h</p>
-                      <p onClick={() => openModalDetails()} style={{ backgroundColor: '#FF8A5B', paddingInline: 10, borderRadius: 10, cursor: 'pointer' }}>Fixo</p>
-                      <FiTrash2 style={{ cursor: 'pointer', color: '#FF8A5B' }} />
-                    </div>
-                  ))
+                  // Ordena as reservas pela dataReserve em ordem crescente
+                  uniqueReserves
+                    .sort((a, b) => new Date(a.dataReserve).getTime() - new Date(b.dataReserve).getTime())
+                    .map(item => (
+                      <div className="card-reserve" key={item.observation} title={item.observation}>
+                        {/* continuar populando */}
+                        <p>{item.timeInitial.split(":").slice(0, 2).join(":")} às {item.timeFinal.split(":").slice(0, 2).join(":")}</p>
+                        <p onClick={() => handleDataCardReserveFixed(item)} style={{ backgroundColor: '#FF8A5B', paddingInline: 10, borderRadius: 10, cursor: 'pointer' }}>
+                          {format(new Date(item.dataReserve), 'eee', { locale: ptBR })}
+                        </p>
+                        <FiTrash2 style={{ cursor: 'pointer', color: '#FF8A5B' }} onClick={() => handleDeleteReserves(item.observation)} />
+                      </div>
+                    ))
                 }
               </div>
+
               <section className="area-timers">
                 <div className="area-radio">
                   <div className="area-title-period">
@@ -804,14 +854,11 @@ export default function ModalReserveFixed() {
             <section className="main-modal-informe">
               <h1>Arena Desativada =(</h1>
 
-
-
               <h5> Arena desativada nesta {weekSelect}</h5>
 
               <button onClick={() => closeModalInformeArenaDisable()}>Fechar</button>
 
             </section>
-
           </Modal>
 
           {/* modal detalhes da reserva */}
@@ -830,22 +877,42 @@ export default function ModalReserveFixed() {
               </div>
             </header>
             <section className="main-modal-details">
-              <h1>Turma do ze</h1>
+
+              <h1>{resultCard[0]?.observation}</h1>
 
               <div className="area-data-details">
-                <p><CiStopwatch size={22} color="#FF8A5B" />13h às 17h</p>
+                <p><CiStopwatch size={22} color="#FF8A5B" />
+
+
+                  Fixo: {
+                    resultCard[0]?.dataReserve
+                      ? format(new Date(resultCard[0]?.dataReserve), 'eee', { locale: ptBR })
+                      : 'Data inválida'
+                  }
+                  {' '}das{' '}
+                  {resultCard[0]?.timeInitial.split(":").slice(0, 2).join(":")}
+                  {' '}às{' '}
+                  {resultCard[0]?.timeFinal.split(":").slice(0, 2).join(":")}
+                </p>
+
+
                 <strong><CiGrid42 size={22} color="#FF8A5B" />Quadra 1</strong>
               </div>
 
-              <h5><CiCalendar size={22} color="#FF8A5B" />Fixo até 28/05/2025</h5>
+              <h5>
+                <CiCalendar size={22} color="#FF8A5B" />
+                Fixo a partir de: {
+                  resultCard[0]?.dataReserve
+                    ? format(new Date(resultCard[0]?.dataReserve), 'dd/MM/yyyy')
+                    : 'Data inválida'
+                }
+              </h5>
 
               <button onClick={() => closeModalDetails()}>Fechar</button>
 
             </section>
 
           </Modal>
-
-
         </>
 
 

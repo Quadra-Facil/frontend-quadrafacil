@@ -6,6 +6,12 @@
   padding: 0 2%;
   border-bottom: 1px solid #c2c2c2;
   margin-bottom: 2%;
+
+  h1 strong {
+    font-weight: 300;
+    text-decoration: underline;
+    text-decoration-color: #f7cebe;
+  }
 }
 
 .area-close-reserve-fixed {
@@ -102,7 +108,38 @@
   flex-direction: column;
   align-items: center;
   justify-content: start;
+  overflow-x: auto;
+  /* Permite a rolagem horizontal */
+  padding-right: 10px;
+  /* Para evitar que o conteúdo fique escondido atrás da barra de rolagem */
 }
+
+/* Personalização da barra de rolagem */
+.area-cards::-webkit-scrollbar {
+  height: 8px;
+  /* Define a altura da barra de rolagem horizontal */
+}
+
+.area-cards::-webkit-scrollbar-thumb {
+  background-color: #FF8A5B;
+  /* Cor da parte que pode ser movida (polegar) */
+  border-radius: 10px;
+  /* Bordas arredondadas do polegar */
+}
+
+.area-cards::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
+  /* Cor do fundo da barra de rolagem */
+  border-radius: 10px;
+  /* Bordas arredondadas da área de fundo */
+}
+
+.area-cards::-webkit-scrollbar-thumb:hover {
+  background-color: #e77e56;
+  /* Cor do polegar ao passar o mouse sobre a barra de rolagem */
+}
+
+
 
 .card-reserve {
   background-color: #ffffff;
@@ -275,7 +312,7 @@
 
 
 .area-data-details {
-  min-width: 50%;
+  min-width: 70%;
   display: flex;
   align-items: center;
   justify-content: space-around;

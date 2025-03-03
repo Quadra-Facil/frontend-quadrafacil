@@ -157,6 +157,7 @@ export default function ClientArena() {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
   };
+
   // style modal plans
   const customStylesModalPlans = {
     content: {
