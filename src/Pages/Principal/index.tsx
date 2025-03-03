@@ -8,8 +8,10 @@ import IconInstagran from "./img/FiInstagram.svg"
 import IconWatsApp from "./img/FiMessageSquare.svg"
 import Modal from "react-modal"
 import Logo from "../../img/logomarca.svg"
+import Icon1 from "./img/IoTimeOutline.svg"
+import Icon2 from "./img/IoFlameOutline.svg"
 
-import { FiActivity, FiPlusCircle, FiSearch, FiX } from "react-icons/fi";
+import { FiActivity, FiPlusCircle, FiRefreshCcw, FiSearch, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 import { DatePickerReserve } from "../../components/DatePickerReserve";
 
@@ -83,7 +85,6 @@ export default function Principal() {
     setIsOpenInforme(false);
   }
 
-  // dando erro aqui
   useEffect(() => {
     const fetchArena = async () => {
       try {
@@ -262,7 +263,24 @@ export default function Principal() {
         </section>
 
         <section className="area-reserve">
-          horarios reservados
+          <section className="header-reserves">
+            <p>Reservas</p>
+            <div className="area-date">
+              <button>03/03/2025</button>
+              <FiRefreshCcw title="atualizar" />
+            </div>
+          </section>
+          <section className="area-cards-principal">
+            <div className="left-card"></div>
+            <div className="rigth-card">
+              <section className="hour">
+                <p><img src={Icon1} alt="icon" /> 18h - 20h</p>
+              </section>
+              <section className="space">
+                <p><img src={Icon2} alt="icon" /> Quadra 1</p>
+              </section>
+            </div>
+          </section>
         </section>
       </main >
 
