@@ -1,21 +1,21 @@
 import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../services/contexts/AuthContext"; // Corrigir importação se necessário
+import { AuthContext } from "../../services/contexts/AuthContext";
 import MenuOption from "../../components/Principal/MenuOption";
-import "./style-principal.css"
-import UserIcon from "./img/user.svg"
-import SettingsIcon from "./img/FiSettings.svg"
-import IconInstagran from "./img/FiInstagram.svg"
-import IconWatsApp from "./img/FiMessageSquare.svg"
-import Modal from "react-modal"
-import Logo from "../../img/logomarca.svg"
-import Icon1 from "./img/IoTimeOutline.svg"
-import Icon2 from "./img/IoFlameOutline.svg"
+import "./style-principal.css";
+import UserIcon from "./img/user.svg";
+import SettingsIcon from "./img/FiSettings.svg";
+import IconInstagran from "./img/FiInstagram.svg";
+import IconWatsApp from "./img/FiMessageSquare.svg";
+import Modal from "react-modal";
+import Logo from "../../img/logomarca.svg";
+import Icon1 from "./img/IoTimeOutline.svg";
+import Icon2 from "./img/IoFlameOutline.svg";
 
-import { FiActivity, FiPlusCircle, FiRefreshCcw, FiSearch, FiX } from "react-icons/fi";
+import { FiActivity, FiFilter, FiPlusCircle, FiRefreshCcw, FiSearch, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
-import { DatePickerReserve } from "../../components/DatePickerReserve";
 
-import { format } from "date-fns";
+import { format, startOfDay } from "date-fns";
+import Loading from "../../components/Loading";
 
 interface DataProgram {
   id: number;
@@ -24,163 +24,150 @@ interface DataProgram {
   reason: string;
 }
 
+interface Arena {
+  $id: string;
+  id: number;
+  name: string;
+  phone: string;
+  valueHour: number;
+}
+
+interface Reserva {
+  $id: string;
+  id_reserve: number;
+  dataReserve: string;
+  name: string;
+  timeInitial: string;
+  timeFinal: string;
+  observation: string;
+  typeReserve: string;
+  promotion: boolean;
+  promotionType: string | null;
+  userName: string;
+  phone: string;
+  role: string;
+}
+
+interface ApiResponseReserve {
+  $id: string;
+  arenaName: Arena;
+  reservas: {
+    $id: string;
+    $values: Reserva[]; // Array de reservas
+  };
+}
+
 export default function Principal() {
   const authContext = useContext(AuthContext);
+  const { user, logout }: any = authContext;
 
-  // Verificar se o authContext está disponível
   if (!authContext) {
-    return <div>Carregando...</div>; // Pode retornar uma tela de carregamento ou um componente de fallback
+    return <div>Carregando...</div>;
   }
-
-  const { logout, user } = authContext; // Agora podemos garantir que authContext não é undefined
 
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
+  const [isloading, setLoading] = useState<boolean>(true); // Começa como true para mostrar o carregamento até ter resposta
   const [classAreaUser, setClassAreaUser] = useState(false);
-  const [Arena, setArena] = useState<string>('')
+  const [Arena, setArena] = useState<string>('');
+  const [IdArena, setIdArena] = useState<number>()
 
   const [isOpenInforme, setIsOpenInforme] = useState<boolean>(false)
-  const [dataDesativeProgrma, setDataDesativeProgrma] = useState<DataProgram[]>()
+  const [dataDesativeProgrma, setDataDesativeProgrma] = useState<DataProgram[]>();
 
-  useEffect(() => {
-    // setClassAreaUser(false)
-    if (sendTitle && sendMessage) {
-      const timer = setTimeout(() => {
-        setSendTitle('');
-        setSendMessage('');
-      }, 3000);
+  const [dataReserves, setDataReserves] = useState<ApiResponseReserve | null>(null);
 
-      return () => clearTimeout(timer); // Limpar o timer ao desmontar o componente ou atualizar os estados
-    }
-  }, [sendTitle, sendMessage]);
+  const today = format(new Date(), "yyyy-MM-dd");
+  const [date, setDate] = useState(today.toString());
 
-  const customStylesModalInforme = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: '#fff',
-      border: '0px solid #ccc',
-      borderRadius: '10px',
-      padding: '0px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '40vw',
-      height: '50vh',
-      maxWidth: '100%',
-      color: '#6c6c6c'
-    },
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = event.target.value;
+    setDate(newDate);
+    loadReserves(newDate);
   };
 
-  function openModalInformeArenaDisable() {
-    setIsOpenInforme(true);
-  }
+  useEffect(() => {
+    if (user?.arena) {
+      const fetchArena = async () => {
+        try {
+          const response = await api.post("/api/Arena/getArena", {
+            arenaId: Number(user?.arena)
+          });
+          setArena(response?.data.name);
+          setIdArena(response?.data.id);
+        } catch (error) {
+          console.log("Erro ao buscar arena: ", error);
+        }
+      };
+      fetchArena();
+    } else {
+    }
+  }, [user?.arena]);
 
-  function closeModalInformeArenaDisable() {
-    setIsOpenInforme(false);
-  }
 
   useEffect(() => {
-    const fetchArena = async () => {
+    const fetchDesativeProgram = async () => {
       try {
-        const response = await api.post("/api/Arena/getArena", {
+        const response = await api.post("/api/DesativeProgram/get", {
           arenaId: user?.arena
         });
-        setArena(response?.data?.name)
+
+        if (response?.data?.$values?.length > 0) {
+          setDataDesativeProgrma(response?.data?.$values);
+        }
       } catch (error) {
-        console.log("Erro ao buscar arena: ", error);
+        console.error('Erro ao verificar o status da arena:', error);
       }
     };
 
-    fetchArena(); // Agora estamos chamando a função assíncrona
-  }, [user?.arena]);
+    if (user?.role !== "client" && user?.role !== "dev") {
+      fetchDesativeProgram();
+    }
+  }, [user]);
+
+  const loadReserves = async (date: string) => {
+    setLoading(true); // Começa o carregamento
+    try {
+      const response = await api.post<ApiResponseReserve>("/getReserve/arena/data", {
+        arenaId: Number(user?.arena),
+        dataReserve: date,
+      });
+
+      if (response?.data?.reservas?.$values?.length > 0) {
+        const updatedData: ApiResponseReserve = {
+          $id: response.data.$id,
+          arenaName: response.data.arenaName,
+          reservas: {
+            $id: response.data.reservas.$id,
+            $values: response.data.reservas.$values,
+          },
+        };
+
+        setDataReserves(updatedData);
+      } else {
+        setDataReserves(null); // Se não houver reservas, limpa os dados
+      }
+    } catch (error) {
+      setSendTitle("error");
+      setSendMessage("Erro ao carregar as reservas.");
+    } finally {
+      setLoading(false); // Finaliza o carregamento
+    }
+  };
 
   useEffect(() => {
-    if (user?.role !== "client" && user?.role !== "dev") {
-      async function verifyStatusArena() {
-        try {
-          const response = await api.post("/api/DesativeProgram/get", {
-            arenaId: user?.arena
-          });
+    loadReserves(date); // Carrega as reservas quando o componente for montado
+  }, [user?.arena]); // Este useEffect é chamado apenas uma vez ao montar o componente
 
-          // Verifique se a resposta contém dados válidos
-          if (response?.data?.$values?.length > 0) {
-            setDataDesativeProgrma(response?.data?.$values);
-
-            const startDateRaw = response.data.$values[0]?.startDate;
-            const endDateRaw = response.data.$values[0]?.endDate;
-
-            const startDate = startDateRaw ? new Date(startDateRaw) : null;
-            const endDate = endDateRaw ? new Date(endDateRaw) : null;
-
-            // Garantir que as datas sejam válidas
-            if (startDate && !isNaN(startDate.getTime()) && endDate && !isNaN(endDate.getTime())) {
-              // Normalizar as datas para meia-noite (00:00:00)
-              const currentDate = new Date();
-              const normalizedCurrentDate = new Date(currentDate.setHours(0, 0, 0, 0));
-              const normalizedStartDate = new Date(startDate.setHours(0, 0, 0, 0));
-              const normalizedEndDate = new Date(endDate.setHours(0, 0, 0, 0));
-
-              // Verifica se está no período
-              if (normalizedCurrentDate >= normalizedStartDate && normalizedCurrentDate <= normalizedEndDate) {
-                await api.put("/api/Arena/status-edit", {
-                  realArenaId: user?.arena,
-                  newStatus: "inativo"
-                });
-                openModalInformeArenaDisable();
-              } else {
-                await api.put("/api/Arena/status-edit", {
-                  realArenaId: user?.arena,
-                  newStatus: "ativo"
-                });
-                const response = await api.post("/api/DesativeProgram/get", {
-                  arenaId: user?.arena
-                })
-                const endDateResponse = new Date(response.data.$values[0].endDate)
-                const currentDate = new Date();
-
-                //se ja tiver passado a data excluir auto
-                if (endDateResponse < currentDate) {
-                  await api.delete("/api/DesativeProgram/delete", {
-                    data: { id: response.data.$values[0].id }  // Envia o id no corpo da requisição
-                  });
-                  return;
-                }
-              }
-            } else {
-              console.warn('Datas de início ou fim inválidas:', { startDateRaw, endDateRaw });
-            }
-          } else {
-            console.warn('Não temos nenhuma programação de desativação');
-          }
-        } catch (error) {
-          console.error('Erro ao verificar o status da arena:', error);
-        }
-      }
-
-      verifyStatusArena();
-    }
-  }, [user]); // O efeito depende apenas do `user`
-
-
-
-
-
-
-
-  const classUser = () => {
-    setClassAreaUser(true); // Mostra a área de usuário
+  const refreshReserves = () => {
+    const today = new Date(); // Cria a data atual
+    const formattedDate = format(today, "yyyy-MM-dd"); // Formata para 'yyyy-MM-dd'
+    loadReserves(formattedDate); // Chama a função de carregar reservas com a data formatada
   };
 
-  // Função para lidar com o hover fora
-  const hideClassUser = () => {
-    setClassAreaUser(false); // Esconde a área de usuário
-  };
+  if (isloading) {
+    return <Loading />; // Exibe uma mensagem de carregamento até que os dados sejam carregados
+  }
 
   return (
     <>
@@ -196,7 +183,7 @@ export default function Principal() {
               src={UserIcon}
               alt="icon"
               width={33}
-              onMouseEnter={classUser}
+              onMouseEnter={() => setClassAreaUser(true)}
             />
           </div>
 
@@ -218,22 +205,18 @@ export default function Principal() {
               </div>
 
               <div className="area-search">
-                <input type="text"
-                  placeholder="Pesquise itens do menu"
-                />
+                <input type="text" placeholder="Pesquise itens do menu" />
                 <button className="search-icon">
                   <FiSearch size={32} color="#8a8888" />
                 </button>
               </div>
             </section>
 
-
-            <div className="area-user" onMouseLeave={hideClassUser} // Quando o mouse sai, esconde
+            <div className="area-user" onMouseLeave={() => setClassAreaUser(false)}
               style={{
-                display: classAreaUser ? 'flex' : 'none', // Controla o display para mostrar ou esconder
-                transition: 'opacity 0.3s ease, visibility 0.3s ease', // Transição suave
-                opacity: classAreaUser ? 1 : 0,  // Controla a opacidade
-                visibility: classAreaUser ? 'visible' : 'hidden',  // Controla a visibilidade
+                display: classAreaUser ? 'flex' : 'none',
+                opacity: classAreaUser ? 1 : 0,
+                visibility: classAreaUser ? 'visible' : 'hidden',
               }}>
               <p>{Arena}</p>
               <div className="area-config">
@@ -241,19 +224,18 @@ export default function Principal() {
                 <p>Configurações</p>
               </div>
 
-              <button onClick={() => logout()}>
-                Sair
-              </button>
+              <button onClick={() => logout()}>Sair</button>
             </div>
           </div>
 
           <div className="context">
             <h1>horario disponiveis do dia</h1>
+            <h1>{date}</h1>
           </div>
 
           <div className="area-social">
             <div className="area-img">
-              <img src={IconInstagran} alt="icon" width={35} title="Instagran" />
+              <img src={IconInstagran} alt="icon" width={35} title="Instagram" />
             </div>
             <div className="area-img">
               <img src={IconWatsApp} alt="icon" width={35} title="WhatsApp" />
@@ -266,59 +248,61 @@ export default function Principal() {
           <section className="header-reserves">
             <p>Reservas</p>
             <div className="area-date">
-              <button>03/03/2025</button>
-              <FiRefreshCcw title="atualizar" />
+              <input
+                type="date"
+                value={date}
+                onChange={handleDateChange}
+                className="date-picker"
+              />
+              <FiFilter title="Filtrar" />
+              <FiRefreshCcw title="Atualizar" onClick={refreshReserves} />
             </div>
           </section>
-          <section className="area-cards-principal">
-            <div className="left-card"></div>
-            <div className="rigth-card">
-              <section className="hour">
-                <p><img src={Icon1} alt="icon" /> 18h - 20h</p>
-              </section>
-              <section className="space">
-                <p><img src={Icon2} alt="icon" /> Quadra 1</p>
-              </section>
-            </div>
-          </section>
-        </section>
-      </main >
 
-      <Modal
-        isOpen={isOpenInforme}
-        onRequestClose={closeModalInformeArenaDisable}
-        style={customStylesModalInforme}
-        shouldCloseOnOverlayClick={false}
-      >
-        <header className="header-modal-informe">
-
-          <img src={Logo} alt="logo" />
-
-          <div className="area-close" onClick={closeModalInformeArenaDisable}>
-            <FiX size={24} />
+          <div className="area-cards-rolagem">
+            {dataReserves?.reservas?.$values?.length ? (
+              dataReserves.reservas.$values.map((item) => (
+                item.timeInitial && item.timeFinal ? (
+                  <section className="area-cards-principal" key={item.id_reserve}>
+                    <div className="left-card"></div>
+                    <div className="rigth-card">
+                      <section className="hour">
+                        {item.timeInitial && item.timeFinal ? (
+                          <p>
+                            <img src={Icon1} alt="icon" />
+                            {item.timeInitial.split(":").slice(0, 2).join(":")} -
+                            {item.timeFinal.split(":").slice(0, 2).join(":")}
+                          </p>
+                        ) : (
+                          <p>Horário não disponível</p>
+                        )}
+                      </section>
+                      <section className="space">
+                        {item.name ? (
+                          <p>
+                            <img src={Icon2} alt="icon" /> {item.name}
+                          </p>
+                        ) : (
+                          <p>Nome não disponível</p>
+                        )}
+                      </section>
+                    </div>
+                  </section>
+                ) : (
+                  <section className="area-cards-principal" key={item.id_reserve}>
+                    <div className="left-card"></div>
+                    <div className="rigth-card">
+                      <p>Sem reservas =(.</p>
+                    </div>
+                  </section>
+                )
+              ))
+            ) : (
+              <p>Sem reservas =(.</p>
+            )}
           </div>
-        </header>
-        <section className="main-modal-informe">
-          <h1>Arena Desativada =(</h1>
-
-          {
-            dataDesativeProgrma && dataDesativeProgrma.length > 0 && dataDesativeProgrma[0]?.startDate && dataDesativeProgrma[0]?.endDate
-              ? (
-                <>
-                  <h5><strong>Período:</strong> {format(new Date(dataDesativeProgrma[0]?.startDate), "dd/MM/yyyy")} até {format(new Date(dataDesativeProgrma[0]?.endDate), "dd/MM/yyyy")}</h5>
-                  <h5 style={{ marginTop: '-0.1%' }}>{dataDesativeProgrma[0]?.reason}</h5>
-                </>
-              ) : (
-                <h5><strong>{Arena}</strong> está desativada temporariamente.</h5>
-              )
-          }
-
-          <button onClick={() => closeModalInformeArenaDisable()}>Fechar</button>
-
         </section>
-
-      </Modal>
-
+      </main>
     </>
   );
 }

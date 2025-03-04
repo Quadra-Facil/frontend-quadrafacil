@@ -269,16 +269,18 @@ export function DatePickerReserve() {
         const selectedDateFormatted = format(selectedDate, "yyyy-MM-dd"); // Formata para "yyyy-MM-dd"
 
         if (todayDate === selectedDateFormatted) {
-          const currentTime = new Date(); // Hora atual
+          const currentTime = new Date().getHours(); // Hora atual
 
           // Comparar hora atual com a hora selecionada
-          if (currentTime > selectedTimeObj) {
+          if (currentTime > selectedTimeObj.getHours()) {
             setMessageInformeError(`Este horário inicial já passou.`);
             openModalInformeExp();
             setStartTime('00:00');
             return;
           }
-          if (selectedTimeObj >= expStart) {
+          if (selectedTimeObj <= expStart) {
+            console.log("selectedTimeObj: ", selectedTimeObj)
+            console.log("expStart: ", expStart)
             setMessageInformeError(`Horário fora do expediente.`);
             openModalInformeExp();
             setStartTime('00:00');

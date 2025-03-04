@@ -312,11 +312,12 @@ main {
   align-items: center;
   justify-content: start;
 
+
 }
 
 .header-reserves {
   width: 100%;
-  height: 12%;
+  height: 15%;
   border-bottom: 1px solid #86828248;
   display: flex;
   flex-direction: column;
@@ -326,6 +327,8 @@ main {
   p {
     font-size: 20px;
     color: #868282;
+    text-decoration: underline;
+    text-decoration-color: var(--secundary-color);
   }
 }
 
@@ -342,20 +345,65 @@ main {
     cursor: pointer;
 
   }
+
+  input {
+    border: none;
+    border: 1px solid var(--primary-color);
+    padding: 8px;
+    border-radius: 10px;
+    color: #4a4a4ab4;
+  }
+}
+
+.area-cards-rolagem {
+  width: 100%;
+  height: 83%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  overflow-x: auto;
+  /* Permite a rolagem horizontal */
+  padding-right: 10px;
+}
+
+/* Personalização da barra de rolagem */
+.area-cards-rolagem::-webkit-scrollbar {
+  height: 4px;
+  /* Define a altura da barra de rolagem horizontal */
+}
+
+.area-cards-rolagem::-webkit-scrollbar-thumb {
+  background-color: #FF8A5B;
+  /* Cor da parte que pode ser movida (polegar) */
+  border-radius: 10px;
+  /* Bordas arredondadas do polegar */
+}
+
+.area-cards-rolagem::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
+  /* Cor do fundo da barra de rolagem */
+  border-radius: 10px;
+  /* Bordas arredondadas da área de fundo */
+}
+
+.area-cards-rolagem::-webkit-scrollbar-thumb:hover {
+  background-color: #e77e56;
+  /* Cor do polegar ao passar o mouse sobre a barra de rolagem */
 }
 
 .area-reserve .area-cards-principal {
-  width: 90%;
-  height: 10vh;
-  /* altura bem baixa, talvez não seja suficiente para visualizar a sombra */
+  width: 80%;
+  min-height: 8vh;
   display: flex;
   align-items: start;
   justify-content: center;
-  box-shadow: 0 3px 13px #b1b1b1ca;
+  box-shadow: 0 10px 15px #b0b0b06b;
   border-radius: 10px;
   margin: 3% 0;
   cursor: pointer;
 }
+
 
 
 .left-card {
@@ -367,7 +415,8 @@ main {
 }
 
 .rigth-card {
-  background-color: #f6f6f6;
+  /* background-color: #f6f6f6; */
+  background-color: #f8f8f8;
   width: 97%;
   height: 100%;
   display: flex;
@@ -382,13 +431,12 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50%;
+  padding: 0 5%;
 
   p {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 60%;
+    justify-content: space-around;
     color: #868282;
   }
 }

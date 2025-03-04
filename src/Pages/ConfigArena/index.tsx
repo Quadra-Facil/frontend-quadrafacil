@@ -284,22 +284,23 @@ export default function ConfigArena() {
     openModalPrincipal();
   }, [])
 
-  useEffect(() => {
-    async function getArena() {
-      setIsLoading(true)
-      await api.post<GetAllArenasResponse>("/api/Arena/getArena", {
+  async function getArena() {
+    setIsLoading(true)
+    try {
+      const response = await api.post<GetAllArenasResponse>("/api/Arena/getArena", {
         arenaId: user?.arena
-      }).then((response) => {
-        setIsLoading(false)
-        setGetAllArenas(response.data);
-        setIsLoading(false);
-        return;
-      }).catch((error: any) => {
-        setIsLoading(false);
-        setSendTitle('error');
-        setSendMessage('Erro ao buscar arena.');
       })
+      setIsLoading(false)
+      setGetAllArenas(response.data);
+      setIsLoading(false);
+    } catch (error: any) {
+
+      setIsLoading(false);
+      setSendTitle('error');
+      setSendMessage('Erro ao buscar arena.');
     }
+  }
+  useEffect(() => {
     getArena();
   }, [])
 
