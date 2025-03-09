@@ -1,7 +1,6 @@
 main {
   display: flex;
   justify-content: space-between;
-
 }
 
 .area-menu {
@@ -21,31 +20,31 @@ main {
 .header-principal {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: flex-end;
   width: 100%;
   height: 15vh;
   padding-bottom: 3%;
+}
 
-  h1 {
-    font-size: 2.3rem;
-    font-weight: 500;
-  }
+.header-principal h1 {
+  font-size: 2.3rem;
+  font-weight: 500;
+}
 
-  strong {
-    color: var(--primary-color);
-    font-weight: 500;
-  }
+.header-principal strong {
+  color: var(--primary-color);
+  font-weight: 500;
+}
 
-  img {
-    cursor: pointer;
-    margin-top: -15%;
-  }
+.header-principal img {
+  cursor: pointer;
+  margin-top: -15%;
 }
 
 .area-secundary {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
   width: 100%;
   height: 20vh;
   margin-top: -5%;
@@ -56,34 +55,34 @@ main {
   justify-content: space-between;
   width: 17vw;
   margin-bottom: 3%;
+}
 
-  button {
-    width: 120px;
-    height: 40px;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    color: #fff;
-    font-weight: 700;
-    border-radius: 6px;
-  }
+.button-area button {
+  width: 120px;
+  height: 40px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+}
 
-  .button-nova {
-    background-color: var(--primary-color);
-  }
+.button-nova {
+  background-color: var(--primary-color);
+}
 
-  .button-nova:hover {
-    background-color: #f89f7c;
-  }
+.button-nova:hover {
+  background-color: #f89f7c;
+}
 
-  .button-dash {
-    background-color: var(--secundary-color);
-    color: var(--primary-color);
-  }
+.button-dash {
+  background-color: var(--secundary-color);
+  color: var(--primary-color);
+}
 
-  .button-dash:hover {
-    background-color: #f2c2af;
-  }
+.button-dash:hover {
+  background-color: #f2c2af;
 }
 
 .area-search {
@@ -94,38 +93,19 @@ main {
   display: flex;
   justify-content: space-around;
   align-items: center;
+}
 
-
-  input {
-    background-color: #ffffff;
-    border: 0;
-    border-radius: 10px;
-    height: 100%;
-    color: #868282c1;
-    font-weight: 600;
-    font-size: 1rem;
-    width: 100%;
-    padding-left: 4%;
-    box-shadow: 0 3px 0 rgba(105, 104, 104, 0.25);
-  }
-
-  button {
-    position: absolute;
-    /* Posiciona o ícone de forma absoluta */
-    right: 10px;
-    /* Coloca o ícone 10px à direita do input */
-    top: 50%;
-    /* Alinha verticalmente o ícone ao centro do input */
-    transform: translateY(-50%);
-    background-color: #f89f7c;
-    height: 80%;
-    width: 10%;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.area-search input {
+  background-color: #ffffff;
+  border: 0;
+  border-radius: 10px;
+  height: 100%;
+  color: #868282c1;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 100%;
+  padding-left: 4%;
+  box-shadow: 0 3px 0 rgba(105, 104, 104, 0.25);
 }
 
 .area-search input::placeholder {
@@ -137,7 +117,20 @@ main {
   outline: none;
 }
 
-
+.area-search button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #f89f7c;
+  height: 80%;
+  width: 10%;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .area-user {
   background-color: #fff;
@@ -152,43 +145,41 @@ main {
   box-shadow: 0 3px 0 rgba(105, 104, 104, 0.25);
   z-index: 10;
   position: relative;
-  /* display: none; */
+}
 
-  button {
-    background-color: var(--primary-color);
-    color: #fff;
-    width: 80%;
-    height: 30px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    font-size: 15px;
-    cursor: pointer;
-  }
+.area-user button {
+  background-color: var(--primary-color);
+  color: #fff;
+  width: 80%;
+  height: 30px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  font-size: 15px;
+  cursor: pointer;
 }
 
 .area-config {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
   width: 80%;
   font-weight: 300;
+}
 
-  p {
-    margin-left: 10%;
-  }
+.area-config p {
+  margin-left: 10%;
+}
 
-  img {
-    width: 25px;
-  }
+.area-config img {
+  width: 25px;
 }
 
 .area-config:hover {
   font-weight: 600;
   cursor: pointer;
 }
-
 
 .context {
   height: 45vh;
@@ -220,10 +211,6 @@ main {
   cursor: pointer;
 }
 
-
-
-/* modal informe */
-
 /* modal informe */
 .header-modal-informe {
   display: flex;
@@ -233,73 +220,72 @@ main {
   width: 100%;
   height: 40%;
   border-bottom: 3px solid var(--secundary-color);
+}
 
-  img {
-    width: 40%;
-  }
+.header-modal-informe img {
+  width: 40%;
+}
 
-  .area-close {
-    position: fixed;
-    right: 5%;
-    top: 5%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5%;
-    border-radius: 50%;
-    background-color: #e5e5e56d;
-  }
+.area-close {
+  position: fixed;
+  right: 5%;
+  top: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5%;
+  border-radius: 50%;
+  background-color: #e5e5e56d;
+}
 
-  .area-close:hover {
-    cursor: pointer;
-    background-color: #acacac6d;
-    color: var(--primary-color);
-    border: 0.1px solid #e57373;
-  }
+.area-close:hover {
+  cursor: pointer;
+  background-color: #acacac6d;
+  color: var(--primary-color);
+  border: 0.1px solid #e57373;
 }
 
 .main-modal-informe {
   height: 60%;
   width: 100%;
   background-color: #e573732d;
-
   display: flex;
   align-items: center;
-  justify-content: start;
+  justify-content: flex-start;
   flex-direction: column;
+}
 
-  h1 {
-    color: #e57373;
-    font-weight: 450;
-    margin-top: 2%;
-  }
+.main-modal-informe h1 {
+  color: #e57373;
+  font-weight: 450;
+  margin-top: 2%;
+}
 
-  h5 {
-    font-size: 16px;
-    font-weight: 350;
-    margin-top: 8%;
-    flex-wrap: wrap;
-    text-align: center;
-    padding: 0 7%;
+.main-modal-informe h5 {
+  font-size: 16px;
+  font-weight: 350;
+  margin-top: 8%;
+  flex-wrap: wrap;
+  text-align: center;
+  padding: 0 7%;
+}
 
-    strong {
-      color: #e57373;
-    }
-  }
+.main-modal-informe h5 strong {
+  color: #e57373;
+}
 
-  button {
-    position: fixed;
-    bottom: 5%;
-    right: 5%;
-    padding: 2% 5%;
-    background-color: #e57373;
-    color: #fff;
-    border-radius: 10px;
+.main-modal-informe button {
+  position: fixed;
+  bottom: 5%;
+  right: 5%;
+  padding: 2% 5%;
+  background-color: #e57373;
+  color: #fff;
+  border-radius: 10px;
+}
 
-    &:hover {
-      background-color: #c66464;
-    }
-  }
+.main-modal-informe button:hover {
+  background-color: #c66464;
 }
 
 /* reservas */
@@ -310,26 +296,24 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: start;
-
-
+  justify-content: flex-start;
 }
 
 .header-reserves {
   width: 100%;
-  height: 15%;
+  height: 18%;
   border-bottom: 1px solid #86828248;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
+}
 
-  p {
-    font-size: 20px;
-    color: #868282;
-    text-decoration: underline;
-    text-decoration-color: var(--secundary-color);
-  }
+.header-reserves p {
+  font-size: 20px;
+  color: #868282;
+  text-decoration: underline;
+  text-decoration-color: var(--secundary-color);
 }
 
 .area-date {
@@ -338,21 +322,40 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-around;
+}
 
-  svg {
-    color: var(--primary-color);
-    font-size: 20px;
-    cursor: pointer;
+.area-date svg {
+  color: var(--primary-color);
+  font-size: 20px;
+  cursor: pointer;
+}
 
-  }
+.area-date input {
+  border: 1px solid var(--primary-color);
+  padding: 8px;
+  border-radius: 10px;
+  color: #4a4a4ab4;
+}
 
-  input {
-    border: none;
-    border: 1px solid var(--primary-color);
-    padding: 8px;
-    border-radius: 10px;
-    color: #4a4a4ab4;
-  }
+.area-filter {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.area-filter h5 {
+  font-weight: 300;
+  color: #868282;
+  border: 1px solid var(--secundary-color);
+  padding: 3px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.area-filter h5:hover {
+  background-color: var(--secundary-color);
+  border-color: var(--primary-color);
 }
 
 .area-cards-rolagem {
@@ -361,42 +364,35 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: start;
+  justify-content: flex-start;
   overflow-x: auto;
-  /* Permite a rolagem horizontal */
   padding-right: 10px;
 }
 
 /* Personalização da barra de rolagem */
 .area-cards-rolagem::-webkit-scrollbar {
   height: 4px;
-  /* Define a altura da barra de rolagem horizontal */
 }
 
 .area-cards-rolagem::-webkit-scrollbar-thumb {
   background-color: #FF8A5B;
-  /* Cor da parte que pode ser movida (polegar) */
   border-radius: 10px;
-  /* Bordas arredondadas do polegar */
 }
 
 .area-cards-rolagem::-webkit-scrollbar-track {
   background-color: #f0f0f0;
-  /* Cor do fundo da barra de rolagem */
   border-radius: 10px;
-  /* Bordas arredondadas da área de fundo */
 }
 
 .area-cards-rolagem::-webkit-scrollbar-thumb:hover {
   background-color: #e77e56;
-  /* Cor do polegar ao passar o mouse sobre a barra de rolagem */
 }
 
 .area-reserve .area-cards-principal {
-  width: 80%;
+  width: 20vw;
   min-height: 8vh;
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   justify-content: center;
   box-shadow: 0 10px 15px #b0b0b06b;
   border-radius: 10px;
@@ -404,21 +400,18 @@ main {
   cursor: pointer;
 }
 
-
-
 .left-card {
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
   background-color: var(--primary-color);
   width: 3%;
-  height: 100%;
+  height: 8vh;
 }
 
 .rigth-card {
-  /* background-color: #f6f6f6; */
   background-color: #f8f8f8;
   width: 97%;
-  height: 100%;
+  height: 8vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -430,13 +423,26 @@ main {
 .space {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 5%;
+  justify-content: space-between;
+  padding: 0 3%;
+  width: 12vw;
+}
 
-  p {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    color: #868282;
-  }
+.hour p,
+.space p {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: #868282;
+  width: 100%;
+  gap: 8px;
+}
+
+.space {
+  gap: 8px;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: #868282;
 }
