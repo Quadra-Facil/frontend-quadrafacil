@@ -17,6 +17,7 @@ import { api } from "../../services/axiosApi/apiClient";
 import { format } from "date-fns";
 import Loading from "../../components/Loading";
 import { LuFilterX } from "react-icons/lu";
+import { ptBR } from "date-fns/locale";
 
 interface DataProgram {
   id: number;
@@ -122,6 +123,44 @@ export default function Principal() {
   const [reserveSpace, setReserveSpace] = useState<ReserveSpace[]>([]);
   const [selectedSpace, setSelectedSpace] = useState<number | null>(null); // Variável para armazenar o espaço selecionado
   const [isFilterActive, setIsFilterActive] = useState(false); // Controle do filtro ativo
+  const [isOpenInforme, setIsOpenInforme] = useState<boolean>(false);
+  const [dataReserveCard, setDataReserveCard] = useState<Reserva>();
+
+  const [getSpaceCard, setGetSpaceCard] = useState<Space[]>([])
+
+  const customStylesModalInforme = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#fff',
+      border: '0px solid #ccc',
+      borderRadius: '10px',
+      padding: '0px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '35vw',
+      height: '55vh',
+      maxWidth: '100%',
+      color: '#6c6c6c',
+      zIndex: 10000,
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+  };
+
+
+  function openModalDetails() {
+    setIsOpenInforme(true);
+  }
+
+  function closeModalDetails() {
+    setIsOpenInforme(false);
+    // closeModalReserve();
+  }
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = event.target.value;
@@ -289,6 +328,43 @@ export default function Principal() {
     }
   }
 
+
+
+  useEffect(() => {
+    // Verifica se 'dataReserveCard' foi atualizado antes de fazer a requisição
+    if (!dataReserveCard) return;
+
+    const fetchSpaceData = async () => {
+      setLoading(true); // Marque como 'loading' antes de fazer a requisição
+      try {
+        const getSpace = await api.post('/api/newSpace/search/space/id', {
+          arenaId: dataReserveCard?.arenaId,
+          spaceId: dataReserveCard?.spaceId
+        });
+        setGetSpaceCard(getSpace.data.$values);
+        console.log("Get: ", getSpace.data.$values);
+      } catch (error) {
+        console.log("Erro ao buscar spaces: ", error);
+      } finally {
+        setLoading(false); // Marca como 'loading' false após a requisição
+      }
+    };
+
+    fetchSpaceData(); // Chama a função de requisição
+  }, [dataReserveCard]); // O efeito será disparado sempre que 'dataReserveCard' mudar
+
+  // Função que será chamada ao clicar e atualizar 'dataReserveCard'
+  const [getNameSpaceAdmin, setgetNameSpaceAdmin] = useState('')
+  const handleDetails = (item: any) => {
+    openModalDetails();
+    setDataReserveCard(item); // Altera o valor de 'dataReserveCard', o que dispara o useEffect
+
+    setgetNameSpaceAdmin(item.name)
+
+  };
+
+
+
   if (isloading) {
     return <Loading />;
   }
@@ -438,8 +514,6 @@ export default function Principal() {
             )}
           </section>
 
-
-
           {/* CARD CLIENT */}
           {
             dataReservesClient.length > 0 && user?.role === 'client' ? (
@@ -454,7 +528,7 @@ export default function Principal() {
                       )
                       .map((client, index) => {
                         return (
-                          <section className="area-cards-principal" key={`${index}-${client.$id}`}>
+                          <section className="area-cards-principal" key={`${index}-${client.$id}`} onClick={() => handleDetails(client)}>
                             <div className="left-card"></div>
                             <div className="rigth-card">
                               <section className="hour">
@@ -485,12 +559,7 @@ export default function Principal() {
             )
           }
 
-
-
-
-
-
-
+          {/* CARD ADMIN */}
           <section className="reserves-context">
             <div className="reserves">
               {/* Verifica se existem reservas para o espaço selecionado ou reservas gerais */}
@@ -510,7 +579,7 @@ export default function Principal() {
                       : null;  // Se não for, o item é do tipo 'Reserva', que não tem 'spaceId'
 
                     return (
-                      <section className="area-cards-principal" key={item.id_reserve}>
+                      <section className="area-cards-principal" key={item.id_reserve} onClick={() => handleDetails(item)}>
                         <div className="left-card"></div>
                         <div className="rigth-card">
                           <section className="hour">
@@ -543,14 +612,70 @@ export default function Principal() {
             </div>
           </section>
 
-
-
-
-
-
-
-
         </section>
+
+        {/* modal informe */}
+        <Modal
+          isOpen={isOpenInforme}
+          onRequestClose={closeModalDetails}
+          style={customStylesModalInforme}
+          shouldCloseOnOverlayClick={false}
+        >
+          <header className="header-modal-informe-res">
+
+            <img src={Logo} alt="logo" />
+
+            <div className="area-close" onClick={closeModalDetails}>
+              <FiX size={24} />
+            </div>
+          </header>
+          <section className="main-modal-informe-res">
+            <h1>Detalhes da reserva</h1>
+
+            <main>
+              <section className="one-res">
+                <p><strong>Data: </strong>{dataReserveCard ? format(dataReserveCard?.dataReserve as any, 'dd/MM/yyyy') : ''}</p>
+                <p><strong>Dia: </strong>{dataReserveCard ? format(dataReserveCard?.dataReserve as any, 'eeee', { locale: ptBR }) : ''}</p>
+              </section>
+              <section className="one-res">
+                <p><strong>Espaço: </strong>{
+                  user?.role === 'client' ?
+                    getSpaceCard && getSpaceCard.length > 0 ? getSpaceCard[0]?.name : "???" :
+                    getNameSpaceAdmin
+
+                }</p>
+
+                <p><strong>De: </strong>{dataReserveCard ? dataReserveCard.timeInitial.split(":").slice(0, 2).join(':') : ''} até {dataReserveCard ? dataReserveCard.timeFinal.split(":").slice(0, 2).join(':') : ''}</p>
+
+              </section>
+              <section className="promo">
+                <p><strong>Promoção aplicada: </strong>{dataReserveCard?.promotion ? 'Sim' : 'Não'}</p>
+                {
+                  dataReserveCard?.promotion && (
+                    <p style={{ textDecoration: 'Underline', textDecorationColor: '#FF8A5B' }}>{
+                      dataReserveCard.promotionType === '2h' ? '2 horas pagando menos.' :
+                        dataReserveCard.promotionType === '3h' ? '3 horas pagando menos.' :
+                          dataReserveCard.promotionType === '4h' ? '4 horas pagando menos.' :
+                            dataReserveCard.promotionType === '5h' ? '5 horas pagando menos.' :
+                              dataReserveCard.promotionType === 'dayuse' ? 'Day Use.' : ''
+                    }</p>
+                  )
+                }
+              </section>
+              <section className="obs">
+                {
+                  dataReserveCard?.observation && (
+                    <p><strong>Observação: </strong>{dataReserveCard.observation}</p>
+                  )
+                }
+              </section>
+            </main>
+
+            <button onClick={() => closeModalDetails()}>Fechar</button>
+
+          </section>
+
+        </Modal>
       </main >
     </>
   );
