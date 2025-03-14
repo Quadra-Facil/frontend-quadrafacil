@@ -182,10 +182,32 @@ main {
 }
 
 .context {
-  height: 45vh;
+  height: 50vh;
   width: 100%;
   border-radius: 10px;
-  background-color: #fff;
+  background-color: #f7f7f7;
+  /* background-color: #; */
+  overflow: auto;
+}
+
+/* Personalização da barra de rolagem */
+.context::-webkit-scrollbar {
+  height: 4px;
+  width: 10px;
+}
+
+.context::-webkit-scrollbar-thumb {
+  background-color: #f7cebe;
+  border-radius: 10px;
+}
+
+.context::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+}
+
+.context::-webkit-scrollbar-thumb:hover {
+  background-color: #f9bda5;
 }
 
 .area-social {
@@ -372,10 +394,11 @@ main {
 /* Personalização da barra de rolagem */
 .area-cards-rolagem::-webkit-scrollbar {
   height: 4px;
+  width: 10px;
 }
 
 .area-cards-rolagem::-webkit-scrollbar-thumb {
-  background-color: #FF8A5B;
+  background-color: #f7cebe;
   border-radius: 10px;
 }
 
@@ -385,7 +408,7 @@ main {
 }
 
 .area-cards-rolagem::-webkit-scrollbar-thumb:hover {
-  background-color: #e77e56;
+  background-color: #f9bda5;
 }
 
 .area-reserve .area-cards-principal {

@@ -19,6 +19,11 @@ import Loading from "../../components/Loading";
 import { LuFilterX } from "react-icons/lu";
 import { ptBR } from "date-fns/locale";
 
+import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeline-component';
+import 'react-vertical-timeline-component/style.min.css';
+import { TbClockPlay } from "react-icons/tb";
+import TimeLinePrincipal from "../../components/Principal/TimeLinePrincipal";
+
 interface DataProgram {
   id: number;
   startDate: Date | any;
@@ -102,6 +107,22 @@ interface ReserveClient {
   $values: Reserva[];
 }
 
+interface WeekDays {
+  $id: string;
+  $values: number[]; // Array de números que representam os dias da semana
+}
+
+// Representa o horário de funcionamento de cada arena
+interface Expedient {
+  $id: string;
+  id: number;          // ID do horário
+  arenaId: number;     // ID da arena
+  weekDays: WeekDays;  // Objeto contendo os dias da semana
+  startTime: string;   // Hora de início (em formato "HH:MM:SS")
+  endTime: string;     // Hora de término (em formato "HH:MM:SS")
+  open: boolean;       // Se está aberto ou não
+}
+
 export default function Principal() {
   const authContext = useContext(AuthContext);
   const { user, logout }: any = authContext;
@@ -127,6 +148,8 @@ export default function Principal() {
   const [dataReserveCard, setDataReserveCard] = useState<Reserva>();
 
   const [getSpaceCard, setGetSpaceCard] = useState<Space[]>([])
+
+
 
   const customStylesModalInforme = {
     content: {
@@ -172,25 +195,6 @@ export default function Principal() {
 
     loadReserves(newDate); // Carregar novas reservas para a data alterada
   };
-
-
-  // const fetchArena = async () => {
-  //   try {
-  //     const response = await api.post("/api/Arena/getArena", {
-  //       arenaId: Number(user?.arena)
-  //     });
-  //     setArena(response?.data.name);
-  //     // setIdArena(response?.data.id);
-  //   } catch (error: any) {
-  //     console.log("Erro ao buscar arena: ", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   // if (user?.arena) {
-  //   fetchArena();
-  //   // }
-  // }, [user?.arena]);
 
   useEffect(() => {
     const fetchDesativeProgram = async () => {
@@ -278,9 +282,6 @@ export default function Principal() {
     loadReserves(date);
   }, [date, user?.arena]); // Certifique-se de que a data e a arena estão sendo observadas
 
-
-
-
   const refreshReserves = () => {
     const today = new Date();
     const formattedDate = format(today, "yyyy-MM-dd");
@@ -328,8 +329,6 @@ export default function Principal() {
     }
   }
 
-
-
   useEffect(() => {
     // Verifica se 'dataReserveCard' foi atualizado antes de fazer a requisição
     if (!dataReserveCard) return;
@@ -362,8 +361,6 @@ export default function Principal() {
     setgetNameSpaceAdmin(item.name)
 
   };
-
-
 
   if (isloading) {
     return <Loading />;
@@ -405,7 +402,7 @@ export default function Principal() {
 
               <div className="area-search">
                 <input type="text" placeholder="Pesquise itens do menu" />
-                <button className="search-icon">
+                <button className="search-icon" onClick={() => alert("Estamos tabalhando nisso...")}>
                   <FiSearch size={32} color="#8a8888" />
                 </button>
               </div>
@@ -430,7 +427,25 @@ export default function Principal() {
           </div>
 
           <div className="context">
-            <h1>horarios disponíveis do dia</h1>
+
+            {
+              user?.role !== 'client' && (
+                <>
+                  <h4
+                    style={{
+                      fontWeight: '300',
+                      marginTop: '10px',
+                      textAlign: 'center',
+                      textDecoration: 'underline',
+                      textDecorationColor: '#f7cebe'
+                    }}
+                  >Sua linha do tempo hoje - {format(new Date(), 'dd/MM/yyyy')}</h4>
+
+                  <TimeLinePrincipal />
+                </>
+              )
+            }
+
           </div>
 
           <div className="area-social">
@@ -470,6 +485,8 @@ export default function Principal() {
                   </button>
                 )
               }
+
+
 
               {/* Condicionalmente renderiza o ícone de limpar filtro ou refresh */}
               <button
