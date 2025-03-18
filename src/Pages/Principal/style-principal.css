@@ -190,6 +190,15 @@ main {
   overflow: auto;
 }
 
+.context-client {
+  height: 50vh;
+  width: 100%;
+  border-radius: 10px;
+  background-color: #ffffff;
+  /* background-color: #; */
+  overflow: auto;
+}
+
 /* Personalização da barra de rolagem */
 .context::-webkit-scrollbar {
   height: 4px;

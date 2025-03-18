@@ -10,6 +10,7 @@ import Modal from "react-modal";
 import Logo from "../../img/logomarca.svg";
 import Icon1 from "./img/IoTimeOutline.svg";
 import Icon2 from "./img/IoFlameOutline.svg";
+import Teste from './img/Soccer.gif'
 
 import { FiActivity, FiFilter, FiPlusCircle, FiRefreshCcw, FiSearch, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
@@ -23,6 +24,7 @@ import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeli
 import 'react-vertical-timeline-component/style.min.css';
 import { TbClockPlay } from "react-icons/tb";
 import TimeLinePrincipal from "../../components/Principal/TimeLinePrincipal";
+import CarrosselClient from "../../components/Principal/Carrousel-client";
 
 interface DataProgram {
   id: number;
@@ -426,7 +428,7 @@ export default function Principal() {
             </div>
           </div>
 
-          <div className="context">
+          <div className={user?.role === 'client' ? 'context-client' : 'context'}>
 
             {
               user?.role !== 'client' && (
@@ -443,6 +445,13 @@ export default function Principal() {
 
                   <TimeLinePrincipal />
                 </>
+              )
+            }
+
+            {
+              user?.role === 'client' && (
+
+                <CarrosselClient />
               )
             }
 
