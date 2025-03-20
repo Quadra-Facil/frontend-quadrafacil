@@ -376,7 +376,7 @@ export default function MenuOption() {
               <nav className="menu">
                 <section className="area-logo-btnMenu">
                   <img src={LogoQuadra} alt="Logo" />
-                  <FiMenu size={35} color="#868682" style={{ cursor: "pointer" }} />
+                  {/* <FiMenu size={35} color="#868682" style={{ cursor: "pointer" }} /> */}
                 </section>
 
                 <section className="menu-item-reserve" onClick={user?.role === "client" ? () => navigate("/searchArena") : () => { }}>
@@ -470,7 +470,7 @@ export default function MenuOption() {
                 {
                   user?.role !== "client" && (
                     <>
-                      <section className="menu-item">
+                      <section className="menu-item" onClick={() => navigate('/dashboard')}>
                         <div className="divider-item"></div>
                         <img src={DashIcon} alt="Icon" width={28} height={28} />
                         <strong>Dashboard</strong>
