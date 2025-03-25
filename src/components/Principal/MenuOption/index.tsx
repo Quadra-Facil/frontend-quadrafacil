@@ -482,7 +482,7 @@ export default function MenuOption() {
                 {
                   user?.role !== "client" && (
                     <>
-                      <section className="menu-item" onClick={() => navigate("/reserved")}>
+                      <section className="menu-item" onClick={() => navigate("/billing")}>
                         <div className="divider-item"></div>
                         <img src={RelatorioIcon} alt="Icon" width={28} height={28} />
                         <strong>Relatórios</strong>

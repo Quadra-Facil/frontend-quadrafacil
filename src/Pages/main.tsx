@@ -16,6 +16,7 @@ import ModalSerchArena from '../components/ModalSearchArena/index.tsx';
 import ConfigArena from './ConfigArena/index.tsx';
 import ModalReserveFixed from '../components/ModalReserveFixed/index.tsx';
 import Dashboard from './Dashboard/index.tsx';
+import Billing from './Billing/index.tsx';
 
 Modal.setAppElement("#root");
 
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path='/configArena' element={<ConfigArena />} />
           <Route path='/reserve-fixed' element={<ModalReserveFixed />} />
           <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/billing' element={<Billing />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
