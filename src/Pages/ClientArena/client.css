@@ -1,4 +1,4 @@
-.header {
+.header-client {
   width: 100vw;
   /* background-color: blue; */
   display: flex;
@@ -12,7 +12,7 @@
   min-width: 50%;
 }
 
-.area-cards {
+.area-cards-clients {
   width: 100vw;
   height: 80vh;
   display: flex;
@@ -23,12 +23,11 @@
   padding: 0 5%;
 }
 
-.card {
+.card-client {
   width: 200px;
   height: 30%;
   border-radius: 15px;
   background-color: var(--primary-color);
-
 
   header {
     display: flex;

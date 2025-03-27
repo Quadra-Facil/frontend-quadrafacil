@@ -512,7 +512,7 @@ export default function MenuOption() {
                 style={customStylesModalLicence}
                 shouldCloseOnOverlayClick={false}
               >
-                <header className="header-modal">
+                <header className="header-modal-licence">
                   <div className="header-arena-licence">
                     <h5>Licença de uso</h5>
                   </div>

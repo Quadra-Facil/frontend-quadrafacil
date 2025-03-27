@@ -5,11 +5,13 @@ import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
 import { useNavigate } from "react-router-dom";
-import { IMaskInput } from "react-imask"
-import Modal from "react-modal"
+import { IMaskInput } from "react-imask";
+import Modal from "react-modal";
 import { FiMessageCircle, FiX } from "react-icons/fi";
 import Lottie from "lottie-react";
 import AtentimentoLottie from "../../img/suporte-lottie.json";
+
+Modal.setAppElement('#root'); // This line is important for accessibility
 
 export default function SignOut() {
   const [userName, setName] = useState('');
@@ -27,13 +29,12 @@ export default function SignOut() {
   // Exibir Toast após mudança de sendTitle e sendMessage
   useEffect(() => {
     if (sendTitle && sendMessage) {
-      // Exibe o Toast com os valores atuais
       const timer = setTimeout(() => {
-        setSendTitle('');  // Limpa o título para esconder o Toast após 3 segundos
-        setSendMessage('');  // Limpa a mensagem
+        setSendTitle('');
+        setSendMessage('');
       }, 3000);
 
-      return () => clearTimeout(timer); // Limpar o timer quando o componente for desmontado ou o estado mudar
+      return () => clearTimeout(timer);
     }
   }, [sendTitle, sendMessage]);
 
@@ -58,8 +59,8 @@ export default function SignOut() {
       setIsLoading(false);
       setSendTitle('success');
       setSendMessage(`Olá, ${response.data.userName}. Faça seu login.`);
-      openModal();
-      // navigate("/");
+      // openModal();
+      navigate("/")
     } catch (error: any) {
       setIsLoading(false);
       setSendTitle('error');
@@ -67,8 +68,7 @@ export default function SignOut() {
     }
   }
 
-
-  //style modal
+  // Style modal
   const customStylesModal = {
     content: {
       top: '50%',
@@ -102,8 +102,7 @@ export default function SignOut() {
 
   return (
     <>
-      {/* Renderiza o Toast com uma chave única baseada em sendTitle e sendMessage */}
-      < Toast title={sendTitle} message={sendMessage} />
+      <Toast title={sendTitle} message={sendMessage} />
 
       <section className='signout-container'>
         <article className="information">
@@ -113,72 +112,86 @@ export default function SignOut() {
         </article>
 
         <article className="signout">
-          <h1>Sign Out</h1>
+          <h1>Criar conta</h1>
 
-          {/* Condicional de loading */}
           {isLoading ? (
             <Loading />
           ) : (
-
-            <>
-              <div className="area-modal">
-                <Modal
-                  isOpen={modalIsOpen}
-                  onRequestClose={closeModal}
-                  style={customStylesModal}
-                  shouldCloseOnOverlayClick={false}
-                >
-                  <header className="header-modal">
-                    <div className="area-close" onClick={closeModal}>
-                      <FiX size={24} />
-                    </div>
-                  </header>
-
-                  <section className="main-modal">
-
-                    <div className="area-teste">
-                      <h3>Vamos cadastrar sua arena em instantes, para <strong>utilização
-                        dos nossos serviços. ; )</strong>
-                      </h3>
-
-                      <button>
-                        <p>Teste Grátis</p>
-                        <FiMessageCircle size={24} className="icon-teste" />
-                      </button>
-                    </div>
-
-                    <div className="area-planos">
-                      <Lottie
-                        animationData={AtentimentoLottie}
-                        loop={true}
-                        autoplay={true}
-                        className="animation"
-                      />
-
-
-                      <a href="#">Ver planos</a>
-                    </div>
-
-                  </section>
-
-                </Modal>
-              </div>
-
-              <form onSubmit={handleAddUser}>
-                <input type="text" placeholder='Nome' required onChange={e => setName(e.target.value)} />
-                <input type="email" placeholder='Email' required onChange={e => setEmail(e.target.value)} />
-                <IMaskInput
-                  mask={"(00)00000-0000"}
-                  type="text"
-                  placeholder='Telefone' required
-                  onChange={e => setPhone((e.target as HTMLInputElement).value)} />
-                <input type="password" placeholder='Senha' required onChange={e => setPassword(e.target.value)} />
-                <input type="password" placeholder='Repetir Senha' required onChange={e => setPasswordRepeat(e.target.value)} />
-                <button type="submit">Cadastrar</button>
-              </form></>
+            <form onSubmit={handleAddUser}>
+              <input
+                type="text"
+                placeholder='Nome'
+                required
+                onChange={e => setName(e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder='Email'
+                required
+                onChange={e => setEmail(e.target.value)}
+              />
+              <IMaskInput
+                mask={"(00)00000-0000"}
+                type="text"
+                placeholder='Telefone'
+                required
+                onChange={e => setPhone((e.target as HTMLInputElement).value)}
+              />
+              <input
+                type="password"
+                placeholder='Senha'
+                required
+                onChange={e => setPassword(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder='Repetir Senha'
+                required
+                onChange={e => setPasswordRepeat(e.target.value)}
+              />
+              <button type="submit">Cadastrar</button>
+            </form>
           )}
         </article>
       </section>
+
+      {/* <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        style={customStylesModal}
+        shouldCloseOnOverlayClick={false}
+        contentLabel="Cadastro realizado com sucesso"
+      >
+        <header className="header-modal">
+          <div className="area-close" onClick={closeModal}>
+            <FiX size={24} />
+          </div>
+        </header>
+
+        <section className="main-modal-plans">
+          <div className="area-teste">
+            <h3>
+              Vamos cadastrar sua arena em instantes, para <strong>utilização
+                dos nossos serviços. ; )</strong>
+            </h3>
+
+            <button>
+              <p>Teste Grátis</p>
+              <FiMessageCircle size={24} className="icon-teste" />
+            </button>
+          </div>
+
+          <div className="area-planos">
+            <Lottie
+              animationData={AtentimentoLottie}
+              loop={true}
+              autoplay={true}
+              className="animation"
+            />
+            <a href="#">Ver planos</a>
+          </div>
+        </section>
+      </Modal> */}
     </>
   );
 }

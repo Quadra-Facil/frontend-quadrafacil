@@ -441,7 +441,7 @@ export default function ClientArena() {
               </Modal>
 
               {/* Input de Pesquisa (visível apenas se nenhum modal estiver aberto) */}
-              <section className="header">
+              <section className="header-client">
                 <div className="area-search">
                   <input
                     type="text"
@@ -461,10 +461,10 @@ export default function ClientArena() {
               {
                 isLoading ? <Loading /> : (
 
-                  <section className="area-cards">
+                  <section className="area-cards-clients">
                     {(filteredData?.length || 0) > 0 ? (
                       filteredData?.map((item) => (
-                        <div key={item.id} className="card">
+                        <div key={item.id} className="card-client">
                           <header>
                             <h3>{item.name || "Sem nome"}</h3>
                             <div className="icon-area">

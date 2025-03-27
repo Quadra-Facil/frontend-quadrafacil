@@ -301,6 +301,7 @@ export default function AdressArena() {
                     padding: "0 12px",
                     borderRadius: "10px",
                     fontSize: "14px",
+                    marginTop: '-30px'
                   }),
                   option: (baseStyles, state) => ({
                     ...baseStyles,

@@ -26,6 +26,7 @@ import { TbClockPlay } from "react-icons/tb";
 import TimeLinePrincipal from "../../components/Principal/TimeLinePrincipal";
 import CarrosselClient from "../../components/Principal/Carrousel-client";
 import { useNavigate } from "react-router-dom";
+import { BsFilePdf } from "react-icons/bs";
 
 interface DataProgram {
   id: number;
@@ -388,23 +389,30 @@ export default function Principal() {
           </div>
 
           <div className="area-secundary">
-            <section className="area-btn-input">
-              <div className="button-area">
-                <div className="button-area-nova">
-                  <button className="button-nova">
-                    <FiPlusCircle size={20} />
-                    Nova
-                  </button>
-                </div>
-                <div className="button-area-dashboard">
-                  <button className="button-dash" onClick={() => navigate("/dashboard")}>
-                    <FiActivity size={20} />
-                    Dashboard
-                  </button>
-                </div>
-              </div>
 
-              <div className="area-search">
+            <section className="area-btn-input">
+
+              {
+                user?.role !== 'client' && (
+                  <div className="button-area">
+                    <div className="button-area-nova">
+                      <button className="button-nova" onClick={() => navigate('/billing')}>
+                        <BsFilePdf size={20} />
+                        Relatório
+                      </button>
+                    </div>
+                    <div className="button-area-dashboard">
+                      <button className="button-dash" onClick={() => navigate("/dashboard")}>
+                        <FiActivity size={20} />
+                        Dashboard
+                      </button>
+                    </div>
+                  </div>
+
+                )
+              }
+
+              <div className="area-search" style={user?.role === 'client' ? { marginTop: 30 } : {}}>
                 <input type="text" placeholder="Pesquise itens do menu" />
                 <button className="search-icon" onClick={() => alert("Estamos tabalhando nisso...")}>
                   <FiSearch size={32} color="#8a8888" />

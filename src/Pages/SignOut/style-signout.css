@@ -2,29 +2,34 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
+  height: 100vh;
 }
 
+/* Information Section */
 .information {
   width: 50vw;
   height: 100vh;
   background-color: var(--primary-color);
   color: #fff;
-
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .information h1 {
   font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
 .information h3 {
   font-size: 2rem;
   font-weight: 300;
   text-align: center;
-  padding: 10% 0;
+  margin: 2rem 0;
+  line-height: 1.4;
 }
 
 .information a {
@@ -36,150 +41,226 @@
   font-weight: 500;
   color: var(--primary-color);
   box-shadow: 0 3px 0 rgba(152, 54, 54, 0.25);
-  /* Sombra verde com 10px de desfoque */
-
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background-color 0.7s ease;
+  transition: all 0.3s ease;
+  text-decoration: none;
 }
 
 .information a:hover {
   background-color: #e5b07f;
   color: #fff;
+  transform: translateY(-2px);
 }
 
-/* --------------------------------------------------- */
-
+/* Signout Form Section */
 .signout {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
   width: 50vw;
-  height: 90vh;
+  height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .signout h1 {
   font-size: 4rem;
   color: var(--color-font);
+  margin-bottom: 2rem;
 }
 
 .signout form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-
+  justify-content: center;
   width: 60%;
-  height: 65%;
+  max-width: 400px;
+  gap: 1.5rem;
 }
 
 .signout input {
   border-radius: 8px;
   width: 100%;
-  height: 15%;
+  height: 50px;
   background-color: var(--background-inputs);
-  padding-left: 3%;
+  padding: 0 1rem;
   font-size: 1rem;
   color: #6c6c6c;
   border: 0;
-
+  outline: none;
 }
 
-.signout a {
-  font-weight: 300;
+.signout input:focus {
+  box-shadow: 0 0 0 2px var(--primary-color);
 }
 
 .signout button {
   background-color: var(--primary-color);
   width: 50%;
-  height: 15%;
+  height: 50px;
   border-radius: 50px;
   font-size: 1rem;
   color: #fff;
   font-weight: 600;
-  margin-top: 2%;
+  border: none;
+  cursor: pointer;
   box-shadow: 0 3px 0 #d6d6d697;
-  transition: background-color 0.7s ease;
+  transition: all 0.3s ease;
 }
 
 .signout button:hover {
   background-color: var(--hover-btn);
+  transform: translateY(-2px);
 }
 
-.main-modal {
+/* Modal Styles */
+.main-modal-plans {
   display: flex;
+  min-height: 60vh;
+  width: 100%;
+  margin-top: 100px;
   justify-content: space-around;
   align-items: center;
+  flex-wrap: wrap;
+  /* para responsividade */
+  gap: 20px;
+  /* espaçamento entre itens */
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.header-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.area-close {
+  cursor: pointer;
+  padding: 0.5rem;
 }
 
 .area-teste {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  width: 50%;
-  height: 70vh;
+  justify-content: center;
   align-items: center;
+  width: 45%;
+  height: 100%;
+}
 
-  h3 {
-    font-size: 30px;
-    font-weight: 300;
-    width: 80%;
-    text-align: center;
-    margin-bottom: 10%;
-  }
+.area-teste h3 {
+  font-size: 1.8rem;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--color-font);
+}
 
-  button {
-    width: 17vw;
-    border-radius: 10px;
-    height: 70px;
-    margin-top: -5%;
-    background-color: var(--primary-color);
-    font-size: 1rem;
-    font-weight: 500;
-    color: #fff;
-    box-shadow: 0 3px 0 rgba(152, 54, 54, 0.25);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 0.7s ease;
+.area-teste button {
+  width: 100%;
+  max-width: 250px;
+  height: 70px;
+  border-radius: 10px;
+  background-color: var(--primary-color);
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(152, 54, 54, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  padding: 0 1rem;
 
-    .icon-teste {
-      margin-left: 5%;
-    }
-  }
+  position: fixed;
+  bottom: 10%;
+}
 
-  button:hover {
-    background-color: var(--hover-btn);
-    color: #fff;
-  }
+.area-teste button:hover {
+  background-color: var(--hover-btn);
+  transform: translateY(-2px);
+}
+
+.icon-teste {
+  margin-left: 0.5rem;
 }
 
 .area-planos {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  width: 50%;
-  height: 80vh;
+  justify-content: center;
   align-items: center;
+  width: 50%;
+  height: 100%;
   background-color: #e5b07f26;
   border-radius: 20px;
-  margin-top: -6%;
+  padding: 2rem;
+  box-sizing: border-box;
+  margin-top: 5%;
+}
 
-  .animation {
+.animation {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 2rem;
+}
+
+.area-planos a {
+  border: 2px solid var(--secundary-color);
+  padding: 0.75rem 2rem;
+  border-radius: 10px;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.area-planos a:hover {
+  background-color: var(--secundary-color);
+  color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .signout-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .information,
+  .signout {
+    width: 100%;
+    height: auto;
+    padding: 2rem 1rem;
+  }
+
+  .information {
+    padding-top: 4rem;
+  }
+
+  .signout form {
     width: 90%;
   }
 
-  a {
-    border: 2px solid var(--secundary-color);
-    padding: 3% 10%;
-    border-radius: 10px;
-    color: var(--primary-color);
-    margin-top: -50px;
+  .main-modal-plans {
+    flex-direction: column;
   }
 
-  a:hover {
-    background-color: var(--secundary-color);
+  .area-teste,
+  .area-planos {
+    width: 100%;
+    height: auto;
+    margin-bottom: 2rem;
+  }
+
+  .area-teste button {
+    max-width: 100%;
   }
 }

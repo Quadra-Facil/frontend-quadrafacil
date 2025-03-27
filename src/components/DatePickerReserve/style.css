@@ -25,7 +25,14 @@
 }
 
 /* modal reserve style */
-.header-modal {
+.header-modal-reserve {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-right: 10%;
+  height: 80px;
+  border-bottom: 1px solid #c8c8c8;
+
   h1 {
     font-weight: 250;
     margin-left: 5%;
@@ -52,8 +59,8 @@
   padding-inline: 5%;
 
   .area-left {
-    width: 35%;
-    height: 70vh;
+    width: 40%;
+    height: 75vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -80,7 +87,7 @@
 
     }
 
-    .area-space {
+    .area-space-left {
       width: 100%;
       display: flex;
       align-items: center;
@@ -111,13 +118,18 @@
         }
       }
 
-      .space {
+      .space-left {
         border: 1px solid var(--primary-color);
-        padding: 1% 3%;
         border-radius: 7px;
         background-color: #f4f4f4;
         cursor: pointer;
         font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+
+        padding: 1% 3%;
 
         &:hover {
           background-color: var(--secundary-color);
@@ -135,10 +147,8 @@
       /* padding-top: 20%; */
     }
 
-
-
     .card-reserve {
-      background-color: #d67272;
+      background-color: #fff;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -161,13 +171,12 @@
     width: 50%;
     padding-left: 8%;
 
-    .area-space {
+    .area-space-reserve {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: row;
-      flex-wrap: wrap;
+
 
       h1 {
         font-weight: 300;
@@ -189,15 +198,16 @@
         }
       }
 
-      .space {
+      .space-reserve {
         border: 1px solid var(--primary-color);
-        padding: 1% 5%;
+        padding: 1%;
         margin: 1%;
         border-radius: 7px;
         background-color: #fff;
 
         p {
           color: #8c8c8c;
+          font-weight: 350;
         }
 
         &:hover {
@@ -211,7 +221,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 5%;
+      margin-top: 12%;
 
       label {
         height: 40px;
@@ -232,7 +242,7 @@
     h5 {
       width: 80%;
       text-align: center;
-      margin-top: 10%;
+      margin-top: 6%;
       padding: 2% 0;
       border-bottom: 1px solid #a5a5a5;
       border-radius: 10px;
@@ -245,7 +255,7 @@
       width: 30%;
       border: none;
       position: fixed;
-      bottom: 3%;
+      bottom: 1%;
       height: 7%;
       border-radius: 10px;
       color: #fff;

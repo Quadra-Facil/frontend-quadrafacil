@@ -659,7 +659,7 @@ export function DatePickerReserve() {
       {isLoading ? <Loading /> : (
         <>
           <Modal isOpen={modalIsOpenReserve} onRequestClose={closeModalReserve} style={customStylesModalReserve} shouldCloseOnOverlayClick={false}>
-            <header className="header-modal">
+            <header className="header-modal-reserve">
               <h1><strong>{arena}</strong></h1>
               <p>{formattedDate}</p>
 
@@ -685,7 +685,7 @@ export function DatePickerReserve() {
                     setSelectedDate={setSelectedDate}
                   />
                 </div>
-                <section className="area-space">
+                <section className="area-space-left">
                   {
                     spacesReserved.length === 0
                       ?
@@ -696,7 +696,7 @@ export function DatePickerReserve() {
                       :
                       spacesReserved.map((item) => (
                         <div
-                          className="space"
+                          className="space-left"
                           onClick={() => handleSpace(item.spaceId)}
                           style={{ backgroundColor: selectedSpaceReserved === item.spaceId ? '#f7cebe' : '' }}
                         >
@@ -751,7 +751,7 @@ export function DatePickerReserve() {
               </section>
 
               <section className="area-rigth">
-                <section className="area-space">
+                <section className="area-space-reserve">
                   {
                     spaces.length === 0
                       ?
@@ -762,7 +762,7 @@ export function DatePickerReserve() {
                       :
                       spaces.map((item) => (
                         <div
-                          className="space"
+                          className="space-reserve"
                           onClick={() => handleSpace(item.spaceId)}
                           style={{ backgroundColor: selectedSpace === item.spaceId ? '#f7cebe' : '' }}
                         >
