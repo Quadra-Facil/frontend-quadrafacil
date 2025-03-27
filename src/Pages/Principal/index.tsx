@@ -25,6 +25,7 @@ import 'react-vertical-timeline-component/style.min.css';
 import { TbClockPlay } from "react-icons/tb";
 import TimeLinePrincipal from "../../components/Principal/TimeLinePrincipal";
 import CarrosselClient from "../../components/Principal/Carrousel-client";
+import { useNavigate } from "react-router-dom";
 
 interface DataProgram {
   id: number;
@@ -151,6 +152,7 @@ export default function Principal() {
 
   const [getSpaceCard, setGetSpaceCard] = useState<Space[]>([])
 
+  const navigate = useNavigate();
 
 
   const customStylesModalInforme = {
@@ -395,7 +397,7 @@ export default function Principal() {
                   </button>
                 </div>
                 <div className="button-area-dashboard">
-                  <button className="button-dash">
+                  <button className="button-dash" onClick={() => navigate("/dashboard")}>
                     <FiActivity size={20} />
                     Dashboard
                   </button>

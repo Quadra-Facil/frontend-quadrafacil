@@ -130,7 +130,7 @@ export default function Billing() {
       loadReserves();
       loadSpacesFunction();
     }
-  }, [user?.arena]);
+  }, []);
 
   function handlePeriodChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setSelectedPeriod(e.target.value);
@@ -208,7 +208,8 @@ export default function Billing() {
     } else {
       setSpacesOccupancy([]);
     }
-  }, [filteredReserves]);
+    // }, [filteredReserves]);
+  }, []);
 
   const lastReserves = [...filteredReserves]
     .sort((a, b) => new Date(b.dataReserve).getTime() - new Date(a.dataReserve).getTime())
@@ -458,7 +459,7 @@ export default function Billing() {
         }
       },
       {
-        name: `Período Personalizado (${format(initialDate, 'dd/MM/yyyy') || '--'} à ${format(endDate, 'dd/MM/yyyy') || '--'})`,
+        name: `Período Personalizado (${initialDate || '--'} à ${endDate || '--'})`,
         filter: (data: Reserve[]) => {
           if (!initialDate || !endDate) return [];
           const startDate = new Date(initialDate);

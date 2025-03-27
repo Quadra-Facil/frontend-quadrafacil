@@ -375,7 +375,7 @@ export default function MenuOption() {
             <>
               <nav className="menu">
                 <section className="area-logo-btnMenu">
-                  <img src={LogoQuadra} alt="Logo" />
+                  <img src={LogoQuadra} alt="Logo" onClick={() => navigate('/principal')} style={{ cursor: 'pointer' }} />
                   {/* <FiMenu size={35} color="#868682" style={{ cursor: "pointer" }} /> */}
                 </section>
 
