@@ -503,6 +503,12 @@ export default function MenuOption() {
                   )
                 }
 
+                <section className="menu-item" onClick={() => navigate("/teste")}>
+                  <div className="divider-item"></div>
+                  <img src={FiSettings} alt="Icon" width={28} height={28} />
+                  <strong>Teste</strong>
+                </section>
+
               </nav>
 
               {/* Modal licence */}

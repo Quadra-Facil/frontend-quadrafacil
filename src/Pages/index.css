@@ -13,6 +13,11 @@
   --background-inputs: #DFDFDF;
   --color-font: #757575;
   --hover-btn: #db6232;
+  --text-color: #6c6c6c;
+  --border-radius: 8px;
+  --transition-time: 0.3s;
+  --menu-width: 250px;
+  --mobile-menu-height: 150px;
 }
 
 
