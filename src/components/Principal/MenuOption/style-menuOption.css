@@ -168,92 +168,148 @@
   /* Muda a cor para a cor primária */
 }
 
-/* Modal Styles */
-.header-modal {
+/* Modal space */
+.header-modal-space {
   display: flex;
-
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #f9f9f9;
+  border-radius: 10px 10px 0 0;
 }
 
-.header-modal h5 {
+.header-arena-space h5 {
   margin: 0;
-  color: var(--text-color);
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
-.area-close {
+.area-close-space {
   cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
 }
 
-.main-modal-licence,
-.main-modal-space,
-.main-modal-space-status {
+.area-close-space:hover {
+  background-color: #f0f0f0;
+}
+
+.main-modal-space {
+  padding: 20px;
+}
+
+.area-first-space {
+  margin-bottom: 25px;
+}
+
+.area-first-space h5 {
+  margin-bottom: 10px;
+  color: #555;
+  font-weight: 500;
+}
+
+.area-first-space input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.area-first-space input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(247, 142, 95, 0.2);
+}
+
+.area-second-space h5 {
+  margin-bottom: 15px;
+  color: #555;
+  font-weight: 500;
+}
+
+.area-second-space>div {
+  margin-bottom: 12px;
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  align-items: center;
 }
 
-.area-first,
-.area-second {
+.area-second-space input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.area-second-space input[type="checkbox"]:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.area-second-space input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.area-second-space label {
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.area-second-space input[type="checkbox"]:hover+label {
+  color: #333;
+}
+
+.area-btn-space {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
 }
 
-.area-first h5,
-.area-second h5 {
-  margin: 0;
-  color: var(--text-color);
-}
-
-.area-btn {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.area-btn button {
-  padding: 0.5rem 1rem;
+.area-btn-space button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
   border: none;
-  border-radius: var(--border-radius);
+}
+
+.area-btn-space button:first-child {
   background-color: var(--primary-color);
   color: white;
-  cursor: pointer;
-  transition: all var(--transition-time) ease;
 }
 
-.area-btn button:hover {
-  background-color: var(--hover-btn);
+.area-btn-space button:first-child:hover {
+  background-color: #f89f7c;
 }
 
-/* Tabela no modal de espaços */
-.main-modal-space-status table {
-  width: 100%;
-  border-collapse: collapse;
+.area-btn-space button:last-child {
+  background-color: #f0f0f0;
+  color: #555;
 }
 
-.main-modal-space-status th,
-.main-modal-space-status td {
-  padding: 0.5rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.main-modal-space-status th {
-  background-color: var(--background-inputs);
-}
-
-/* Checkboxes */
-input[type="checkbox"] {
-  margin-right: 0.5rem;
+.area-btn-space button:last-child:hover {
+  background-color: #e0e0e0;
 }
 
 /* Ajustes para os Modais em Telas Pequenas */
-
-
 @media (max-width: 1014px) {
   .menu {
     height: 70px;
@@ -348,5 +404,23 @@ input[type="checkbox"] {
   .type-reserve .area-btn p {
     flex: 1 0 40%;
     text-align: center;
+  }
+
+  .main-modal-space {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .area-first-space {
+    width: 95%;
+  }
+
+  .area-btn-space {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .area-btn-space button {
+    width: 100%;
   }
 }

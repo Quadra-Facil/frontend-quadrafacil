@@ -231,6 +231,7 @@ export default function MenuOption() {
     },
   };
   // style modal licence
+
   const customStylesModalSpace = {
     content: {
       top: '50%',
@@ -239,20 +240,27 @@ export default function MenuOption() {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
+      backgroundColor: '#fff',
       borderRadius: '10px',
-      padding: '20px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '40vw',
-      height: '55vh',
-      maxWidth: '90%',
-      color: '#6c6c6c'
+      padding: '0',
+      width: '97%',
+      maxWidth: '600px',
+      border: 'none',
+      boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-  };
+      zIndex: 1000
+    }
+  }
+
+
+
+
+
+
+
+
   // style modal licence
   const customStylesModalSpaceStatus = {
     content: {
@@ -554,16 +562,16 @@ export default function MenuOption() {
                 style={customStylesModalSpace}
                 shouldCloseOnOverlayClick={false}
               >
-                <header className="header-modal">
+                <header className="header-modal-space">
                   <div className="header-arena-space">
                     <h5>Espaços, Quadras, Campo...</h5>
                   </div>
-                  <div className="area-close" onClick={closeModalSpace}>
+                  <div className="area-close-space" onClick={closeModalSpace}>
                     <FiX size={24} />
                   </div>
                 </header>
                 <main className="main-modal-space">
-                  <div className="area-first">
+                  <div className="area-first-space">
                     <h5>Novo Espaço:</h5>
                     <input
                       type="text"
@@ -571,7 +579,7 @@ export default function MenuOption() {
                       onChange={e => setSpace(e.target.value)}
                     />
                   </div>
-                  <div className="area-second">
+                  <div className="area-second-space">
                     <h5>Selecione os esportes para esta quadra:</h5>
                     <div>
                       <input type="checkbox" name="Futevôlei" id="futevolei" value="Futevôlei" onChange={handleCheckboxChange} />
@@ -609,7 +617,7 @@ export default function MenuOption() {
                     </div>
                   </div>
                 </main>
-                <div className="area-btn">
+                <div className="area-btn-space">
                   <button onClick={handleNewSpace}>Adicionar</button>
                   <button onClick={openModalSpaceStatus}>Mostrar Espaços</button>
                 </div>
