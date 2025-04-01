@@ -230,8 +230,7 @@ export default function MenuOption() {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
   };
-  // style modal licence
-
+  // style modal space
   const customStylesModalSpace = {
     content: {
       top: '50%',
@@ -261,7 +260,7 @@ export default function MenuOption() {
 
 
 
-  // style modal licence
+  // style modal spaces status
   const customStylesModalSpaceStatus = {
     content: {
       top: '50%',
@@ -270,19 +269,19 @@ export default function MenuOption() {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
-      borderRadius: '10px',
-      padding: '20px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '55vw',
-      height: '60vh',
-      maxWidth: '90%',
-      color: '#6c6c6c'
+      backgroundColor: '#fff',
+      borderRadius: '30px',
+      padding: '0',
+      width: '95%',
+      maxWidth: '800px',
+      border: 'none',
+      boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+      overflow: 'hidden'
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
+      zIndex: 1000
+    }
   };
 
   function openModalLicence() {
@@ -629,23 +628,24 @@ export default function MenuOption() {
                 onRequestClose={closeModalSpaceStatus}
                 style={customStylesModalSpaceStatus}
                 shouldCloseOnOverlayClick={false}
+
               >
-                <header className="header-modal">
-                  <div className="header-arena-space">
+                <header className="header-modal-show-spaces">
+                  <div className="header-arena-show-spaces">
                     <h5>Seus Espaços</h5>
                   </div>
-                  <div className="area-close" onClick={closeModalSpaceStatus}>
+                  <div className="area-close-show-spaces" onClick={closeModalSpaceStatus}>
                     <FiX size={24} />
                   </div>
                 </header>
-                <main className="main-modal-space-status">
+                <main className="main-modal-show-spaces">
                   <table style={{ width: '100%', fontWeight: 300 }}>
                     <thead>
                       <tr>
-                        <th>Id</th>
-                        <th>Espaços</th>
-                        <th>Esportes</th>
-                        <th>Ativar/Desativar</th>
+                        <th style={{ textAlign: 'center' }}>Id</th>
+                        <th style={{ textAlign: 'center' }}>Espaços</th>
+                        <th style={{ textAlign: 'center' }}>Esportes</th>
+                        <th style={{ textAlign: 'center' }}>Ativar/Desativar</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -665,7 +665,7 @@ export default function MenuOption() {
                               }
                               style={{
                                 backgroundColor: item.status === "Disponível" ? "#e49e9e" : "#8ce49c",
-                                padding: "1% 10%",
+                                padding: "5% 10%",
                                 borderRadius: "10px",
                                 color: "#fff",
                                 border: "none",
