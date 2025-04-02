@@ -216,19 +216,18 @@ export default function MenuOption() {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
+      backgroundColor: '#fff',
       borderRadius: '10px',
-      padding: '20px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '40vw',
-      height: '50vh',
-      maxWidth: '90%',
-      color: '#6c6c6c'
+      padding: '0',
+      width: '97%',
+      maxWidth: '600px',
+      border: 'none',
+      boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
+      zIndex: 1000
+    }
   };
   // style modal space
   const customStylesModalSpace = {
@@ -252,13 +251,6 @@ export default function MenuOption() {
       zIndex: 1000
     }
   }
-
-
-
-
-
-
-
 
   // style modal spaces status
   const customStylesModalSpaceStatus = {
@@ -529,16 +521,16 @@ export default function MenuOption() {
                   <div className="header-arena-licence">
                     <h5>Licença de uso</h5>
                   </div>
-                  <div className="area-close" onClick={closeModalLicence}>
+                  <div className="area-close-licence" onClick={closeModalLicence}>
                     <FiX size={24} />
                   </div>
                 </header>
                 <main className="main-modal-licence">
-                  <div className="area-first">
+                  <div className="area-first-licence">
                     <h5><strong>Arena:</strong> {dataPlan?.arenaName} </h5>
                     <h5><strong>Plano Atual:  </strong>{dataPlan?.getPlan.planSelect}</h5>
                   </div>
-                  <div className="area-second">
+                  <div className="area-second-licence">
                     <h5><strong>Vencimento:  </strong>
                       {
                         dataPlan?.getPlan.planExpiry ?
@@ -549,7 +541,7 @@ export default function MenuOption() {
                     <h5><strong>Status plano: </strong> {dataPlan?.getPlan.status}</h5>
                   </div>
                 </main>
-                <div className="area-btn">
+                <div className="area-btn-licence">
                   <button>Mudar Plano</button>
                 </div>
               </Modal>
