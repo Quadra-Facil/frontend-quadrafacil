@@ -160,19 +160,17 @@ export default function Principal() {
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
       backgroundColor: '#fff',
-      border: '0px solid #ccc',
       borderRadius: '10px',
-      padding: '0px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '35vw',
-      height: '55vh',
-      maxWidth: '100%',
-      color: '#6c6c6c',
-      zIndex: 10000,
+      padding: '0',
+      width: '97%',
+      maxWidth: '600px',
+      border: 'none',
+      boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
+      zIndex: 1000
+    }
   };
 
   function openModalDetails() {
@@ -616,7 +614,7 @@ export default function Principal() {
         >
           <header className="header-modal-informe-res">
             <img src={Logo} alt="logo" />
-            <div className="area-close" onClick={closeModalDetails}>
+            <div className="area-close-informe-res" onClick={closeModalDetails}>
               <FiX size={24} />
             </div>
           </header>

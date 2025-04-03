@@ -189,23 +189,101 @@ export default function Dashboard() {
                         options={{
                           chart: {
                             id: 'line-chart',
-                            toolbar: { show: false },
-                            zoom: { enabled: true },
+                            toolbar: {
+                              show: false,
+                              tools: {
+                                download: true,
+                              }
+                            },
+                            zoom: {
+                              enabled: window.innerWidth > 768,
+                            },
                             background: '#fff',
+                            animations: {
+                              enabled: window.innerWidth > 480,
+                            },
                           },
                           xaxis: {
                             categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
                             axisBorder: { show: false },
                             axisTicks: { show: false },
+                            labels: {
+                              style: {
+                                fontSize: window.innerWidth < 768 ? '10px' : '12px',
+                              },
+                              trim: true,
+                              hideOverlappingLabels: true,
+                            }
+                          },
+                          yaxis: {
+                            labels: {
+                              style: {
+                                fontSize: window.innerWidth < 768 ? '10px' : '12px',
+                              },
+                              formatter: function (value: number) {
+                                return window.innerWidth < 480 ? Math.round(value).toString() : value.toString();
+                              }
+                            }
                           },
                           stroke: {
                             curve: 'smooth',
-                            width: 3,
+                            width: window.innerWidth < 768 ? 2 : 3,
                           },
-                          colors: ['#FF8A5B', '#00e676', '#673ab7', '#00b0ff', '#78909c', '#ffea00'], // Adicione mais cores se necessário
-                          grid: { show: false },
-                          dataLabels: { enabled: false },
-                          legend: { position: 'bottom' },
+                          colors: ['#FF8A5B', '#00e676', '#673ab7', '#00b0ff', '#78909c', '#ffea00'],
+                          grid: {
+                            show: false,
+                            padding: {
+                              left: window.innerWidth < 768 ? 0 : 20,
+                              right: window.innerWidth < 768 ? 0 : 20
+                            }
+                          },
+                          dataLabels: {
+                            enabled: false
+                          },
+                          legend: {
+                            position: window.innerWidth < 768 ? 'bottom' : 'right',
+                            horizontalAlign: window.innerWidth < 768 ? 'center' : 'left',
+                            fontSize: window.innerWidth < 768 ? '12px' : '14px',
+                            itemMargin: {
+                              horizontal: window.innerWidth < 768 ? 5 : 10,
+                              vertical: window.innerWidth < 768 ? 2 : 5
+                            }
+                          },
+                          responsive: [{
+                            breakpoint: 768,
+                            options: {
+                              chart: {
+                                height: 300,
+                                zoom: {
+                                  enabled: false
+                                }
+                              },
+                              legend: {
+                                position: 'bottom',
+                                horizontalAlign: 'center'
+                              },
+                              tooltip: {
+                                enabled: true,
+                                fixed: {
+                                  enabled: window.innerWidth > 480
+                                }
+                              }
+                            }
+                          },
+                          {
+                            breakpoint: 480,
+                            options: {
+                              chart: {
+                                height: 200
+                              },
+                              xaxis: {
+                                labels: {
+                                  show: true,
+                                  rotate: -45
+                                }
+                              }
+                            }
+                          }]
                         }}
                         series={getSpaces.map(space => {
                           const appointmentsByMonth = Array(12).fill(0);
@@ -223,14 +301,18 @@ export default function Dashboard() {
                         })}
                         type="line"
                         height="100%"
-                        width="180%"
+                        width="100%"
                       />
                     </section>
 
-                    <div className="radial-chart-container" style={{ position: "relative" }}>
+                    <div className="radial-chart-container" style={{ position: "relative", width: "80%", maxWidth: "600px", margin: "0 auto" }}>
                       <ApexCharts
                         options={{
-                          chart: { type: "radialBar", height: 280 },
+                          chart: {
+                            type: "radialBar",
+                            height: "auto", // Altura automática (ajustável pelo container)
+                            toolbar: { show: false },
+                          },
                           series: monthlyReservations,
                           colors: colors.slice(0, getSpaces.length),
                           plotOptions: {
@@ -238,7 +320,7 @@ export default function Dashboard() {
                               hollow: {
                                 margin: 0,
                                 size: "65%",
-                                background: "#f7cebe"
+                                background: "#f7cebe",
                               },
                               track: {
                                 dropShadow: {
@@ -246,8 +328,8 @@ export default function Dashboard() {
                                   top: 2,
                                   left: 0,
                                   blur: 4,
-                                  opacity: 0.15
-                                }
+                                  opacity: 0.15,
+                                },
                               },
                               dataLabels: {
                                 name: { offsetY: -20, color: "#FF8A5B", fontSize: "16px" },
@@ -255,10 +337,10 @@ export default function Dashboard() {
                                   color: "#8a8a8a",
                                   fontSize: "16px",
                                   show: true,
-                                  formatter: () => `${totalReservations} Reservas`
-                                }
-                              }
-                            }
+                                  formatter: () => `${totalReservations} Reservas`,
+                                },
+                              },
+                            },
                           },
                           fill: {
                             type: "gradient",
@@ -266,49 +348,88 @@ export default function Dashboard() {
                               shade: "dark",
                               type: "vertical",
                               gradientToColors: colors.slice(0, getSpaces.length),
-                              stops: [0, 100]
-                            }
+                              stops: [0, 100],
+                            },
                           },
                           stroke: { lineCap: "round" },
-                          labels: getSpaces.map(space => space.name),
+                          labels: getSpaces.map((space) => space.name),
                           tooltip: {
                             enabled: true,
                             y: {
-                              formatter: (val) => `${Math.round(val)}%`
-                            }
-                          }
+                              formatter: (val) => `${Math.round(val)}%`,
+                            },
+                          },
+                          responsive: [ // Configurações responsivas do ApexCharts
+                            {
+                              breakpoint: 768, // Para telas menores que 768px
+                              options: {
+                                chart: { height: 300 },
+                                plotOptions: {
+                                  radialBar: {
+                                    dataLabels: {
+                                      name: { fontSize: "12px" },
+                                      value: { fontSize: "12px" },
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                            {
+                              breakpoint: 480, // Para telas menores que 480px
+                              options: {
+                                chart: { height: 250 },
+                                plotOptions: {
+                                  radialBar: {
+                                    hollow: { size: "55%" },
+                                    dataLabels: {
+                                      name: { fontSize: "10px", offsetY: -10 },
+                                      value: { fontSize: "10px" },
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          ],
                         }}
                         series={monthlyReservations}
                         type="radialBar"
-                        height={280}
+                        height="80%" // Altura relativa ao container
                       />
-                      <div className="chart-center-icon" style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -90%)",
-                        fontSize: "50px",
-                        color: "#F7f7f7",
-                        pointerEvents: "none"
-                      }}>
+                      <div
+                        className="chart-center-icon"
+                        style={{
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%, -90%)",
+                          fontSize: "50px",
+                          color: "#F7f7f7",
+                          pointerEvents: "none",
+                        }}
+                      >
                         <GoRocket />
                       </div>
-                      <div className="chart-title">
+                      <div className="chart-title" style={{ textAlign: "center", marginTop: "-8px", fontSize: "18px", fontWeight: "bold" }}>
                         {currentMonthName} - {totalReservations} Reservas
                       </div>
-                      <div className="chart-legend">
+                      <div
+                        className="chart-legend"
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          justifyContent: "center",
+                          gap: "10px",
+                          marginTop: "15px",
+                        }}
+                      >
                         {getSpaces.map((space, index) => (
-                          <div key={space.spaceId} className="legend-item">
-                            <div style={{ width: '15px', height: '15px', borderRadius: '50%', backgroundColor: colors[index] }} />
-                            <span style={{ color: '#8a8a8a', marginLeft: 5, fontWeight: 300 }}>{space.name}</span>
+                          <div key={space.spaceId} className="legend-item" style={{ display: "flex", alignItems: "center" }}>
+                            <div style={{ width: "15px", height: "15px", borderRadius: "50%", backgroundColor: colors[index] }} />
+                            <span style={{ color: "#8a8a8a", marginLeft: "5px", fontWeight: 300 }}>{space.name}</span>
                           </div>
                         ))}
                       </div>
-                      <style>{`
-        .radial-chart-container:hover .chart-center-icon {
-          display: none;
-        }
-      `}</style>
+                      <style>{`.radial-chart-container:hover .chart-center-icon { display: none; }`}</style>
                     </div>
 
                   </section>

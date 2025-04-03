@@ -242,9 +242,9 @@ main {
 }
 
 /* modal informe */
-.header-modal-informe {
+.header-modal-informe-res {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -252,7 +252,7 @@ main {
   border-bottom: 3px solid var(--secundary-color);
 }
 
-.header-modal-informe img {
+.header-modal-informe-res img {
   width: 40%;
 }
 
@@ -275,7 +275,7 @@ main {
   border: 0.1px solid #e57373;
 }
 
-.main-modal-informe {
+.main-modal-informe-res {
   height: 60%;
   width: 100%;
   background-color: #e573732d;
@@ -285,13 +285,13 @@ main {
   flex-direction: column;
 }
 
-.main-modal-informe h1 {
+.main-modal-informe-res h1 {
   color: #e57373;
   font-weight: 450;
   margin-top: 2%;
 }
 
-.main-modal-informe h5 {
+.main-modal-informe-res h5 {
   font-size: 16px;
   font-weight: 350;
   margin-top: 8%;
@@ -300,11 +300,11 @@ main {
   padding: 0 7%;
 }
 
-.main-modal-informe h5 strong {
+.main-modal-informe-res h5 strong {
   color: #e57373;
 }
 
-.main-modal-informe button {
+.main-modal-informe-res button {
   position: fixed;
   bottom: 5%;
   right: 5%;
@@ -314,7 +314,7 @@ main {
   border-radius: 10px;
 }
 
-.main-modal-informe button:hover {
+.main-modal-informe-res button:hover {
   background-color: #c66464;
 }
 
@@ -478,91 +478,8 @@ main {
   color: #868282;
 }
 
-/* modal details */
-.header-modal-informe-res {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 20%;
-  border-bottom: 2px solid #FF8A5B;
-}
 
-.header-modal-informe-res img {
-  width: 200px;
-}
 
-.main-modal-informe-res {
-  background-color: #f89f7c34;
-  height: 80%;
-}
-
-.main-modal-informe-res h1 {
-  text-align: center;
-  font-weight: 300;
-  font-size: 25px;
-}
-
-.main-modal-informe-res main {
-  height: 60%;
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  justify-content: space-evenly;
-  margin-top: 2%;
-}
-
-.one-res {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  width: 100%;
-}
-
-.one-res strong {
-  font-weight: 500;
-}
-
-.one-res p {
-  width: 50%;
-  margin-left: 10%;
-  font-weight: 300;
-}
-
-.promo {
-  text-align: center;
-  width: 100%;
-}
-
-.promo strong {
-  font-weight: 500;
-}
-
-.promo p {
-  font-weight: 300;
-}
-
-.obs {
-  text-align: center;
-  width: 100%;
-}
-
-.obs strong {
-  font-weight: 500;
-}
-
-.obs p {
-  font-weight: 300;
-}
-
-.main-modal-informe-res button {
-  background-color: #e57373;
-  color: #fff;
-  border-radius: 10px;
-  padding: 8px 25px;
-  position: fixed;
-  right: 5%;
-  bottom: 5%;
-}
 
 .reserve-mobile {
   display: none;
@@ -571,6 +488,220 @@ main {
 .close-reserve {
   display: none;
 }
+
+/* modal details */
+
+.header-modal-informe-res {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #f8b195 100%);
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-modal-informe-res img {
+  width: 120px;
+  height: auto;
+  /* filter: brightness(0) invert(1); */
+  transition: transform 0.3s ease;
+}
+
+.header-modal-informe-res img:hover {
+  transform: scale(1.05);
+}
+
+.area-close-informe-res {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.area-close-informe-res:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.area-close-informe-res svg {
+  color: white;
+}
+
+.main-modal-informe-res {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.main-modal-informe-res h1 {
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  position: relative;
+  display: inline-block;
+}
+
+.main-modal-informe-res h1::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color) 0%, #f8b195 100%);
+  border-radius: 3px;
+}
+
+.main-modal-informe-res main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.one-res {
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  border-bottom: 1px dashed #e0e0e0;
+  padding-bottom: 15px;
+  transition: all 0.3s ease;
+  width: 350px;
+}
+
+.one-res:hover {
+  border-bottom-color: var(--primary-color);
+}
+
+.one-res p {
+  flex: 1;
+  margin: 0;
+  color: #555;
+  font-size: 1rem;
+}
+
+.one-res p strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.promo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.promo p {
+  margin: 5px 0;
+}
+
+.promo p:last-child {
+  color: var(--primary-color);
+  font-weight: 500;
+  position: relative;
+  padding-left: 20px;
+}
+
+.promo p:last-child::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+  animation: bounce 2s infinite;
+}
+
+.obs {
+  padding: 0;
+  margin-top: 15px;
+  font-style: italic;
+  color: #666;
+}
+
+.main-modal-informe-res button {
+  align-self: flex-end;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #ff8a5b, #ff6b4a);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 138, 91, 0.3);
+
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-modal-informe-res button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
+
+.main-modal-informe-res button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(248, 177, 149, 0.4);
+}
+
+.main-modal-informe-res button:hover::before {
+  left: 100%;
+}
+
+/* Animations */
+@keyframes bounce {
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateX(0);
+  }
+
+  40% {
+    transform: translateX(5px);
+  }
+
+  60% {
+    transform: translateX(3px);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @media(max-width: 1210px) {
 
@@ -747,8 +878,8 @@ main {
   .close-reserve {
     display: block;
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 20px !important;
+    right: 25px !important;
     background: none;
     border: none;
     font-size: 24px;
@@ -856,8 +987,8 @@ main {
   .close-reserve {
     display: block;
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 20px !important;
+    right: 25px !important;
     background: none;
     border: none;
     font-size: 24px;
@@ -885,5 +1016,44 @@ main {
 
   .area-img {
     margin-top: -7vh !important;
+  }
+
+  /* modal informe */
+  .main-modal-informe-res button {
+    width: 90%;
+    padding: 14px;
+    position: fixed;
+    bottom: 20px;
+    left: 5%;
+    right: 5%;
+  }
+
+  .ReactModal__Content {
+    position: fixed;
+    inset: auto 0 0 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    height: auto !important;
+    /* Mudamos para auto */
+    max-height: 90vh !important;
+    /* Limitamos a altura máxima */
+    border-radius: 30px 30px 0 0 !important;
+    margin: 0;
+    border-top-left-radius: 30px !important;
+    border-top-right-radius: 30px !important;
+    overflow-y: auto !important;
+    /* Adicionamos scroll se necessário */
+  }
+
+  /* Quando o teclado está aberto */
+  .ReactModal__Content.keyboard-open {
+    max-height: 50vh !important;
+    /* Reduzimos a altura quando o teclado está visível */
+    bottom: env(keyboard-inset-height, 0) !important;
+    /* Usamos a nova API de teclado */
+  }
+
+  .obs {
+    margin-bottom: 20%;
   }
 }

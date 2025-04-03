@@ -96,7 +96,7 @@
 
 /* Inicialmente escondido */
 .menu-item-reserve .type-reserve {
-  background-color: #fff;
+  background-color: #a81919;
   /* border: 1px solid var(--primary-color); */
   height: 0;
   width: 99%;
@@ -388,7 +388,6 @@
 
 
 /* styles modal show spaces */
-
 /* Header do modal */
 .header-modal-show-spaces {
   display: flex;
@@ -524,21 +523,6 @@
 .main-modal-show-spaces::-webkit-scrollbar-thumb:hover {
   background: #ff6b4a;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* MODAL LICENCE */
 /* Estilos para o Modal de Licença */
@@ -687,13 +671,6 @@
 .modal-licence {
   animation: fadeIn 0.4s ease-out forwards;
 }
-
-
-
-
-
-
-
 
 
 /* Ajustes para os Modais em Telas Pequenas */
