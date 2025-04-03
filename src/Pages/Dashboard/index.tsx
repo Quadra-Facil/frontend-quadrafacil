@@ -174,7 +174,7 @@ export default function Dashboard() {
                                   data: appointmentsByMonth
                                 }]}
                                 type="area"
-                                height={130}
+                                height={110}
                               />
                             </div>
                           </div>
@@ -274,7 +274,7 @@ export default function Dashboard() {
                             breakpoint: 480,
                             options: {
                               chart: {
-                                height: 200
+                                height: 150
                               },
                               xaxis: {
                                 labels: {
@@ -377,7 +377,7 @@ export default function Dashboard() {
                             {
                               breakpoint: 480, // Para telas menores que 480px
                               options: {
-                                chart: { height: 250 },
+                                chart: { height: 150 },
                                 plotOptions: {
                                   radialBar: {
                                     hollow: { size: "55%" },
@@ -393,7 +393,7 @@ export default function Dashboard() {
                         }}
                         series={monthlyReservations}
                         type="radialBar"
-                        height="80%" // Altura relativa ao container
+                        height="70%" // Altura relativa ao container
                       />
                       <div
                         className="chart-center-icon"
@@ -409,7 +409,7 @@ export default function Dashboard() {
                       >
                         <GoRocket />
                       </div>
-                      <div className="chart-title" style={{ textAlign: "center", marginTop: "-8px", fontSize: "18px", fontWeight: "bold" }}>
+                      <div className="chart-title" style={{ textAlign: "center", marginTop: "-15px", fontSize: "14px", fontWeight: "bold", color: '#666' }}>
                         {currentMonthName} - {totalReservations} Reservas
                       </div>
                       <div
@@ -419,7 +419,7 @@ export default function Dashboard() {
                           flexWrap: "wrap",
                           justifyContent: "center",
                           gap: "10px",
-                          marginTop: "15px",
+                          marginTop: "1px",
                         }}
                       >
                         {getSpaces.map((space, index) => (
