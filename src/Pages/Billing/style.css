@@ -29,6 +29,7 @@
   display: flex;
   align-items: start;
   justify-content: start;
+  padding-left: 20vw;
 }
 
 .area-header-export {
@@ -151,7 +152,7 @@
 
 .card-billing {
   background-color: #fff;
-  width: 300px;
+  width: 22vw;
   height: 150px;
   padding: 2%;
   border-radius: 10px;
@@ -284,6 +285,10 @@
   justify-content: center;
 }
 
+.icon-btn-exp {
+  display: none;
+}
+
 /* Animação */
 @keyframes fadeIn {
   from {
@@ -328,4 +333,164 @@ table tbody {
   font-weight: 300;
   color: #8a8a8a;
   border-top: 1px solid #8a8a8a;
+}
+
+
+
+@media (max-width: 1014px) {
+  .principal-billing {
+    padding-left: 0;
+  }
+
+  .area-header-export {
+    width: 100vw;
+  }
+
+  .card-billing {
+    height: 100px;
+    width: 250px;
+  }
+
+  .card-porc,
+  .card-last-schedules {
+    height: 50vh;
+  }
+}
+
+@media (max-width: 836px) {
+  .card-billing {
+    height: 100px;
+    width: 27vw;
+
+    p {
+      font-size: 12px;
+    }
+
+    h1 {
+      font-size: 18px;
+    }
+
+    h5 {
+      font-size: 10px;
+    }
+  }
+
+  .area-porc {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-porc {
+    width: 94vw;
+    padding-top: 25%;
+    min-height: 28vh !important;
+  }
+
+  .card-last-schedules {
+    padding-top: 25%;
+    width: 94vw;
+    min-height: 32vh !important;
+  }
+}
+
+
+@media (max-width: 710px) {
+  .area-filter {
+    flex-direction: column;
+    justify-content: center !important;
+  }
+
+  .area-filter label {
+    font-size: 12px;
+  }
+
+  .area-filter input {
+    width: 100px;
+    height: 25px;
+    font-size: 10px;
+  }
+}
+
+.btn-export {
+  width: 70px;
+  height: 20px;
+  font-size: 9px;
+  border-radius: 5px;
+
+  svg {
+    width: 9px;
+  }
+}
+
+.area-left-header select,
+.area-left-header button {
+  font-size: 10px;
+  height: 25px;
+  border-radius: 5px;
+}
+
+.area-left-header button svg {
+  width: 15px;
+}
+
+.schedules-table {
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .btn-export {
+    display: none;
+  }
+
+  .icon-btn-exp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 10%;
+    right: 5%;
+    z-index: 1;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: #fff;
+
+    svg {
+      width: 25px !important;
+    }
+  }
+
+  .area-cards-billing {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    height: 50vh;
+    gap: 2%;
+  }
+
+  .card-billing {
+    width: 100%;
+    height: 30%;
+
+    p {
+      font-size: 18px;
+
+      svg {
+        font-size: 25px;
+      }
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    h5 {
+      font-size: 14px;
+    }
+  }
+
+  .card-last-schedules {
+    display: none;
+  }
 }

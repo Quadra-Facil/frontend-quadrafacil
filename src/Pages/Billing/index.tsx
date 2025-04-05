@@ -13,6 +13,7 @@ import { FaFireAlt } from 'react-icons/fa';
 import { LuFilterX } from 'react-icons/lu';
 import { jsPDF } from "jspdf";
 import autoTable, { CellDef } from 'jspdf-autotable';
+import { PiFilePdf } from 'react-icons/pi';
 
 interface Reserve {
   id_reserve: number;
@@ -564,6 +565,9 @@ export default function Billing() {
                   </div>
                 )}
               </section>
+              <button className='icon-btn-exp'>
+                <PiFilePdf size={30} onClick={() => generatePdf()} />
+              </button>
               <button className='btn-export' onClick={() => generatePdf()}>
                 <FaRegFilePdf size={18} />
                 Exportar
