@@ -770,6 +770,23 @@ main {
 }
 
 @media(max-width: 850px) {
+
+  .header-modal-informe-res {
+    max-height: 100px;
+  }
+
+  .main-modal-informe-res {
+    height: 100%;
+    padding-bottom: 50vh;
+  }
+
+  .main-modal-informe-res button {
+    position: fixed;
+    bottom: 5%;
+    right: 5%;
+  }
+
+
   .area-filter {
     overflow: auto;
     height: 120px;
@@ -815,6 +832,17 @@ main {
 }
 
 @media(max-width: 650px) {
+
+  .header-modal-informe-res {
+    max-height: 100px;
+  }
+
+  .main-modal-informe-res {
+    height: 100%;
+    padding-bottom: 25vh;
+  }
+
+
   .area-reserve {
     position: fixed;
     top: 0;
@@ -1019,6 +1047,16 @@ main {
   }
 
   /* modal informe */
+
+  .header-modal-informe-res {
+    max-height: 100px;
+  }
+
+  .main-modal-informe-res {
+    height: 100%;
+    padding-bottom: 25vh;
+  }
+
   .main-modal-informe-res button {
     width: 90%;
     padding: 14px;

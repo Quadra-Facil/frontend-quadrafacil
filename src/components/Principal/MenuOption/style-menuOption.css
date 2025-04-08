@@ -96,8 +96,7 @@
 
 /* Inicialmente escondido */
 .menu-item-reserve .type-reserve {
-  background-color: #a81919;
-  /* border: 1px solid var(--primary-color); */
+  background-color: #ffffff;
   height: 0;
   width: 99%;
   display: flex;
@@ -814,6 +813,8 @@
 
   .type-reserve .area-btn {
     flex-wrap: wrap;
+    min-width: 50vw !important;
+    gap: 5%;
   }
 
   .type-reserve .area-btn p {
