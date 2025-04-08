@@ -1070,7 +1070,7 @@
 
   .ReactModal__Content {
     position: fixed !important;
-    top: 0 !important;
+    top: 40px !important;
     left: 0 !important;
     right: 0 !important;
     bottom: env(safe-area-inset-bottom) !important;
@@ -1079,12 +1079,17 @@
     height: auto !important;
     /* Permite ajuste quando o teclado aparece */
     max-height: 100vh !important;
-    border-radius: 0 !important;
+    border-top-right-radius: 20px !important;
+    border-top-left-radius: 20px !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin-top: 0% !important;
     transform: none !important;
     overflow-y: auto !important;
     /* Permite rolagem interna */
+  }
+
+  .rigth-config {
+    margin-top: -5px !important;
   }
 
   .first {

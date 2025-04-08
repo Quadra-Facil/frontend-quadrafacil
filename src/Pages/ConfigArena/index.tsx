@@ -943,6 +943,7 @@ export default function ConfigArena() {
                             {modoEdicao ? 'Confirmar' : 'Editar'}
                           </button>
                         </section>
+
                       )
                     }
                     {

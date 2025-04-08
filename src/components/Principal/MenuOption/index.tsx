@@ -216,7 +216,7 @@ export default function MenuOption() {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#fff',
+      backgroundColor: '#ff0',
       borderRadius: '10px',
       padding: '0',
       width: '97%',
