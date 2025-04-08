@@ -238,10 +238,10 @@ export default function MenuOption() {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#fff',
+      backgroundColor: '#fff9f7',
       borderRadius: '10px',
       padding: '0',
-      width: '97%',
+      width: '100%',
       maxWidth: '600px',
       border: 'none',
       boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
@@ -501,12 +501,6 @@ export default function MenuOption() {
                     </>
                   )
                 }
-
-                <section className="menu-item" onClick={() => navigate("/teste")}>
-                  <div className="divider-item"></div>
-                  <img src={FiSettings} alt="Icon" width={28} height={28} />
-                  <strong>Teste</strong>
-                </section>
 
               </nav>
 

@@ -224,7 +224,7 @@
 }
 
 .area-first-space input {
-  width: 100%;
+  /* width: 100%; */
   padding: 12px 15px;
   border: 2px solid #f7cebe;
   border-radius: 8px;
@@ -780,44 +780,13 @@
 }
 
 @media (max-width: 460px) {
-  .type-reserve .area-btn {
-    flex-wrap: wrap;
-  }
-
-  .type-reserve .area-btn p {
-    flex: 1 0 40%;
-    text-align: center;
-  }
-
-  .main-modal-space {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .area-first-space {
-    width: 95%;
-  }
-
-  .area-btn-space {
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .area-btn-space button {
-    width: 100%;
-  }
-
-  .area-second-space {
-    margin-top: 5px;
-  }
 
   .ReactModal__Content {
     position: fixed;
     inset: auto 0 0 0 !important;
     transform: none !important;
     width: 100% !important;
-    height: auto !important;
+    height: 90vh !important;
     /* Mudamos para auto */
     max-height: 90vh !important;
     /* Limitamos a altura máxima */
@@ -838,6 +807,46 @@
   }
 
 
+
+  .type-reserve .area-btn {
+    flex-wrap: wrap;
+  }
+
+  .type-reserve .area-btn p {
+    flex: 1 0 40%;
+    text-align: center;
+  }
+
+  .main-modal-space {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .area-first-space {
+    width: 90vw !important;
+
+    input {
+      width: 100%;
+    }
+  }
+
+  .area-btn-space {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    position: fixed;
+    bottom: 1%;
+  }
+
+  .area-btn-space button {
+    width: 100%;
+  }
+
+  .area-second-space {
+    margin-top: 5px;
+  }
+
+
   /* MODAL LICENCE */
   .header-modal-licence {
     padding: 15px;
@@ -847,6 +856,7 @@
     padding: 15px;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
   }
 
   .area-first-licence,

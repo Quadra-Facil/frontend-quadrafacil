@@ -7,7 +7,7 @@ import { AuthContext } from "../../services/contexts/AuthContext";
 import Toast from "../../components/Toast";
 import Loading from "../../components/Loading";
 import { api } from "../../services/axiosApi/apiClient";
-import { CiUser, CiPower, CiStar, CiClock2, CiBadgeDollar } from "react-icons/ci";
+import { CiUser, CiPower, CiStar, CiClock2, CiBadgeDollar, CiHome } from "react-icons/ci";
 import { IMaskInput } from "react-imask";
 import Switch from "react-switch"
 import { format } from "date-fns";
@@ -256,12 +256,12 @@ export default function ConfigArena() {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
+      backgroundColor: '#fff9f7',
       border: '1px solid #ccc',
       borderRadius: '10px',
       padding: '0px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '70vw',
+      width: '75vw',
       height: '80vh',
       maxWidth: '90%',
       color: '#6c6c6c'
@@ -740,6 +740,15 @@ export default function ConfigArena() {
                     <h1>{getAllArenas?.name}</h1>
 
                     <div className="item-menu-config"
+                      onClick={() => navigate("/principal")}
+                    >
+                      <div className="first">
+                        <CiHome size={20} />
+                        <p>Início</p>
+                      </div>
+                      <FiChevronRight size={20} />
+                    </div>
+                    <div className="item-menu-config"
                       onClick={() => handleClickMenu("perfil")}
                       title="Visualize ou edite os dados da sua arena."
                       style={{ backgroundColor: `${selectedMenu === 'perfil' ? 'var(--secundary-color)' : ''}` }}
@@ -971,7 +980,7 @@ export default function ConfigArena() {
                           <div className="status-open-close">
                             <h5>Agora defina o status da arena</h5>
 
-                            <div className="area-select">
+                            <div className="area-select-expedient">
                               <div
                                 className="open"
                                 onClick={handleOpenClick}
@@ -1160,14 +1169,6 @@ export default function ConfigArena() {
                               <label>{selectedPromotion === "dayuse" ? "Valor por pessoa:" : "Valor:"}</label>
                               <input value={valuePromotion} type="number" onChange={(e) => setValuePromotion(Number(e.target.value))} />
                             </div>
-                            {
-                              // selectedPromotion === "dayuse" && (
-                              //   <div className="qtd">
-                              //     <label>{selectedPromotion === "dayuse" ? "Qtd pessoas:" : "Qtd:"}</label>
-                              //     <input value={QtdPeoplePromotion} type="number" onChange={(e) => setQtdPeoplePromotion(Number(e.target.value))} />
-                              //   </div>
-                              // )
-                            }
 
                           </section>
 
