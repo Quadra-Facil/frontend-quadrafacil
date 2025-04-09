@@ -847,7 +847,7 @@ export default function ModalReserveFixed() {
 
               <img src={Logo} alt="logo" />
 
-              <div className="area-close" onClick={closeModalInformeArenaDisable}>
+              <div className="area-close-informe-fixed" onClick={closeModalInformeArenaDisable}>
                 <FiX size={24} />
               </div>
             </header>

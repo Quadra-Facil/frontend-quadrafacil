@@ -437,6 +437,10 @@ textarea {
   }
 }
 
+.area-close-informe-fixed {
+  display: none;
+}
+
 .area-data-details {
   display: flex;
   flex-direction: column;
