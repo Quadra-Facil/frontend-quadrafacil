@@ -52,8 +52,24 @@ export default function App() {
     },
   };
 
-
   const { login } = authContext;
+
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('authToken');
+
+      // Verifica se o token existe e não está vazio
+      if (token && token.trim() !== '') {
+        navigate("/principal")
+        // Aqui você pode validar o token com sua API
+      } else {
+        console.log('Token não encontrado ou inválido');
+      }
+    } catch (error) {
+      console.error('Erro ao acessar localStorage:', error);
+    }
+  }, []);
+
 
   useEffect(() => {
     if (sendTitle && sendMessage) {
@@ -123,6 +139,7 @@ export default function App() {
         setIsLoading(false);
         setSendTitle('success');
         setSendMessage('Login efetuado!');
+        navigate("/principal")
       } else {
         setIsLoading(false);
         setSendTitle('error');
@@ -168,7 +185,6 @@ export default function App() {
 
                     <div className='area-title'>
                       <h1>Esqueci minha senha</h1>
-                      <div className="divider"></div>
                     </div>
 
                     <p>Digite os dados para receber um e-mail informando como recupera-la. </p>

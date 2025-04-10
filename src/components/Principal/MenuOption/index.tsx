@@ -1,16 +1,16 @@
-import "./style-menuOption.css"
-import LogoQuadra from "../../../img/logomarca.svg"
+import "./style-menuOption.css";
+import LogoQuadra from "../../../img/logomarca.svg";
 import { FiMenu, FiX } from "react-icons/fi";
-import ReserveIcon from "./img/reserveIcon.svg"
-import LicencaIcon from "./img/licencaIcon.svg"
-import ArenaIcon from "./img/arenaIcon.svg"
-import ClientsIcon from "./img/icon-clients.svg"
-import DashIcon from "./img/icon-dashboard.svg"
-import RelatorioIcon from "./img/icon-relatorio.svg"
-import SpaceIcon from "./img/icon-space.svg"
-import FiSettings from "./img/FiSettings.svg"
+import ReserveIcon from "./img/reserveIcon.svg";
+import LicencaIcon from "./img/licencaIcon.svg";
+import ArenaIcon from "./img/arenaIcon.svg";
+import ClientsIcon from "./img/icon-clients.svg";
+import DashIcon from "./img/icon-dashboard.svg";
+import RelatorioIcon from "./img/icon-relatorio.svg";
+import SpaceIcon from "./img/icon-space.svg";
+import FiSettings from "./img/FiSettings.svg";
 import { useNavigate } from "react-router-dom";
-import { FormEvent, useContext, useEffect, useState } from "react";
+import { FormEvent, useContext, useEffect, useState, useRef } from "react";
 import Modal from "react-modal";
 import Toast from "../../Toast";
 import Loading from "../../Loading";
@@ -27,7 +27,7 @@ interface GetPlanResponse {
   getPlan: {
     id: number;
     planSelect: string;
-    planExpiry: string; // Use 'Date' se você transformar essa string em um objeto de data posteriormente
+    planExpiry: string;
     arenaId: number;
     status: string;
   };
@@ -79,52 +79,35 @@ interface ArenaData {
   adressArenas: AddressArenas;
 }
 
-interface Space {
-  $id: string;
-  spaceId: number;
-  name: string;
-  status: string;
-  sports: string; // A chave 'sports' contém uma string com esportes separados por vírgula
-  arenaId: number;
-}
-
-// Definindo a interface para o formato da resposta da API
-interface ApiResponse {
-  $id: string;
-  $values: Space[];
-}
-
-
 export default function MenuOption() {
   const navigate = useNavigate();
   const [modalIsOpenLicence, setIsOpenLicence] = useState<boolean>(false);
   const [modalIsOpenSpace, setIsOpenSpace] = useState<boolean>(false);
   const [modalIsOpenSpaceStatus, setIsOpenSpaceStatus] = useState<boolean>(false);
-  const [dataPlan, setDataPlan] = useState<GetPlanResponse | null>(null)
+  const [dataPlan, setDataPlan] = useState<GetPlanResponse | null>(null);
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
   const [space, setSpace] = useState<string>('');
   const [selectedSports, setSelectedSports] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [spacesData, seTSpacesData] = useState<SpaceResponse | null>(null);
-  const [isChecked, setIsChecked] = useState<string>('')
-
   const [arenaData, setArenaData] = useState<ArenaData | null>(null);
   const [esportes, setEsportes] = useState<String[]>([]);
+  const [isReserveOpen, setIsReserveOpen] = useState(false);
+  const reserveRef = useRef<HTMLDivElement>(null);
 
+  const reserveTimeoutRef = useRef<any>();
 
   const authContext = useContext(AuthContext);
   const { user }: any = authContext;
 
   useEffect(() => {
-    // setClassAreaUser(false)
     if (sendTitle && sendMessage) {
       const timer = setTimeout(() => {
         setSendTitle('');
         setSendMessage('');
       }, 3000);
-
-      return () => clearTimeout(timer); // Limpar o timer ao desmontar o componente ou atualizar os estados
+      return () => clearTimeout(timer);
     }
   }, [sendTitle, sendMessage]);
 
@@ -139,7 +122,6 @@ export default function MenuOption() {
         console.log(err);
       }
     };
-
     fetchPlan();
   }, []);
 
@@ -149,7 +131,6 @@ export default function MenuOption() {
         arenaId: user?.arena
       }).then((response) => {
         seTSpacesData(response.data);
-
       }).catch((error) => {
         setSendTitle('error');
         setSendMessage(error.response?.data?.erro || 'Erro ao buscar espaços');
@@ -157,18 +138,61 @@ export default function MenuOption() {
       })
     }
     getSpaces();
-  }, [modalIsOpenSpaceStatus])
+  }, [modalIsOpenSpaceStatus]);
 
-  //get value checkbox arena
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (reserveRef.current && !reserveRef.current.contains(event.target as Node)) {
+        setIsReserveOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    async function getDataArena() {
+      await api.post('/api/Arena/getArena', {
+        arenaId: user?.arena
+      }).then((response) => {
+        setArenaData(response?.data)
+      }).catch((error: any) => {
+        console.error(error?.response?.data)
+      })
+    }
+    getDataArena();
+  }, []);
+
+  useEffect(() => {
+    async function getSports() {
+      try {
+        const response = await api.post("/api/newSpace/get-spaces", {
+          arenaId: user?.arena
+        });
+        const dados = response?.data?.$values;
+        const esportesArray: string[] = [];
+
+        dados?.forEach((item: { sports: string }) => {
+          const esportesSeparados = item.sports.split(',').map((sport: string) => sport.trim());
+          esportesArray.push(...esportesSeparados);
+        });
+
+        const esportesUnicos = [...new Set(esportesArray)];
+        setEsportes(esportesUnicos);
+      } catch (error: any) {
+        console.error(error?.response?.data);
+      }
+    }
+    getSports();
+  }, []);
+
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target;
-
     setSelectedSports((prevSelectedSports) => {
-      const updatedSports = checked
-        ? [...prevSelectedSports, value] // Adiciona ao array se marcado
-        : prevSelectedSports.filter((sport) => sport !== value); // Remove do array se desmarcado
-
-      return updatedSports;
+      return checked
+        ? [...prevSelectedSports, value]
+        : prevSelectedSports.filter((sport) => sport !== value);
     });
   };
 
@@ -188,7 +212,7 @@ export default function MenuOption() {
       return;
     } else {
       setIsLoading(true);
-      const checksConvert = selectedSports.join(", ",)
+      const checksConvert = selectedSports.join(", ");
 
       await api.post("/api/newSpace", {
         name: space,
@@ -198,16 +222,32 @@ export default function MenuOption() {
         setSendTitle('success');
         setSendMessage(`Quadra inserida.`);
         setIsLoading(false);
-        setSelectedSports([])
+        setSelectedSports([]);
       }).catch((error) => {
         setSendTitle('error');
         setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
         setIsLoading(false);
-      })
+      });
     }
   }
 
-  // style modal licence
+  const handleToggleStatus = async (spaceId: number, status: string) => {
+    setIsLoading(true);
+    await api.put("/api/newSpace/edit-space", {
+      spaceId: Number(spaceId),
+      status: status === "Disponível" ? "Indisponível" : "Disponível"
+    }).then(() => {
+      setSendTitle('success');
+      setSendMessage(`Status alterado.`);
+      setIsLoading(false);
+      closeModalSpaceStatus();
+    }).catch((error) => {
+      setSendTitle('error');
+      setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
+      setIsLoading(false);
+    });
+  };
+
   const customStylesModalLicence = {
     content: {
       top: '50%',
@@ -229,7 +269,7 @@ export default function MenuOption() {
       zIndex: 1000
     }
   };
-  // style modal space
+
   const customStylesModalSpace = {
     content: {
       top: '50%',
@@ -250,9 +290,8 @@ export default function MenuOption() {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
       zIndex: 1000
     }
-  }
+  };
 
-  // style modal spaces status
   const customStylesModalSpaceStatus = {
     content: {
       top: '50%',
@@ -277,13 +316,13 @@ export default function MenuOption() {
   };
 
   function openModalLicence() {
-    setIsOpenLicence(true);   // Abre o modal
+    setIsOpenLicence(true);
   }
   function openModalSpace() {
-    setIsOpenSpace(true);   // Abre o modal
+    setIsOpenSpace(true);
   }
   function openModalSpaceStatus() {
-    setIsOpenSpaceStatus(true);   // Abre o modal
+    setIsOpenSpaceStatus(true);
   }
   function closeModalLicence() {
     setIsOpenLicence(false);
@@ -295,382 +334,291 @@ export default function MenuOption() {
     setIsOpenSpaceStatus(false);
   }
 
-  //função para carpturar o status do botão 
-  const handleToggleStatus = async (spaceId: number, status: string) => {
-
-    setIsLoading(true)
-
-    await api.put("/api/newSpace/edit-space", {
-      spaceId: Number(spaceId),
-      status: status === "Disponível" ? "Indisponível" : "Disponível"
-    }).then(() => {
-      setSendTitle('success');
-      setSendMessage(`Status alterado.`);
-      setIsLoading(false);
-      closeModalSpaceStatus();
-    }).catch((error) => {
-      setSendTitle('error');
-      setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
-      setIsLoading(false);
-    })
-  }
-
-  //dados de arena para o admin carregar para reservas
-  useEffect(() => {
-    async function getDataArena() {
-      await api.post('/api/Arena/getArena', {
-        arenaId: user?.arena
-      }).then((response) => {
-        setArenaData(response?.data)
-      }).catch((error: any) => {
-        console.error(error?.response?.data)
-      })
-    }
-    getDataArena();
-  }, [])
-
-  useEffect(() => {
-    async function getSports() {
-      try {
-        const response = await api.post("/api/newSpace/get-spaces", {
-          arenaId: user?.arena // Aqui você deve garantir que o valor de `user?.arena` está correto
-        });
-
-        // Verifique se a resposta possui os dados esperados
-        const dados = response?.data?.$values;
-
-        // Pegando todos os esportes, dividindo e removendo repetições
-        const esportesArray: string[] = [];
-
-        dados?.forEach((item: { sports: string }) => {
-          // Dividindo a string 'sports' em um array de esportes
-          const esportesSeparados = item.sports.split(',').map((sport: string) => sport.trim());
-
-          // Adicionando esportes ao array, garantindo que não haja repetições
-          esportesArray.push(...esportesSeparados);
-        });
-
-        // Remover duplicatas usando Set
-        const esportesUnicos = [...new Set(esportesArray)];
-
-        // Atualizando o estado com os esportes únicos
-        setEsportes(esportesUnicos);
-      } catch (error: any) {
-        console.error(error?.response?.data);
-      }
-    }
-
-    getSports();
-  }, []); // Recarrega quando o componente for montado
-
-
   return (
     <>
       <Toast title={sendTitle} message={sendMessage} />
-      {
-        isLoading ?
-          <Loading />
-          : (
-            <>
-              <nav className="menu">
-                <section className="area-logo-btnMenu">
-                  <img src={LogoQuadra} alt="Logo" onClick={() => navigate('/principal')} style={{ cursor: 'pointer' }} />
-                  {/* <FiMenu size={35} color="#868682" style={{ cursor: "pointer" }} /> */}
-                </section>
+      {isLoading ? <Loading /> : (
+        <>
+          <nav className="menu">
+            <section className="area-logo-btnMenu">
+              <img src={LogoQuadra} alt="Logo" onClick={() => navigate('/principal')} style={{ cursor: 'pointer' }} />
+            </section>
 
-                <section className="menu-item-reserve" onClick={user?.role === "client" ? () => navigate("/searchArena") : () => { }}>
-                  <section className="menu-item">
-                    <img src={ReserveIcon} alt="Icon" width={28} height={28} />
-                    <strong>Reservas</strong>
-                  </section>
-                  {
-                    user?.role !== "client" && (
-                      <div className="type-reserve">
-                        <div className="area-btn">
-                          <p title="Cria uma reserva sem recorrência"
-                            onClick={() => navigate('/reserve', {
-                              state: {
-                                arenaId: user?.arena,
-                                arena: `${arenaData?.name} - ${arenaData?.adressArenas.$values[0].state}-${arenaData?.adressArenas.$values[0].city}`,
-                                sports: esportes,
-                                GetvalueHour: arenaData?.valueHour
-                              }
-                            })
-                            }
-                          >
-                            Avulsa
-                            <BsEmojiSunglasses />
-                          </p>
-                          <p title="Cria uma reserva para um dia em toda semana" onClick={
-                            () => navigate("/reserve-fixed", {
-                              state: {
-                                sports: esportes,
-                              }
-                            })
-                          }>
-                            Fixa
-                            <MdOutlinePushPin />
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  }
-                </section>
-
-
-                {
-                  user?.role === "dev" && (
-                    <>
-                      <section className="menu-item" onClick={() => { navigate("/arena") }}>
-                        <div className="divider-item"></div>
-                        <img src={ArenaIcon} alt="Icon" width={28} height={28} />
-                        <strong>Arena</strong>
-                      </section>
-                    </>
-                  )
+            <section
+              className={`menu-item-reserve ${isReserveOpen ? 'active' : ''}`}
+              onMouseEnter={() => {
+                clearTimeout(reserveTimeoutRef.current);
+                setIsReserveOpen(true);
+              }}
+              onMouseLeave={() => {
+                reserveTimeoutRef.current = setTimeout(() => {
+                  setIsReserveOpen(false);
+                }, 300);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (user?.role === "client") {
+                  navigate("/searchArena");
+                } else {
+                  setIsReserveOpen(!isReserveOpen);
                 }
-
-                {
-                  user?.role !== "client" && (
-                    <>
-                      <section className="menu-item" onClick={() => openModalSpace()}>
-                        <div className="divider-item"></div>
-                        <img src={SpaceIcon} alt="Icon" width={28} height={28} />
-                        <strong>Espaço</strong>
-                      </section>
-                    </>
-                  )
-                }
-
-                {
-                  user?.role !== "client" && (
-                    <>
-                      <section className="menu-item" onClick={() => openModalLicence()}>
-                        <div className="divider-item"></div>
-                        <img src={LicencaIcon} alt="Icon" width={28} height={28} />
-                        <strong>Licença</strong>
-                      </section>
-                    </>
-                  )
-                }
-
-                {
-                  user?.role === "dev" && (
-                    <>
-                      <section className="menu-item" onClick={() => navigate("/client")}>
-                        <div className="divider-item"></div>
-                        <img src={ClientsIcon} alt="Icon" width={28} height={28} />
-                        <strong>Clientes</strong>
-                      </section>
-                    </>
-                  )
-                }
-
-                {
-                  user?.role !== "client" && (
-                    <>
-                      <section className="menu-item" onClick={() => navigate('/dashboard')}>
-                        <div className="divider-item"></div>
-                        <img src={DashIcon} alt="Icon" width={28} height={28} />
-                        <strong>Dashboard</strong>
-                      </section>
-                    </>
-                  )
-                }
-
-                {
-                  user?.role !== "client" && (
-                    <>
-                      <section className="menu-item" onClick={() => navigate("/billing")}>
-                        <div className="divider-item"></div>
-                        <img src={RelatorioIcon} alt="Icon" width={28} height={28} />
-                        <strong>Relatórios</strong>
-                      </section>
-                    </>
-                  )
-                }
-
-                {
-                  user?.role !== "client" && (
-                    <>
-                      <section className="menu-item" onClick={() => navigate("/configArena")}>
-                        <div className="divider-item"></div>
-                        <img src={FiSettings} alt="Icon" width={28} height={28} />
-                        <strong>Configurações</strong>
-                      </section>
-                    </>
-                  )
-                }
-
-              </nav>
-
-              {/* Modal licence */}
-              <Modal
-                isOpen={modalIsOpenLicence}
-                onRequestClose={closeModalLicence}
-                style={customStylesModalLicence}
-                shouldCloseOnOverlayClick={false}
-              >
-                <header className="header-modal-licence">
-                  <div className="header-arena-licence">
-                    <h5>Licença de uso</h5>
+              }}
+            >
+              <section className="menu-item">
+                <img src={ReserveIcon} alt="Icon" width={28} height={28} />
+                <strong>Reservas</strong>
+              </section>
+              {user?.role !== "client" && (
+                <div className="type-reserve" onClick={(e) => e.stopPropagation()}>
+                  <div className="area-btn">
+                    <p title="Cria uma reserva sem recorrência"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/reserve', {
+                          state: {
+                            arenaId: user?.arena,
+                            arena: `${arenaData?.name} - ${arenaData?.adressArenas.$values[0].state}-${arenaData?.adressArenas.$values[0].city}`,
+                            sports: esportes,
+                            GetvalueHour: arenaData?.valueHour
+                          }
+                        });
+                        setIsReserveOpen(false);
+                      }}
+                    >
+                      Avulsa
+                      <BsEmojiSunglasses />
+                    </p>
+                    <p title="Cria uma reserva para um dia em toda semana"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate("/reserve-fixed", {
+                          state: { sports: esportes }
+                        });
+                        setIsReserveOpen(false);
+                      }}
+                    >
+                      Fixa
+                      <MdOutlinePushPin />
+                    </p>
                   </div>
-                  <div className="area-close-licence" onClick={closeModalLicence}>
-                    <FiX size={24} />
-                  </div>
-                </header>
-                <main className="main-modal-licence">
-                  <div className="area-first-licence">
-                    <h5><strong>Arena:</strong> {dataPlan?.arenaName} </h5>
-                    <h5><strong>Plano Atual:  </strong>{dataPlan?.getPlan.planSelect}</h5>
-                  </div>
-                  <div className="area-second-licence">
-                    <h5><strong>Vencimento:  </strong>
-                      {
-                        dataPlan?.getPlan.planExpiry ?
-                          new Date(dataPlan?.getPlan.planExpiry).toLocaleDateString("pt-br")
-                          : "sem data"
-                      }
-                    </h5>
-                    <h5><strong>Status plano: </strong> {dataPlan?.getPlan.status}</h5>
-                  </div>
-                </main>
-                <div className="area-btn-licence">
-                  <button>Mudar Plano</button>
                 </div>
-              </Modal>
+              )}
+            </section>
 
-              {/* Modal space*/}
-              <Modal
-                isOpen={modalIsOpenSpace}
-                onRequestClose={closeModalSpace}
-                style={customStylesModalSpace}
-                shouldCloseOnOverlayClick={false}
-              >
-                <header className="header-modal-space">
-                  <div className="header-arena-space">
-                    <h5>Espaços, Quadras, Campo...</h5>
-                  </div>
-                  <div className="area-close-space" onClick={closeModalSpace}>
-                    <FiX size={24} />
-                  </div>
-                </header>
-                <main className="main-modal-space">
-                  <div className="area-first-space">
-                    <h5>Novo Espaço:</h5>
-                    <input
-                      type="text"
-                      placeholder="Quadra 1"
-                      onChange={e => setSpace(e.target.value)}
-                    />
-                  </div>
-                  <div className="area-second-space">
-                    <h5>Selecione os esportes para esta quadra:</h5>
-                    <div>
-                      <input type="checkbox" name="Futevôlei" id="futevolei" value="Futevôlei" onChange={handleCheckboxChange} />
-                      <label htmlFor="futevolei">Futevôlei</label>
-                    </div>
 
-                    <div>
-                      <input type="checkbox" name="Beach Tênis" id="beachtenis" value="Beach Tênis" onChange={handleCheckboxChange} />
-                      <label htmlFor="beachtenis">Beach Tênis</label>
-                    </div>
 
-                    <div>
-                      <input type="checkbox" name="Vôlei de areia" id="voleiDeAreia" value="Vôlei de areia" onChange={handleCheckboxChange} />
-                      <label htmlFor="voleiDeAreia">Vôlei de areia</label>
-                    </div>
+            {user?.role === "dev" && (
+              <section className="menu-item" onClick={() => { navigate("/arena") }}>
+                <div className="divider-item"></div>
+                <img src={ArenaIcon} alt="Icon" width={28} height={28} />
+                <strong>Arena</strong>
+              </section>
+            )}
 
-                    <div>
-                      <input type="checkbox" name="Futebol" id="futebol" value="Futebol" onChange={handleCheckboxChange} />
-                      <label htmlFor="futebol">Futebol</label>
-                    </div>
+            {user?.role !== "client" && (
+              <section className="menu-item" onClick={() => openModalSpace()}>
+                <div className="divider-item"></div>
+                <img src={SpaceIcon} alt="Icon" width={28} height={28} />
+                <strong>Espaço</strong>
+              </section>
+            )}
 
-                    <div>
-                      <input type="checkbox" name="Basquete" id="basquete" value="Basquete" onChange={handleCheckboxChange} />
-                      <label htmlFor="basquete">Basquete</label>
-                    </div>
+            {user?.role !== "client" && (
+              <section className="menu-item" onClick={() => openModalLicence()}>
+                <div className="divider-item"></div>
+                <img src={LicencaIcon} alt="Icon" width={28} height={28} />
+                <strong>Licença</strong>
+              </section>
+            )}
 
-                    <div>
-                      <input type="checkbox" name="Futsal" id="futsal" value="Futsal" onChange={handleCheckboxChange} />
-                      <label htmlFor="futsal">Futsal</label>
-                    </div>
+            {user?.role === "dev" && (
+              <section className="menu-item" onClick={() => navigate("/client")}>
+                <div className="divider-item"></div>
+                <img src={ClientsIcon} alt="Icon" width={28} height={28} />
+                <strong>Clientes</strong>
+              </section>
+            )}
 
-                    <div>
-                      <input type="checkbox" name="Vôlei de Quadra" id="voleidequadra" value="Vôlei de Quadra" onChange={handleCheckboxChange} />
-                      <label htmlFor="Vôlei de Quadra">Vôlei de Quadra</label>
-                    </div>
-                  </div>
-                </main>
-                <div className="area-btn-space">
-                  <button onClick={handleNewSpace}>Adicionar</button>
-                  <button onClick={openModalSpaceStatus}>Mostrar Espaços</button>
+            {user?.role !== "client" && (
+              <section className="menu-item" onClick={() => navigate('/dashboard')}>
+                <div className="divider-item"></div>
+                <img src={DashIcon} alt="Icon" width={28} height={28} />
+                <strong>Dashboard</strong>
+              </section>
+            )}
+
+            {user?.role !== "client" && (
+              <section className="menu-item" onClick={() => navigate("/billing")}>
+                <div className="divider-item"></div>
+                <img src={RelatorioIcon} alt="Icon" width={28} height={28} />
+                <strong>Relatórios</strong>
+              </section>
+            )}
+
+            {user?.role !== "client" && (
+              <section className="menu-item" onClick={() => navigate("/configArena")}>
+                <div className="divider-item"></div>
+                <img src={FiSettings} alt="Icon" width={28} height={28} />
+                <strong>Configurações</strong>
+              </section>
+            )}
+          </nav>
+
+          {/* Modal licence */}
+          <Modal
+            isOpen={modalIsOpenLicence}
+            onRequestClose={closeModalLicence}
+            style={customStylesModalLicence}
+            shouldCloseOnOverlayClick={false}
+          >
+            <header className="header-modal-licence">
+              <div className="header-arena-licence">
+                <h5>Licença de uso</h5>
+              </div>
+              <div className="area-close-licence" onClick={closeModalLicence}>
+                <FiX size={24} />
+              </div>
+            </header>
+            <main className="main-modal-licence">
+              <div className="area-first-licence">
+                <h5><strong>Arena:</strong> {dataPlan?.arenaName} </h5>
+                <h5><strong>Plano Atual:  </strong>{dataPlan?.getPlan.planSelect}</h5>
+              </div>
+              <div className="area-second-licence">
+                <h5><strong>Vencimento:  </strong>
+                  {dataPlan?.getPlan.planExpiry ?
+                    new Date(dataPlan?.getPlan.planExpiry).toLocaleDateString("pt-br")
+                    : "sem data"}
+                </h5>
+                <h5><strong>Status plano: </strong> {dataPlan?.getPlan.status}</h5>
+              </div>
+            </main>
+            <div className="area-btn-licence">
+              <button>Mudar Plano</button>
+            </div>
+          </Modal>
+
+          {/* Modal space*/}
+          <Modal
+            isOpen={modalIsOpenSpace}
+            onRequestClose={closeModalSpace}
+            style={customStylesModalSpace}
+            shouldCloseOnOverlayClick={false}
+          >
+            <header className="header-modal-space">
+              <div className="header-arena-space">
+                <h5>Espaços, Quadras, Campo...</h5>
+              </div>
+              <div className="area-close-space" onClick={closeModalSpace}>
+                <FiX size={24} />
+              </div>
+            </header>
+            <main className="main-modal-space">
+              <div className="area-first-space">
+                <h5>Novo Espaço:</h5>
+                <input
+                  type="text"
+                  placeholder="Quadra 1"
+                  onChange={e => setSpace(e.target.value)}
+                />
+              </div>
+              <div className="area-second-space">
+                <h5>Selecione os esportes para esta quadra:</h5>
+                <div>
+                  <input type="checkbox" name="Futevôlei" id="futevolei" value="Futevôlei" onChange={handleCheckboxChange} />
+                  <label htmlFor="futevolei">Futevôlei</label>
                 </div>
-              </Modal>
+                <div>
+                  <input type="checkbox" name="Beach Tênis" id="beachtenis" value="Beach Tênis" onChange={handleCheckboxChange} />
+                  <label htmlFor="beachtenis">Beach Tênis</label>
+                </div>
+                <div>
+                  <input type="checkbox" name="Vôlei de areia" id="voleiDeAreia" value="Vôlei de areia" onChange={handleCheckboxChange} />
+                  <label htmlFor="voleiDeAreia">Vôlei de areia</label>
+                </div>
+                <div>
+                  <input type="checkbox" name="Futebol" id="futebol" value="Futebol" onChange={handleCheckboxChange} />
+                  <label htmlFor="futebol">Futebol</label>
+                </div>
+                <div>
+                  <input type="checkbox" name="Basquete" id="basquete" value="Basquete" onChange={handleCheckboxChange} />
+                  <label htmlFor="basquete">Basquete</label>
+                </div>
+                <div>
+                  <input type="checkbox" name="Futsal" id="futsal" value="Futsal" onChange={handleCheckboxChange} />
+                  <label htmlFor="futsal">Futsal</label>
+                </div>
+                <div>
+                  <input type="checkbox" name="Vôlei de Quadra" id="voleidequadra" value="Vôlei de Quadra" onChange={handleCheckboxChange} />
+                  <label htmlFor="Vôlei de Quadra">Vôlei de Quadra</label>
+                </div>
+              </div>
+            </main>
+            <div className="area-btn-space">
+              <button onClick={handleNewSpace}>Adicionar</button>
+              <button onClick={openModalSpaceStatus}>Mostrar Espaços</button>
+            </div>
+          </Modal>
 
-              {/* Modal mostrar space*/}
-              <Modal
-                isOpen={modalIsOpenSpaceStatus}
-                onRequestClose={closeModalSpaceStatus}
-                style={customStylesModalSpaceStatus}
-                shouldCloseOnOverlayClick={false}
-
-              >
-                <header className="header-modal-show-spaces">
-                  <div className="header-arena-show-spaces">
-                    <h5>Seus Espaços</h5>
-                  </div>
-                  <div className="area-close-show-spaces" onClick={closeModalSpaceStatus}>
-                    <FiX size={24} />
-                  </div>
-                </header>
-                <main className="main-modal-show-spaces">
-                  <table style={{ width: '100%', fontWeight: 300 }}>
-                    <thead>
-                      <tr>
-                        <th style={{ textAlign: 'center' }}>Id</th>
-                        <th style={{ textAlign: 'center' }}>Espaços</th>
-                        <th style={{ textAlign: 'center' }}>Esportes</th>
-                        <th style={{ textAlign: 'center' }}>Ativar/Desativar</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {spacesData?.$values.map((item) => (
-                        <tr key={item.spaceId}>
-                          <td style={{ textAlign: 'center' }}>{item.spaceId}</td>
-                          <td style={{ textAlign: 'center' }}>{item.name}</td>
-                          <td>{item.sports}</td>
-                          <td style={{ textAlign: 'center' }}>
-
-                            <button
-                              onClick={() =>
-                                handleToggleStatus(
-                                  item.spaceId,
-                                  item.status === "Disponível" ? "Disponível" : "Indisponível"
-                                )
-                              }
-                              style={{
-                                backgroundColor: item.status === "Disponível" ? "#e49e9e" : "#8ce49c",
-                                padding: "5% 10%",
-                                borderRadius: "10px",
-                                color: "#fff",
-                                border: "none",
-                                cursor: "pointer",
-                              }}
-                            >
-                              {item.status === "Disponível" ? "Desativar" : "Ativar"}
-                            </button>
-
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </main>
-              </Modal>
-            </>
-          )
-      }
+          {/* Modal mostrar space*/}
+          <Modal
+            isOpen={modalIsOpenSpaceStatus}
+            onRequestClose={closeModalSpaceStatus}
+            style={customStylesModalSpaceStatus}
+            shouldCloseOnOverlayClick={false}
+          >
+            <header className="header-modal-show-spaces">
+              <div className="header-arena-show-spaces">
+                <h5>Seus Espaços</h5>
+              </div>
+              <div className="area-close-show-spaces" onClick={closeModalSpaceStatus}>
+                <FiX size={24} />
+              </div>
+            </header>
+            <main className="main-modal-show-spaces">
+              <table style={{ width: '100%', fontWeight: 300 }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'center' }}>Id</th>
+                    <th style={{ textAlign: 'center' }}>Espaços</th>
+                    <th style={{ textAlign: 'center' }}>Esportes</th>
+                    <th style={{ textAlign: 'center' }}>Ativar/Desativar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {spacesData?.$values.map((item) => (
+                    <tr key={item.spaceId}>
+                      <td style={{ textAlign: 'center' }}>{item.spaceId}</td>
+                      <td style={{ textAlign: 'center' }}>{item.name}</td>
+                      <td>{item.sports}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <button
+                          onClick={() =>
+                            handleToggleStatus(
+                              item.spaceId,
+                              item.status === "Disponível" ? "Disponível" : "Indisponível"
+                            )
+                          }
+                          style={{
+                            backgroundColor: item.status === "Disponível" ? "#e49e9e" : "#8ce49c",
+                            padding: "5% 10%",
+                            borderRadius: "10px",
+                            color: "#fff",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {item.status === "Disponível" ? "Desativar" : "Ativar"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </main>
+          </Modal>
+        </>
+      )}
     </>
-  )
+  );
 }

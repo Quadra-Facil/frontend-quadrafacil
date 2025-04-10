@@ -18,6 +18,11 @@
   --transition-time: 0.3s;
   --menu-width: 250px;
   --mobile-menu-height: 150px;
+  --background-inputs: #f0f0f0;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
 }
 
 

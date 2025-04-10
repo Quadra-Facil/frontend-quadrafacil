@@ -1,36 +1,35 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Importa a função de decodificação
+import { useNavigate, useLocation } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
-// Define os tipos de dados do contexto
 interface AuthContextType {
     authToken: string | null;
     isAuthenticated: boolean;
-    user: any; // Dados do usuário extraídos do token
+    user: any;
     login: (token: string) => void;
     logout: () => void;
 }
 
-// Criar o contexto
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Função para verificar se o token está presente no localStorage
 const getToken = (): string | null => {
     return localStorage.getItem('authToken');
 };
+
+// Rotas que não requerem autenticação
+const PUBLIC_ROUTES = ['/', '/signout', '/recuperar-senha'];
 
 interface AuthProviderProps {
     children: ReactNode;
 }
 
-// Criar o AuthProvider para fornecer o estado global
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [authToken, setAuthToken] = useState<string | null>(getToken());
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [user, setUser] = useState<any>(null); // Estado para armazenar os dados do usuário
-    const navigate = useNavigate(); // Hook para navegação
+    const [user, setUser] = useState<any>(null);
+    const navigate = useNavigate();
+    const location = useLocation(); // Hook para acessar a rota atual
 
-    // Função para decodificar o token
     const decodeToken = (token: string): any => {
         try {
             const decoded = jwtDecode(token);
@@ -41,38 +40,57 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     useEffect(() => {
-        if (authToken) {
-            if (!isAuthenticated) { // Verifica se já não está autenticado
-                setIsAuthenticated(true);
-                const userData = decodeToken(authToken); // Decodifica o token
-                setUser(userData); // Armazena os dados do usuário no estado
-                navigate('/principal'); // Redireciona para a tela principal
-            }
-        } else {
-            if (isAuthenticated) { // Só redireciona se estava autenticado
-                setIsAuthenticated(false);
-                setUser(null); // Limpa os dados do usuário se não houver token
-                navigate('/'); // Redireciona para a tela inicial
+        const token = getToken();
+        const currentPath = location.pathname;
+
+        // Se estiver em uma rota pública, não faz nada
+        if (PUBLIC_ROUTES.includes(currentPath)) {
+            return;
+        }
+
+        // Se não houver token, redireciona para login
+        if (!token) {
+            setIsAuthenticated(false);
+            setUser(null);
+            navigate('/');
+            return;
+        }
+
+        // Se houver token mas ainda não está autenticado
+        if (token && !isAuthenticated) {
+            setIsAuthenticated(true);
+            setAuthToken(token);
+            const userData = decodeToken(token);
+            setUser(userData);
+
+            // Se já estava tentando acessar uma rota, não redireciona para /principal
+            if (currentPath === '/') {
+                navigate('/principal');
             }
         }
-    }, [authToken, isAuthenticated, navigate]);
 
+        // Se estava autenticado mas o token foi removido
+        if (isAuthenticated && !token) {
+            setIsAuthenticated(false);
+            setUser(null);
+            navigate('/');
+        }
+    }, [authToken, isAuthenticated, navigate, location.pathname]);
 
-    // Função para fazer login
     const login = (token: string): void => {
-        localStorage.setItem('authToken', token); // Salva o token no localStorage
+        localStorage.setItem('authToken', token);
         setAuthToken(token);
         const userData = decodeToken(token);
-        setUser(userData); // Armazena os dados do usuário
+        setUser(userData);
+        setIsAuthenticated(true);
     };
 
-    // Função para fazer logout
     const logout = (): void => {
         localStorage.removeItem('authToken');
         setAuthToken(null);
-        setUser(null); // Limpa os dados do usuário no logout
+        setUser(null);
         setIsAuthenticated(false);
-        navigate('/'); // Redireciona para a tela de login
+        navigate('/');
     };
 
     return (

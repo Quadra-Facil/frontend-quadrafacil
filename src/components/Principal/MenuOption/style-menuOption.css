@@ -736,10 +736,19 @@
 
   .menu-item-reserve:hover .type-reserve {
     transform: translateX(-50%) translateY(0);
+  }
 
+  .menu-item-reserve:active .type-reserve {
+    transform: translateX(-50%) translateY(0);
   }
 
   .menu-item-reserve:hover {
+    padding-top: -8px;
+    margin-top: -11px;
+    background-color: #fff !important;
+  }
+
+  .menu-item-reserve:active {
     padding-top: -8px;
     margin-top: -11px;
     background-color: #fff !important;
