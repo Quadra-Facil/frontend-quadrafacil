@@ -86,8 +86,8 @@ export default function Arena() {
       transform: "translate(-50%, -50%)",
       backgroundColor: "#f0f0f0",
       border: "1px solid #ccc",
-      borderRadius: "10px",
-      padding: "20px",
+      borderRadius: "12px",
+      padding: "0px",
       boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
       width: "40vw",
       height: "70vh",
@@ -315,15 +315,27 @@ export default function Arena() {
                   }
                   placeholder="Usuário"
                   styles={{
-                    control: (base) => ({
-                      ...base,
+                    control: (baseStyles, state) => ({
+                      ...baseStyles,
+                      borderColor: "none",
                       border: 0,
-                      width: "30vw",
                       height: "8vh",
                       backgroundColor: "#dfdfdf",
                       padding: "0 12px",
                       borderRadius: "10px",
                       fontSize: "14px",
+                      marginTop: '-30px',
+                      minWidth: "30vw",
+                      '@media (max-width: 768px)': {
+                        minWidth: "80vw",
+                        height: "6vh",
+                        fontSize: "12px"
+                      },
+                      '@media (max-width: 480px)': {
+                        minWidth: "80vw",
+                        height: "5vh",
+                        padding: "0 8px"
+                      }
                     }),
                     option: (base, state) => ({
                       ...base,
@@ -331,12 +343,24 @@ export default function Arena() {
                       color: "#878282",
                       padding: "12px 20px",
                       cursor: "pointer",
-                      borderRadius: "4px",
                     }),
                     menu: (base) => ({
                       ...base,
-                      maxHeight: "25vh",
-                      overflow: "auto",
+                      maxHeight: "30vh", // Altura máxima do menu
+                      overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                    }),
+                    menuList: (base) => ({
+                      ...base,
+                      maxHeight: "30vh", // Altura máxima da lista de opções
+                      overflowY: "auto", // Habilita a rolagem vertical
+                      // Estilo da barra de rolagem (opcional)
+                      '&::-webkit-scrollbar': {
+                        width: "8px",
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: "#f7cebe",
+                        borderRadius: "4px",
+                      },
                     }),
                   }}
                 />
@@ -351,14 +375,27 @@ export default function Arena() {
                   }
                   placeholder="Arena"
                   styles={{
-                    control: (base) => ({
-                      ...base,
+                    control: (baseStyles, state) => ({
+                      ...baseStyles,
+                      borderColor: "none",
                       border: 0,
-                      width: "30vw",
                       height: "8vh",
                       backgroundColor: "#dfdfdf",
                       padding: "0 12px",
                       borderRadius: "10px",
+                      fontSize: "14px",
+                      marginTop: '-30px',
+                      minWidth: "30vw",
+                      '@media (max-width: 768px)': {
+                        minWidth: "80vw",
+                        height: "6vh",
+                        fontSize: "12px"
+                      },
+                      '@media (max-width: 480px)': {
+                        minWidth: "80vw",
+                        height: "5vh",
+                        padding: "0 8px"
+                      }
                     }),
                     option: (base, state) => ({
                       ...base,
@@ -369,8 +406,21 @@ export default function Arena() {
                     }),
                     menu: (base) => ({
                       ...base,
-                      maxHeight: "25vh",
-                      overflow: "auto",
+                      maxHeight: "30vh", // Altura máxima do menu
+                      overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                    }),
+                    menuList: (base) => ({
+                      ...base,
+                      maxHeight: "30vh", // Altura máxima da lista de opções
+                      overflowY: "auto", // Habilita a rolagem vertical
+                      // Estilo da barra de rolagem (opcional)
+                      '&::-webkit-scrollbar': {
+                        width: "8px",
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: "#f7cebe",
+                        borderRadius: "4px",
+                      },
                     }),
                   }}
                 />
@@ -402,19 +452,30 @@ export default function Arena() {
                 <h3>Selecione a arena:</h3>
                 <Select
                   options={getAllArenas}
-                  onChange={(selectedOption) =>
-                    setSelectedArena(selectedOption?.value || "")
-                  }
+                  onChange={(selectedOption) => setSelectedArena(selectedOption?.value || "")}
                   placeholder="Arena"
                   styles={{
-                    control: (base) => ({
-                      ...base,
+                    control: (baseStyles, state) => ({
+                      ...baseStyles,
+                      borderColor: "none",
                       border: 0,
-                      width: "30vw",
                       height: "8vh",
                       backgroundColor: "#dfdfdf",
                       padding: "0 12px",
                       borderRadius: "10px",
+                      fontSize: "14px",
+                      marginTop: '-30px',
+                      minWidth: "30vw",
+                      '@media (max-width: 768px)': {
+                        minWidth: "80vw",
+                        height: "6vh",
+                        fontSize: "12px"
+                      },
+                      '@media (max-width: 480px)': {
+                        minWidth: "80vw",
+                        height: "5vh",
+                        padding: "0 8px"
+                      }
                     }),
                     option: (base, state) => ({
                       ...base,
@@ -425,8 +486,21 @@ export default function Arena() {
                     }),
                     menu: (base) => ({
                       ...base,
-                      maxHeight: "50vh",
-                      overflow: "auto",
+                      maxHeight: "30vh", // Altura máxima do menu
+                      overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                    }),
+                    menuList: (base) => ({
+                      ...base,
+                      maxHeight: "30vh", // Altura máxima da lista de opções
+                      overflowY: "auto", // Habilita a rolagem vertical
+                      // Estilo da barra de rolagem (opcional)
+                      '&::-webkit-scrollbar': {
+                        width: "8px",
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: "#f7cebe",
+                        borderRadius: "4px",
+                      },
                     }),
                   }}
                 />
@@ -441,14 +515,27 @@ export default function Arena() {
                   }
                   placeholder="Plano"
                   styles={{
-                    control: (base) => ({
-                      ...base,
+                    control: (baseStyles, state) => ({
+                      ...baseStyles,
+                      borderColor: "none",
                       border: 0,
-                      width: "30vw",
                       height: "8vh",
                       backgroundColor: "#dfdfdf",
                       padding: "0 12px",
                       borderRadius: "10px",
+                      fontSize: "14px",
+                      marginTop: '-30px',
+                      minWidth: "30vw",
+                      '@media (max-width: 768px)': {
+                        minWidth: "80vw",
+                        height: "6vh",
+                        fontSize: "12px"
+                      },
+                      '@media (max-width: 480px)': {
+                        minWidth: "80vw",
+                        height: "5vh",
+                        padding: "0 8px"
+                      }
                     }),
                     option: (base, state) => ({
                       ...base,
@@ -459,8 +546,21 @@ export default function Arena() {
                     }),
                     menu: (base) => ({
                       ...base,
-                      maxHeight: "25vh",
-                      overflow: "auto",
+                      maxHeight: "30vh", // Altura máxima do menu
+                      overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                    }),
+                    menuList: (base) => ({
+                      ...base,
+                      maxHeight: "30vh", // Altura máxima da lista de opções
+                      overflowY: "auto", // Habilita a rolagem vertical
+                      // Estilo da barra de rolagem (opcional)
+                      '&::-webkit-scrollbar': {
+                        width: "8px",
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: "#f7cebe",
+                        borderRadius: "4px",
+                      },
                     }),
                   }}
                 />

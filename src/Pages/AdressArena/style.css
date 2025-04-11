@@ -65,10 +65,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
-  width: 70%;
-  height: 70vh;
-  margin-top: 12%;
+  width: 95%;
+  height: 100vh;
+  margin-top: 2%;
   color: #6c6c6c;
+}
+
+.area-title {
+  font-weight: 300;
+  margin-top: -2%;
 }
 
 .area-selects {
@@ -76,6 +81,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 110px !important;
 }
 
 .area-bairro-numero {
@@ -112,15 +118,6 @@
   outline: none;
 }
 
-
-/* .area-btns {
-  width: 50vw;
-  height: 15%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-} */
-
 .cadastrar {
   background-color: var(--primary-color);
   color: #fff;
@@ -131,9 +128,11 @@
   font-weight: 600;
   box-shadow: 0 3px 0 #d6d6d697;
   transition: background-color 0.7s ease;
-  position: fixed;
-  bottom: 2%;
+  /* margin-top: 5%; */
+  /* position: fixed; */
+  /* bottom: 2%; */
 }
+
 
 /* area modal ------------------ */
 
@@ -202,5 +201,47 @@
 
   .btn-vincular:hover {
     background-color: var(--hover-btn);
+  }
+}
+
+@media(max-width: 768px) {
+  .endereco {
+    width: 80vw;
+  }
+
+  .cadastrar {
+    min-width: 50vw !important;
+  }
+
+  .area-selects {
+    flex-direction: column;
+  }
+}
+
+@media(max-width: 468px) {
+  .area-selects {
+    flex-direction: column;
+    gap: 1%;
+    height: 100px;
+    width: 100%;
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center !important;
+    justify-content: space-around !important;
+  }
+
+  .endereco {
+    width: 100vw;
+  }
+
+  .endereco form input {
+    font-size: 13px;
+  }
+
+  .area-title {
+    text-align: center;
+    font-size: 14px;
   }
 }

@@ -190,23 +190,50 @@ export default function AdressArena() {
                   styles={{
                     control: (baseStyles, state) => ({
                       ...baseStyles,
+                      borderColor: "none",
                       border: 0,
-                      width: "15vw",
                       height: "8vh",
                       backgroundColor: "#dfdfdf",
-                      color: "#878282",
                       padding: "0 12px",
                       borderRadius: "10px",
                       fontSize: "14px",
+                      marginTop: '-30px',
+                      minWidth: "12vw",
+                      '@media (max-width: 768px)': {
+                        minWidth: "80vw",
+                        height: "6vh",
+                        fontSize: "12px"
+                      },
+                      '@media (max-width: 480px)': {
+                        minWidth: "95vw",
+                        height: "5vh",
+                        padding: "0 8px"
+                      }
                     }),
-                    option: (baseStyles, state) => ({
-                      ...baseStyles,
+                    option: (base, state) => ({
+                      ...base,
                       backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
                       color: "#878282",
                       padding: "12px 20px",
                       cursor: "pointer",
-                      borderRadius: "4px",
-                      fontSize: "14px",
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      maxHeight: "30vh", // Altura máxima do menu
+                      overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                    }),
+                    menuList: (base) => ({
+                      ...base,
+                      maxHeight: "30vh", // Altura máxima da lista de opções
+                      overflowY: "auto", // Habilita a rolagem vertical
+                      // Estilo da barra de rolagem (opcional)
+                      '&::-webkit-scrollbar': {
+                        width: "8px",
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: "#f7cebe",
+                        borderRadius: "4px",
+                      },
                     }),
                   }}
                 />
@@ -221,28 +248,119 @@ export default function AdressArena() {
                   styles={{
                     control: (baseStyles, state) => ({
                       ...baseStyles,
+                      borderColor: "none",
                       border: 0,
-                      width: "19vw",
                       height: "8vh",
                       backgroundColor: "#dfdfdf",
-                      color: "#878282",
                       padding: "0 12px",
                       borderRadius: "10px",
                       fontSize: "14px",
+                      marginTop: '-30px',
+                      minWidth: "15vw",
+                      '@media (max-width: 768px)': {
+                        minWidth: "80vw",
+                        height: "6vh",
+                        fontSize: "12px"
+                      },
+                      '@media (max-width: 480px)': {
+                        minWidth: "95vw",
+                        height: "5vh",
+                        padding: "0 8px"
+                      }
                     }),
-                    option: (baseStyles, state) => ({
-                      ...baseStyles,
+                    option: (base, state) => ({
+                      ...base,
                       backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
                       color: "#878282",
                       padding: "12px 20px",
                       cursor: "pointer",
-                      borderRadius: "4px",
-                      fontSize: "14px",
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      maxHeight: "30vh", // Altura máxima do menu
+                      overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                    }),
+                    menuList: (base) => ({
+                      ...base,
+                      maxHeight: "30vh", // Altura máxima da lista de opções
+                      overflowY: "auto", // Habilita a rolagem vertical
+                      // Estilo da barra de rolagem (opcional)
+                      '&::-webkit-scrollbar': {
+                        width: "8px",
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: "#f7cebe",
+                        borderRadius: "4px",
+                      },
                     }),
                   }}
                 />
               </div>
 
+
+              <h3 className="area-title">Selecione a arena para este endereço</h3>
+
+              <Select
+                options={getAllArenas}
+                onChange={(selectedOption) => {
+                  if (selectedOption) {
+                    setSelectedArena(selectedOption.value); // Converte para número antes de atribuir
+                  } else {
+                    setSelectedArena('arena'); // Define como null se nada for selecionado
+                  }
+                }}
+                placeholder={isLoadingSelect ? "Carregando..." : "Arena"} // Exibe "Carregando..." enquanto carrega
+                isLoading={isLoadingSelect} // Prop de loading
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    borderColor: "none",
+                    border: 0,
+                    height: "8vh",
+                    backgroundColor: "#dfdfdf",
+                    padding: "0 12px",
+                    borderRadius: "10px",
+                    fontSize: "14px",
+                    marginTop: '-30px',
+                    minWidth: "30vw",
+                    '@media (max-width: 768px)': {
+                      minWidth: "80vw",
+                      height: "6vh",
+                      fontSize: "12px"
+                    },
+                    '@media (max-width: 480px)': {
+                      minWidth: "95vw",
+                      height: "5vh",
+                      padding: "0 8px"
+                    }
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
+                    color: "#878282",
+                    padding: "12px 20px",
+                    cursor: "pointer",
+                  }),
+                  menu: (base) => ({
+                    ...base,
+                    maxHeight: "30vh", // Altura máxima do menu
+                    overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                  }),
+                  menuList: (base) => ({
+                    ...base,
+                    maxHeight: "30vh", // Altura máxima da lista de opções
+                    overflowY: "auto", // Habilita a rolagem vertical
+                    // Estilo da barra de rolagem (opcional)
+                    '&::-webkit-scrollbar': {
+                      width: "8px",
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      backgroundColor: "#f7cebe",
+                      borderRadius: "4px",
+                    },
+                  }),
+                }}
+              />
               <input
                 className="input-form"
                 type="text"
@@ -268,6 +386,8 @@ export default function AdressArena() {
                 />
               </div>
 
+
+
               <input
                 className="input-form"
                 type="text"
@@ -276,49 +396,6 @@ export default function AdressArena() {
                 onChange={(e) => setReference(e.target.value)}
               />
 
-              {/* /* busca os user(name e email) Alan - alan@gmail.com */}
-              <h3>Selecione a arena para este endereço</h3>
-
-              <Select
-                options={getAllArenas}
-                onChange={(selectedOption) => {
-                  if (selectedOption) {
-                    setSelectedArena(selectedOption.value); // Converte para número antes de atribuir
-                  } else {
-                    setSelectedArena('arena'); // Define como null se nada for selecionado
-                  }
-                }}
-                placeholder={isLoadingSelect ? "Carregando..." : "Arena"} // Exibe "Carregando..." enquanto carrega
-                isLoading={isLoadingSelect} // Prop de loading
-                styles={{
-                  control: (baseStyles) => ({
-                    ...baseStyles,
-                    borderColor: "none",
-                    border: 0,
-                    width: "35vw",
-                    height: "8vh",
-                    backgroundColor: "#dfdfdf",
-                    padding: "0 12px",
-                    borderRadius: "10px",
-                    fontSize: "14px",
-                    marginTop: '-30px'
-                  }),
-                  option: (baseStyles, state) => ({
-                    ...baseStyles,
-                    backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
-                    color: "#878282",
-                    padding: "12px 20px",
-                    cursor: "pointer",
-                    borderRadius: "4px",
-                    fontSize: "14px",
-                  }),
-                  menu: (base) => ({
-                    ...base,
-                    maxHeight: '25vh', // Limita a altura do menu
-                    overflowY: "hidden", // Adiciona rolagem
-                  }),
-                }}
-              />
               <button className="cadastrar" type="submit">
                 Cadastrar
               </button>
