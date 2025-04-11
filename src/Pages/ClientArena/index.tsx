@@ -122,10 +122,10 @@ export default function ClientArena() {
       backgroundColor: '#f0f0f0',
       border: '1px solid #ccc',
       borderRadius: '10px',
-      padding: '20px',
+      padding: '0px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '40vw',
-      height: '56vh',
+      width: '50vw',
+      height: '65vh',
       maxWidth: '90%',
       color: '#6c6c6c'
     },
@@ -137,29 +137,28 @@ export default function ClientArena() {
   // style modal dialog
   const customStylesModalDialog = {
     content: {
-      top: '18%',
+      top: '50%',
       left: '50%',
       right: 'auto',
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
+      backgroundColor: '#fff9f7',
       borderRadius: '10px',
-      padding: '20px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '30vw',
-      height: '30vh',
-      maxWidth: '90%',
-      color: '#6c6c6c'
+      padding: '0',
+      width: '100%',
+      maxWidth: '600px',
+      border: 'none',
+      boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
+      zIndex: 1000
+    }
   };
 
   // style modal plans
-  const customStylesModalPlans = {
+  const customStylesModalPlansClient = {
     content: {
       top: '50%',
       left: '50%',
@@ -167,19 +166,18 @@ export default function ClientArena() {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
+      backgroundColor: '#fff9f7',
       borderRadius: '10px',
-      padding: '20px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '50vw',
-      height: '65vh',
-      maxWidth: '90%',
-      color: '#6c6c6c'
+      padding: '0',
+      width: '100%',
+      maxWidth: '600px',
+      border: 'none',
+      boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
+      zIndex: 1000
+    }
   };
 
   // Função para abrir o modal de detalhes com os dados da arena selecionada
@@ -300,13 +298,13 @@ export default function ClientArena() {
                 style={customStylesModal}
                 shouldCloseOnOverlayClick={false}
               >
-                <header className="header-modal">
+                <header className="header-details-client">
                   <h2>{selectedArena?.name || "sem arena"}</h2>
                   <div className="area-close" onClick={closeModalDetails}>
                     <FiX size={24} />
                   </div>
                 </header>
-                <main className="main-modal">
+                <main className="main-modal-client">
                   <section className="adress">
                     <div className="titulo-adress">
                       <h3>Endereço:</h3>
@@ -329,21 +327,16 @@ export default function ClientArena() {
                     </div>
                   </section>
                   <section className="plans">
-                    <div className="titulo-plans">
-                      <h3>Planos:</h3>
-                    </div>
-                    <div className="body-plans">
-                      <h5><strong>Plano atual:</strong> {selectedArena?.plans.$values[0]?.planSelect || "sem plano"}</h5>
-                      <h5>Status Arena:
-                        <input style={{ cursor: 'pointer' }} type="checkbox" checked={selectedArena?.status == "ativo" ? true : false}
-                          onClick={() => openConfirmDialog()}
-                          onChange={(event) => {
-                            const isChecked = event.target.checked;
-                            setIsChecked(isChecked ? 'ativo' : 'inativo');
-                          }}
-                        />
-                      </h5>
-                    </div>
+                    <h5 style={{ marginRight: 5 }}><strong>Plano atual:</strong> {selectedArena?.plans.$values[0]?.planSelect || "sem plano"}</h5>
+                    <h5>Status Arena:
+                      <input style={{ cursor: 'pointer' }} type="checkbox" checked={selectedArena?.status == "ativo" ? true : false}
+                        onClick={() => openConfirmDialog()}
+                        onChange={(event) => {
+                          const isChecked = event.target.checked;
+                          setIsChecked(isChecked ? 'ativo' : 'inativo');
+                        }}
+                      />
+                    </h5>
                   </section>
                 </main>
               </Modal>
@@ -352,10 +345,10 @@ export default function ClientArena() {
               <Modal
                 isOpen={modalIsOpenPlans}
                 onRequestClose={closeModalPlans}
-                style={customStylesModalPlans}
+                style={customStylesModalPlansClient}
                 shouldCloseOnOverlayClick={false}
               >
-                <header className="header-modal">
+                <header className="header-modal-plans-client">
                   <div className="header-arena-plans">
                     <h5><strong>Arena:</strong> {selectedArena?.name || "Sem nome"}</h5>
                     <h5><strong>Plano Atual:</strong> {selectedArena?.plans?.$values[0].planSelect || "Sem plano"}</h5>
@@ -381,31 +374,52 @@ export default function ClientArena() {
                         }}
                         placeholder="Plano"
                         styles={{
-                          control: (baseStyles) => ({
+                          control: (baseStyles, state) => ({
                             ...baseStyles,
                             borderColor: "none",
                             border: 0,
-                            width: "100%",
                             height: "8vh",
                             backgroundColor: "#dfdfdf",
                             padding: "0 12px",
                             borderRadius: "10px",
                             fontSize: "14px",
-                            marginTop: '3%'
+                            marginTop: '-30px',
+                            minWidth: "30vw",
+                            '@media (max-width: 768px)': {
+                              minWidth: "80vw",
+                              height: "6vh",
+                              fontSize: "12px"
+                            },
+                            '@media (max-width: 480px)': {
+                              minWidth: "80vw",
+                              height: "8vh",
+                              padding: "0 8px"
+                            }
                           }),
-                          option: (baseStyles, state) => ({
-                            ...baseStyles,
+                          option: (base, state) => ({
+                            ...base,
                             backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
                             color: "#878282",
                             padding: "12px 20px",
                             cursor: "pointer",
-                            borderRadius: "4px",
-                            fontSize: "14px",
                           }),
                           menu: (base) => ({
                             ...base,
-                            maxHeight: '25vh', // Limita a altura do menu
-                            overflowY: "hidden", // Adiciona rolagem
+                            maxHeight: "30vh", // Altura máxima do menu
+                            overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                          }),
+                          menuList: (base) => ({
+                            ...base,
+                            maxHeight: "30vh", // Altura máxima da lista de opções
+                            overflowY: "auto", // Habilita a rolagem vertical
+                            // Estilo da barra de rolagem (opcional)
+                            '&::-webkit-scrollbar': {
+                              width: "8px",
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                              backgroundColor: "#f7cebe",
+                              borderRadius: "4px",
+                            },
                           }),
                         }}
                       />
@@ -445,7 +459,7 @@ export default function ClientArena() {
                 <div className="area-search">
                   <input
                     type="text"
-                    placeholder="Pesquise por arena, cidade, estado ou status"
+                    placeholder="Arena, Cidade, Estado ou Status"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -453,8 +467,8 @@ export default function ClientArena() {
                     <FiSearch size={32} color="#8a8888" />
                   </button>
                 </div>
-                <h3>Área de filtragem de clientes</h3>
-                tipo de plano mensal, anual, semestral
+                {/* <h3>Área de filtragem de clientes</h3>
+                tipo de plano mensal, anual, semestral */}
               </section>
 
               {/* Exibindo os cards filtrados */}
