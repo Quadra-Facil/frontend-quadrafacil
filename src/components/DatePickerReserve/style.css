@@ -100,6 +100,20 @@
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 0.8rem;
   width: 100%;
+  text-align: center;
+
+  h1 {
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  h5 {
+    cursor: pointer;
+
+    &:hover {
+      color: var(--secondary-color);
+    }
+  }
 }
 
 .space-left,

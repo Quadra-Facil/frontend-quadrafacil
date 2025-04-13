@@ -270,7 +270,7 @@ export default function ModalSerchArena() {
               >
                 <header className="header-modal-search">
                   <h1>Supere limites<strong>,</strong> vença desafios<strong>,</strong> viva o esporte<strong>!</strong></h1>
-                  <div className="area-close" onClick={closeModal}>
+                  <div className="area-close-search" onClick={closeModal}>
                     <FiX size={24} />
                   </div>
                 </header>
@@ -301,7 +301,6 @@ export default function ModalSerchArena() {
                 <section className="main-modal-search">
 
                   <div className="area-select-arena">
-                    <h3>Selecione sua Arena</h3>
                     <Select
                       options={getAllArenas}
                       onChange={(selectedOption) => {
@@ -314,36 +313,58 @@ export default function ModalSerchArena() {
                       }}
                       placeholder="Digite o nome da arena, estado ou cidade"
                       styles={{
-                        control: (baseStyles) => ({
+                        control: (baseStyles, state) => ({
                           ...baseStyles,
                           borderColor: "none",
                           border: 0,
-                          width: "25vw",
                           height: "8vh",
                           backgroundColor: "#dfdfdf",
                           padding: "0 12px",
                           borderRadius: "10px",
                           fontSize: "14px",
+                          marginTop: '-30px',
+                          minWidth: "30vw",
+                          '@media (max-width: 768px)': {
+                            minWidth: "80vw",
+                            height: "6vh",
+                            fontSize: "12px"
+                          },
+                          '@media (max-width: 480px)': {
+                            minWidth: "90vw",
+                            height: "60px",
+                            padding: "0 8px"
+                          }
                         }),
-                        option: (baseStyles, state) => ({
-                          ...baseStyles,
+                        option: (base, state) => ({
+                          ...base,
                           backgroundColor: state.isFocused ? "#f7cebe" : "#fff",
                           color: "#878282",
                           padding: "12px 20px",
                           cursor: "pointer",
-                          borderRadius: "4px",
-                          fontSize: "14px",
                         }),
                         menu: (base) => ({
                           ...base,
-                          maxHeight: '25vh', // Limita a altura do menu
-                          overflowY: "hidden", // Adiciona rolagem
+                          maxHeight: "30vh", // Altura máxima do menu
+                          overflow: "hidden", // Garante que o menu não ultrapasse a altura máxima
+                        }),
+                        menuList: (base) => ({
+                          ...base,
+                          maxHeight: "30vh", // Altura máxima da lista de opções
+                          overflowY: "auto", // Habilita a rolagem vertical
+                          // Estilo da barra de rolagem (opcional)
+                          '&::-webkit-scrollbar': {
+                            width: "8px",
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: "#f7cebe",
+                            borderRadius: "4px",
+                          },
                         }),
                       }}
                     />
                     <div className="area-checks">
                       <div className="area-checks-left">
-                        <h5>O que vamos jogar?:</h5>
+                        <h5>O que vamos jogar?</h5>
                         <div>
                           <input type="checkbox" name="Futevôlei" id="futevolei" value="Futevôlei" onChange={handleCheckboxChange} />
                           <label htmlFor="futevolei">Futevôlei</label>

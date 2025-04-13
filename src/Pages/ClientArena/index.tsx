@@ -351,7 +351,7 @@ export default function ClientArena() {
                 <header className="header-modal-plans-client">
                   <div className="header-arena-plans">
                     <h5><strong>Arena:</strong> {selectedArena?.name || "Sem nome"}</h5>
-                    <h5><strong>Plano Atual:</strong> {selectedArena?.plans?.$values[0].planSelect || "Sem plano"}</h5>
+                    <h5><strong>Plano Atual:</strong> {selectedArena?.plans?.$values[0]?.planSelect || "Sem plano"}</h5>
 
                   </div>
                   <div className="area-close" onClick={closeModalPlans}>

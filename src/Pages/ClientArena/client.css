@@ -55,7 +55,7 @@
 }
 
 .area-search {
-  width: 90%;
+  min-width: 90%;
   max-width: 600px;
   position: relative;
   margin: 1rem 0;
@@ -71,7 +71,7 @@
     &:focus {
       outline: none;
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+      box-shadow: 0 0 0 3px var(--secundary-color);
     }
   }
 
@@ -570,6 +570,7 @@ footer {
 
   .area-search {
     width: 95%;
+    height: 50px !important;
 
     input {
       padding: 0.7rem 1rem;

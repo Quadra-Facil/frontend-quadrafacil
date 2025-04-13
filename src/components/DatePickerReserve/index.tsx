@@ -615,7 +615,11 @@ export function DatePickerReserve() {
                 <p>{expedientMessage}</p>
               ) : (
                 <>
-                  <p>Aberto: {startTimeExp} às {endTimeExp}</p>
+                  {
+                    startTimeExp && endTimeExp && (
+                      <p>Aberto: {startTimeExp} às {endTimeExp}</p>
+                    )
+                  }
                 </>
               )}
               <div className="area-close" onClick={closeModalReserve}><FiX size={24} /></div>
@@ -647,7 +651,7 @@ export function DatePickerReserve() {
                   {spacesReserved.length === 0 ? (
                     <>
                       <h1>Não encontramos espaços para: <strong>{sports}</strong></h1>
-                      <h5 onClick={() => navigate("/searchArena")}>Escolha outro esporte</h5>
+                      <h5 onClick={() => navigate("/searchArena")}>Escolher outro esporte</h5>
                     </>
                   ) : (
                     spacesReserved.map((item) => (

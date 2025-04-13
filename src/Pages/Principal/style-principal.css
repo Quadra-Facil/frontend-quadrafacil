@@ -87,7 +87,7 @@ main {
 }
 
 .area-search {
-  width: 50vw;
+  min-width: 50vw !important;
   height: 10vh;
   margin-top: 4%;
   position: relative;
@@ -737,7 +737,6 @@ main {
 
   .area-search {
     width: 63vw;
-    height: 80px !important;
   }
 
   .header-principal img {
@@ -975,7 +974,7 @@ main {
   }
 
   .area-search {
-    width: 94vw;
+    width: 94vw !important;
     height: 65px !important;
     margin-top: 0px !important;
   }
