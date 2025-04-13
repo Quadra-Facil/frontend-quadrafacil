@@ -132,13 +132,13 @@ export default function ModalSerchArena() {
       borderRadius: '10px',
       padding: '0px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '40vw',
-      height: '50vh',
+      width: '50vw',
+      minHeight: '60vh',
       maxWidth: '100%',
       color: '#6c6c6c'
     },
     overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)'
     },
   };
 

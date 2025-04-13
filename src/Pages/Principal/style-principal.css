@@ -1093,4 +1093,10 @@ main {
   .obs {
     margin-bottom: 20%;
   }
+
+  .sem-reservas-message {
+    width: 100%;
+    text-align: center;
+    /* margin-left: 20px !important; */
+  }
 }

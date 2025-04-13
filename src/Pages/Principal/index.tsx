@@ -537,7 +537,7 @@ export default function Principal() {
             </section>
           ) : (
             user?.role === 'client' && (
-              <p style={{ color: '#868282', marginTop: 15 }}>
+              <p style={{ color: '#868282', marginTop: 15 }} className="sem-reservas-message">
                 Sem reservas para este dia. <strong style={{ color: '#FF8A5B', fontWeight: '300' }}>=(</strong>
               </p>
             )
