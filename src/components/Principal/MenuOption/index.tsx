@@ -112,6 +112,10 @@ export default function MenuOption() {
   }, [sendTitle, sendMessage]);
 
   useEffect(() => {
+    localStorage.removeItem('EmailForgot');
+  }, [])
+
+  useEffect(() => {
     const fetchPlan = async () => {
       try {
         const response = await api.post<GetPlanResponse>("/api/Plan/getplan-user", {

@@ -103,13 +103,16 @@ export default function App() {
 
     await api.post('/api/email-send', {
       toEmail: emailForgotPass,
-      nomeUsuario: "Alan César",
-      linkRecuperacao: "https://www.youtube.com/youtube"
+      nomeUsuario: "teste",
+      linkRecuperacao: "http://localhost:5173/recovery-pass"
     })
       .then((response) => {
         setIsLoading(false);
         setSendTitle('success');
         setSendMessage(`E-mail enviado para ${emailForgotPass}`);
+
+        localStorage.setItem("EmailForgot", emailForgotPass);
+
         closeModal();
       })
       .catch(error => {

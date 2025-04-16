@@ -17,7 +17,7 @@ const getToken = (): string | null => {
 };
 
 // Rotas que não requerem autenticação
-const PUBLIC_ROUTES = ['/', '/signout', '/recuperar-senha'];
+const PUBLIC_ROUTES = ['/', '/signout', '/recovery-pass'];
 
 interface AuthProviderProps {
     children: ReactNode;
