@@ -21,6 +21,7 @@ import DatePickerHourReserved from "../../DatePickerHourReserved";
 import { MdOutlinePushPin } from "react-icons/md";
 import { BsEmojiSunglasses } from "react-icons/bs";
 import ModalReserveFixed from "../../ModalReserveFixed";
+import { Tooltip } from 'react-tooltip'
 
 interface GetPlanResponse {
   id: string;
@@ -368,14 +369,21 @@ export default function MenuOption() {
                 }
               }}
             >
-              <section className="menu-item">
+              <section className="menu-item"
+                data-tooltip-id="myTooltip"
+                data-tooltip-content="Criar reservas"
+                data-tooltip-place="right"
+              >
                 <img src={ReserveIcon} alt="Icon" width={28} height={28} />
                 <strong>Reservas</strong>
               </section>
               {user?.role !== "client" && (
                 <div className="type-reserve" onClick={(e) => e.stopPropagation()}>
                   <div className="area-btn">
-                    <p title="Cria uma reserva sem recorrência"
+                    <p
+                      data-tooltip-id="myTooltip"
+                      data-tooltip-content="Cria uma reserva sem recorrência"
+                      data-tooltip-place="bottom"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate('/reserve', {
@@ -392,7 +400,10 @@ export default function MenuOption() {
                       Avulsa
                       <BsEmojiSunglasses />
                     </p>
-                    <p title="Cria uma reserva para um dia em toda semana"
+                    <p
+                      data-tooltip-id="myTooltip"
+                      data-tooltip-content="Cria uma reserva para um dia em toda semana"
+                      data-tooltip-place="bottom"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate("/reserve-fixed", {
@@ -412,7 +423,11 @@ export default function MenuOption() {
 
 
             {user?.role === "dev" && (
-              <section className="menu-item" onClick={() => { navigate("/arena") }}>
+              <section className="menu-item" onClick={() => { navigate("/arena") }}
+                data-tooltip-id="myTooltip"
+                data-tooltip-content="Cadastrar Arena"
+                data-tooltip-place="right"
+              >
                 <div className="divider-item"></div>
                 <img src={ArenaIcon} alt="Icon" width={28} height={28} />
                 <strong>Arena</strong>
@@ -420,7 +435,11 @@ export default function MenuOption() {
             )}
 
             {user?.role !== "client" && (
-              <section className="menu-item" onClick={() => openModalSpace()}>
+              <section className="menu-item" onClick={() => openModalSpace()}
+                data-tooltip-id="myTooltip"
+                data-tooltip-content="Inserir quadras, espaços..."
+                data-tooltip-place="right"
+              >
                 <div className="divider-item"></div>
                 <img src={SpaceIcon} alt="Icon" width={28} height={28} />
                 <strong>Espaço</strong>
@@ -428,7 +447,11 @@ export default function MenuOption() {
             )}
 
             {user?.role !== "client" && (
-              <section className="menu-item" onClick={() => openModalLicence()}>
+              <section className="menu-item" onClick={() => openModalLicence()}
+                data-tooltip-id="myTooltip"
+                data-tooltip-content="Vencimento do plano"
+                data-tooltip-place="right"
+              >
                 <div className="divider-item"></div>
                 <img src={LicencaIcon} alt="Icon" width={28} height={28} />
                 <strong>Licença</strong>
@@ -436,7 +459,11 @@ export default function MenuOption() {
             )}
 
             {user?.role === "dev" && (
-              <section className="menu-item" onClick={() => navigate("/client")}>
+              <section className="menu-item" onClick={() => navigate("/client")}
+                data-tooltip-id="myTooltip"
+                data-tooltip-content="Ver clientes"
+                data-tooltip-place="right"
+              >
                 <div className="divider-item"></div>
                 <img src={ClientsIcon} alt="Icon" width={28} height={28} />
                 <strong>Clientes</strong>
@@ -444,7 +471,11 @@ export default function MenuOption() {
             )}
 
             {user?.role !== "client" && (
-              <section className="menu-item" onClick={() => navigate('/dashboard')}>
+              <section className="menu-item" onClick={() => navigate('/dashboard')}
+                data-tooltip-id="myTooltip"
+                data-tooltip-content="Gráficos, métricas..."
+                data-tooltip-place="right"
+              >
                 <div className="divider-item"></div>
                 <img src={DashIcon} alt="Icon" width={28} height={28} />
                 <strong>Dashboard</strong>
@@ -452,7 +483,11 @@ export default function MenuOption() {
             )}
 
             {user?.role !== "client" && (
-              <section className="menu-item" onClick={() => navigate("/billing")}>
+              <section className="menu-item" onClick={() => navigate("/billing")}
+                data-tooltip-id="myTooltip"
+                data-tooltip-content="Gerencimento da arena"
+                data-tooltip-place="right"
+              >
                 <div className="divider-item"></div>
                 <img src={RelatorioIcon} alt="Icon" width={28} height={28} />
                 <strong>Relatórios</strong>
@@ -460,7 +495,11 @@ export default function MenuOption() {
             )}
 
             {user?.role !== "client" && (
-              <section className="menu-item" onClick={() => navigate("/configArena")}>
+              <section className="menu-item" onClick={() => navigate("/configArena")}
+                data-tooltip-id="myTooltip"
+                data-tooltip-content="Configure sua arena"
+                data-tooltip-place="right"
+              >
                 <div className="divider-item"></div>
                 <img src={FiSettings} alt="Icon" width={28} height={28} />
                 <strong>Configurações</strong>
@@ -621,6 +660,8 @@ export default function MenuOption() {
               </table>
             </main>
           </Modal>
+
+          <Tooltip id="myTooltip" style={{ zIndex: 1000 }} />
         </>
       )}
     </>

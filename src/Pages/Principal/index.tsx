@@ -27,6 +27,7 @@ import TimeLinePrincipal from "../../components/Principal/TimeLinePrincipal";
 import CarrosselClient from "../../components/Principal/Carrousel-client";
 import { useNavigate } from "react-router-dom";
 import { BsFilePdf } from "react-icons/bs";
+import { Tooltip } from 'react-tooltip'
 
 interface DataProgram {
   id: number;
@@ -355,13 +356,21 @@ export default function Principal() {
               {user?.role !== 'client' && (
                 <div className="button-area">
                   <div className="button-area-nova">
-                    <button className="button-nova" onClick={() => navigate('/billing')}>
+                    <button className="button-nova" onClick={() => navigate('/billing')}
+                      data-tooltip-id="insta"
+                      data-tooltip-content="Relatórios"
+                      data-tooltip-place="bottom"
+                    >
                       <BsFilePdf size={20} />
                       Relatório
                     </button>
                   </div>
                   <div className="button-area-dashboard">
-                    <button className="button-dash" onClick={() => navigate("/dashboard")}>
+                    <button className="button-dash" onClick={() => navigate("/dashboard")}
+                      data-tooltip-id="insta"
+                      data-tooltip-content="Gráficos e métricas"
+                      data-tooltip-place="bottom"
+                    >
                       <FiActivity size={20} />
                       Dashboard
                     </button>
@@ -372,7 +381,8 @@ export default function Principal() {
               <div className="area-search" style={user?.role === 'client' ? { marginTop: 30 } : {}}>
                 <input type="text" placeholder="Pesquise itens do menu" />
                 <button className="search-icon" onClick={() => alert("Estamos tabalhando nisso...")}>
-                  <FiSearch size={32} color="#8a8888" />
+                  <FiSearch size={32} color="#8a8888"
+                  />
                 </button>
               </div>
             </section>
@@ -414,11 +424,18 @@ export default function Principal() {
           </div>
 
           <div className="area-social">
-            <div className="area-img">
-              <img src={IconInstagran} alt="icon" width={35} title="Instagram" />
+            <div className="area-img" data-tooltip-id="insta"
+              data-tooltip-content="Instagram"
+              data-tooltip-place="top">
+              <img src={IconInstagran} alt="icon" width={35}
+              />
             </div>
-            <div className="area-img">
-              <img src={IconWatsApp} alt="icon" width={35} title="WhatsApp" />
+            <div className="area-img"
+              data-tooltip-id="insta"
+              data-tooltip-content="Atendimento"
+              data-tooltip-place="top"
+            >
+              <img src={IconWatsApp} alt="icon" width={35} />
             </div>
           </div>
         </section>
@@ -449,10 +466,15 @@ export default function Principal() {
                 value={date}
                 onChange={handleDateChange}
                 className="date-picker"
+                data-tooltip-id="insta"
+                data-tooltip-content="Selecionar data"
+                data-tooltip-place="bottom"
               />
               {user?.role !== "client" && (
                 <button
-                  title="Filtrar"
+                  data-tooltip-id="insta"
+                  data-tooltip-content="Filtrar"
+                  data-tooltip-place="bottom"
                   style={{ backgroundColor: '#fff' }}
                   onClick={() => {
                     setIsFilterActive(true);
@@ -464,7 +486,6 @@ export default function Principal() {
               )}
 
               <button
-                title={isFilterActive ? "Limpar filtros" : "Atualizar"}
                 style={{ backgroundColor: '#fff' }}
                 onClick={() => {
                   if (isFilterActive) {
@@ -473,6 +494,10 @@ export default function Principal() {
                     loadReserves(today);
                   }
                 }}
+
+                data-tooltip-id="insta"
+                data-tooltip-content={isFilterActive ? "Limpar filtros" : "Atualizar"}
+                data-tooltip-place="bottom"
               >
                 {isFilterActive ? (
                   <LuFilterX size={24} color="red" onClick={() => window.location.reload()} />
@@ -655,6 +680,10 @@ export default function Principal() {
           </section>
         </Modal>
       </main>
+
+
+      <Tooltip id="insta" />
+
     </>
   );
 }
