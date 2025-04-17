@@ -15,7 +15,7 @@ import Teste from './img/Soccer.gif'
 import { FiActivity, FiFilter, FiPlusCircle, FiRefreshCcw, FiSearch, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 
-import { format } from "date-fns";
+import { format, isBefore, parseISO } from "date-fns";
 import Loading from "../../components/Loading";
 import { LuFilterX } from "react-icons/lu";
 import { ptBR } from "date-fns/locale";
@@ -123,6 +123,19 @@ interface Expedient {
   open: boolean;       // Se está aberto ou não
 }
 
+interface PlanData {
+  $id: string;
+  getPlan: {
+    $id: string;
+    id: number;
+    planSelect: "mensal" | "anual" | string; // string genérico caso hava outros tipos
+    planExpiry: string; // ou Date se você converter para objeto Date
+    arenaId: number;
+    status: "ativo" | "inativo" | string; // string genérico para outros status
+  };
+  arenaName: string;
+}
+
 export default function Principal() {
   const authContext = useContext(AuthContext);
   const { user, logout }: any = authContext;
@@ -149,10 +162,34 @@ export default function Principal() {
   const [getSpaceCard, setGetSpaceCard] = useState<Space[]>([]);
   const [getNameSpaceAdmin, setgetNameSpaceAdmin] = useState('');
   const [showReserve, setShowReserve] = useState(false);
+  const [isPlanExpired, setIsPlanExpired] = useState(false)
+  const [planArena, setPlanArean] = useState("");
+  const [dataExpire, setDataExpire] = useState("");
 
   const navigate = useNavigate();
 
   const customStylesModalInforme = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#fae6e6',
+      borderRadius: '10px',
+      padding: '0',
+      width: '97%',
+      maxWidth: '600px',
+      border: 'none',
+      boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      zIndex: 1000
+    }
+  };
+  const customStylesModalPlanExpired = {
     content: {
       top: '50%',
       left: '50%',
@@ -181,6 +218,15 @@ export default function Principal() {
   function closeModalDetails() {
     setIsOpenInforme(false);
   }
+  function openModalExpired() {
+    setIsPlanExpired(true);
+  }
+
+  function closeModalExpired() {
+    setIsPlanExpired(false);
+    localStorage.removeItem("authToken");
+    window.location.reload();
+  }
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = event.target.value;
@@ -189,6 +235,50 @@ export default function Principal() {
     setDataReserves(null);
     loadReserves(newDate);
   };
+
+  useEffect(() => {
+    async function GetDatePlan() {
+      try {
+        const dataEquals = await api.post<PlanData>("/api/Plan/getplan-user", {
+          arenaId: user?.arena
+        });
+        // console.log(dataEquals?.data?.getPlan[0]?.planExpire)
+        // console.log(dataEquals?.data?.getPlan.planExpiry)
+
+        const planExpiry = dataEquals?.data?.getPlan?.planExpiry;
+
+        setPlanArean(dataEquals?.data?.getPlan?.planSelect)
+        setDataExpire(dataEquals?.data?.getPlan?.planExpiry)
+
+        if (planExpiry) {
+          const expiryDate = parseISO(planExpiry); // Converte string ISO para Date
+          const today = new Date();
+
+          // Remove a parte de horas, minutos, segundos e milissegundos para comparar apenas as datas
+          const expiryDateOnly = new Date(expiryDate.getFullYear(), expiryDate.getMonth(), expiryDate.getDate());
+          const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+          // Verifica se hoje é depois do dia de expiração (ou seja, pelo menos um dia após)
+          const isExpired = isBefore(expiryDateOnly, todayOnly);
+
+          if (isExpired) {
+            openModalExpired();
+          } else {
+            console.log("Licença válida.");
+            setPlanArean(dataEquals?.data?.getPlan?.planSelect);
+            setDataExpire(dataEquals?.data?.getPlan?.planExpiry);
+          }
+        }
+
+      } catch (error: any) {
+        console.log("Erro ao buscar datas: ", error);
+      }
+    }
+
+    if (user && user.role !== "client" && user.role !== "dev") {
+      GetDatePlan();
+    }
+  }, [user]); // Adicione user como dependência
 
   useEffect(() => {
     const fetchDesativeProgram = async () => {
@@ -235,11 +325,11 @@ export default function Principal() {
 
         if (resp?.data?.reservas?.$values?.length > 0) {
           const updatedData: ApiResponseReserve = {
-            $id: resp.data.$id,
-            arenaName: resp.data.arenaName,
+            $id: resp?.data?.$id,
+            arenaName: resp?.data?.arenaName,
             reservas: {
-              $id: resp.data.reservas.$id,
-              $values: resp.data.reservas.$values,
+              $id: resp?.data?.reservas?.$id,
+              $values: resp?.data?.reservas?.$values,
             },
           };
           setDataReserves(updatedData);
@@ -434,6 +524,7 @@ export default function Principal() {
               data-tooltip-id="insta"
               data-tooltip-content="Atendimento"
               data-tooltip-place="top"
+              onClick={() => window.open("https://wa.me/send/?phone=5511993536138&text=Ol%C3%A1%2C+quero+conhecer+mais+%F0%9F%98%8A&type=phone_number&app_absent=0", '_blank')}
             >
               <img src={IconWatsApp} alt="icon" width={35} />
             </div>
@@ -631,6 +722,7 @@ export default function Principal() {
           <img src={Icon2} alt="icon" />
         </button>
 
+        {/* modal informe */}
         <Modal
           isOpen={isOpenInforme}
           onRequestClose={closeModalDetails}
@@ -677,6 +769,47 @@ export default function Principal() {
               </section>
             </main>
             <button onClick={() => closeModalDetails()}>Fechar</button>
+          </section>
+        </Modal>
+
+        {/* modal plan expired */}
+        <Modal
+          isOpen={isPlanExpired}
+          onRequestClose={closeModalExpired}
+          style={customStylesModalPlanExpired}
+          shouldCloseOnOverlayClick={false}
+        >
+          <header className="header-modal-informe-res">
+            <img src={Logo} alt="logo" />
+            <div className="area-close-informe-res" onClick={closeModalExpired}>
+              <FiX size={24} />
+            </div>
+          </header>
+          <section className="main-modal-informe-res">
+            <h1>Seu plano expirou =(</h1>
+            <main>
+
+              <section className="one-res">
+                <p style={{ textAlign: "center" }}><strong>Data Expiração: </strong>{dataExpire && format(dataExpire, "dd/MM/yyyy")} - {planArena}</p>
+              </section>
+
+              <a href="https://api.whatsapp.com/send/?phone=5511993536138&text=Ol%C3%A1%2C%20meu%20plano%20expirou%20%3D(%20&type=phone_number&app_absent=0"
+                target="_blank"
+                style={{
+                  color: "var(--primary-color)",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                  textDecorationLine: "underline",
+                  textAlign: "center",
+
+                  marginBottom: 50
+
+
+                }}
+              >Clique aqui para renovar seu plano</a>
+
+            </main>
+            <button onClick={() => closeModalExpired()}>Fechar</button>
           </section>
         </Modal>
       </main>
