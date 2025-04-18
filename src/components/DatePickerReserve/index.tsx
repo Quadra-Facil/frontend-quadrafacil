@@ -1,9 +1,9 @@
 import "react-day-picker/style.css";
 import "./style.css";
-import { useContext, useEffect, useState } from "react";
-import { setHours, setMinutes, setSeconds, differenceInMilliseconds, format, getHours, isBefore } from "date-fns";
-import { DayPicker, Locale } from "react-day-picker";
-import { pt, ptBR } from "date-fns/locale";
+import { useContext, useEffect, useState, useCallback, useMemo } from "react";
+import { setHours, setMinutes, setSeconds, differenceInMilliseconds, format, isBefore, isSameDay, isToday, isAfter, isEqual } from "date-fns";
+import { DayPicker } from "react-day-picker";
+import { ptBR } from "date-fns/locale";
 import Toast from "../Toast";
 import Loading from "../Loading";
 import LoadingReserve from "../../img/loadingreserve.json";
@@ -18,13 +18,14 @@ import DatePickerHourReserved from "../DatePickerHourReserved";
 import Lottie from "lottie-react";
 import Logo from "../../img/logomarca.svg";
 
-interface Space {
+// Tipos melhorados
+type Space = {
   spaceId: number;
   name: string;
   sports: string;
-}
+};
 
-interface Reserve {
+type Reserve = {
   id_reserve: number;
   userId: number;
   arenaId: number;
@@ -33,16 +34,16 @@ interface Reserve {
   timeInitial: string;
   timeFinal: string;
   status: string;
-  typeReserve: string;
+  typeReserve: "avulsa" | "fixo";
   observation: string;
-}
+};
 
-interface WeekDaysResponse {
+type WeekDaysResponse = {
   $id: string;
   $values: number[];
-}
+};
 
-interface Promotion {
+type Promotion = {
   $id: string;
   id: number;
   promotionType: string;
@@ -53,150 +54,312 @@ interface Promotion {
   arenaId: number;
   startDate?: string;
   endDate?: string;
-}
+};
 
-interface PromotionResponse {
-  $id: string;
-  $values: Promotion[];
-}
-
-interface WeekDays {
-  $id: string;
-  $values: number[];
-}
-
-interface ArenaSchedule {
+type ArenaSchedule = {
   $id: string;
   id: number;
   arenaId: number;
-  weekDays: WeekDays;
+  weekDays: WeekDaysResponse;
   startTime: string;
   endTime: string;
   open: boolean;
-}
+};
 
-interface ScheduleResponse {
+type ScheduleResponse = {
   $id: string;
   $values: ArenaSchedule[];
-}
+};
+
+// Estilos modais
+const customStylesModalReserve = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: '#f8f8f8',
+    borderRadius: '12px',
+    padding: '0px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    width: '70vw',
+    height: '95vh',
+    maxWidth: '80%',
+    color: '#6c6c6c',
+    zIndex: 10000,
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+};
+
+const customStylesModalInforme = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: '#fff',
+    border: '0px solid #ccc',
+    borderRadius: '10px',
+    padding: '0px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    width: '60vw',
+    height: '70vh',
+    maxWidth: '100%',
+    color: '#6c6c6c',
+    zIndex: 10000,
+    overflow: "none"
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+};
 
 export function DatePickerReserve() {
-  const [selected, setSelected] = useState<Date | undefined>(undefined);
-  const [startTime, setStartTime] = useState<string>("00:00:00");
-  const [endTime, setEndTime] = useState<string>("00:00:00");
-  const [timeDiff, setTimeDiff] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isLoadingReserve, setIsLoadingReserve] = useState<boolean>(false);
-  const [sendTitle, setSendTitle] = useState<string>('');
-  const [sendMessage, setSendMessage] = useState<string>('');
-  const [modalIsOpenReserve, setIsOpenReserve] = useState(false);
-  const [spaces, setSpaces] = useState<Space[]>([]);
-  const [selectedSpace, setSelectedSpace] = useState<number | null>(null);
-  const [spacesReserved, setSpacesReserved] = useState<Space[]>([]);
-  const [selectedSpaceReserved, setSelectedSpaceReserved] = useState<number | null>(null);
-  const [reserveSpace, setReserveSpace] = useState<Reserve[]>([]);
-  const [loadPromotions, setLoadPromotions] = useState<Promotion[]>([]);
-  const [promoTypeResult, setPromoTypeResult] = useState<string>('')
-  const [getPromoType, setGetPromoType] = useState<string>('')
-  const [valueGetPromo, setValueGetPromo] = useState<any>()
-  const [loadExpedient, setLoadExpedient] = useState<ScheduleResponse | undefined>();
-  const [startTimeExp, setStartTimeExp] = useState<string>('');
-  const [endTimeExp, setEndTimeExp] = useState<string>('');
-  const [formattedDate, setFormattedDate] = useState<string>('');
-  const [expedientMessage, setExpedientMessage] = useState<string>('');
-  const [isOpenInforme, setIsOpenInforme] = useState<boolean>(false);
-  const [messageInformeError, setMessageInformeError] = useState<string>('')
-  const [showReservations, setShowReservations] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1014);
-
+  // Contextos e navegação
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
-  const { user }: any = authContext;
+  const { user } = authContext || {};
   const location = useLocation();
   const { arenaId, arena, sports, GetvalueHour } = location.state || {};
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 1014);
-      if (window.innerWidth > 1014) {
-        setShowReservations(true);
-      } else {
-        setShowReservations(false);
-      }
-    };
+  // Estados principais
+  const [selected, setSelected] = useState<Date | undefined>(undefined);
+  const [startTime, setStartTime] = useState("00:00:00");
+  const [endTime, setEndTime] = useState("00:00:00");
+  const [selectedSpace, setSelectedSpace] = useState<number | null>(null);
+  const [selectedSpaceReserved, setSelectedSpaceReserved] = useState<number | null>(null);
+  const [modalIsOpenReserve, setIsOpenReserve] = useState(false);
+  const [isOpenInforme, setIsOpenInforme] = useState(false);
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Estados de loading
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingReserve, setIsLoadingReserve] = useState(false);
 
-  function openModalReserve() {
-    setIsOpenReserve(true);
-  }
+  // Estados de dados
+  const [spaces, setSpaces] = useState<Space[]>([]);
+  const [spacesReserved, setSpacesReserved] = useState<Space[]>([]);
+  const [reserveSpace, setReserveSpace] = useState<Reserve[]>([]);
+  const [loadPromotions, setLoadPromotions] = useState<Promotion[]>([]);
+  const [loadExpedient, setLoadExpedient] = useState<ScheduleResponse | undefined>();
 
-  function closeModalReserve() {
-    setIsOpenReserve(false);
-    navigate("/principal");
-  }
+  // Estados de UI
+  const [sendTitle, setSendTitle] = useState<'success' | 'error' | ''>('');
+  const [sendMessage, setSendMessage] = useState('');
+  const [expedientMessage, setExpedientMessage] = useState('');
+  const [messageInformeError, setMessageInformeError] = useState('');
+  const [showReservations, setShowReservations] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1014);
 
-  const customStylesModalReserve = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f8f8f8',
-      // border: '1px solid #ccc',
-      borderRadius: '12px',
-      padding: '0px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '70vw',
-      height: '95vh',
-      maxWidth: '80%',
-      color: '#6c6c6c',
-      zIndex: 10000,
-    },
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-  };
+  // Estados derivados
+  const selectedDate = useMemo(() => {
+    return selected ? format(selected, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd");
+  }, [selected]);
 
-  useEffect(() => {
-    openModalReserve();
-  }, []);
+  const formattedDate = useMemo(() => {
+    if (!selected) return format(new Date(), "eeee dd/MM", { locale: ptBR });
+    return isSameDay(selected, new Date()) ? "Hoje" : format(selected, "eeee dd/MM", { locale: ptBR });
+  }, [selected]);
 
-  useEffect(() => {
-    async function getSpaceSearch() {
-      setIsLoading(true);
-      try {
-        const response = await api.post("/api/newSpace/search/space", {
-          arenaId: arenaId,
-          sports: String(sports),
-        });
+  const expedientInfo = useMemo(() => {
+    if (!loadExpedient?.$values?.length) return { start: '', end: '', message: '' };
 
-        if (Array.isArray(response.data.$values)) {
-          setSpaces(response.data.$values);
-          setSpacesReserved(response.data.$values);
-        } else {
-          setSpaces([]);
-          setSpacesReserved([]);
-        }
-      } catch (error: any) {
-        setSendTitle('error');
-        setSendMessage(error.response?.data?.erro || 'Erro desconhecido');
-      } finally {
-        setIsLoading(false);
-      }
+    const selectedDateObj = selected || new Date();
+    const dayOfWeek = selectedDateObj.getDay();
+    const adjustedDay = dayOfWeek === 0 ? 7 : dayOfWeek;
+
+    const expedientForDay = loadExpedient.$values.find(exp =>
+      exp.weekDays.$values.includes(adjustedDay)
+    );
+
+    if (!expedientForDay) return { start: '', end: '', message: '⏰' };
+
+    if (!expedientForDay.open) {
+      return { start: '', end: '', message: 'Arena fechada' };
     }
 
-    getSpaceSearch();
-  }, [arenaId, sports]);
+    return {
+      start: expedientForDay.startTime.substring(0, 5),
+      end: expedientForDay.endTime.substring(0, 5),
+      message: ''
+    };
+  }, [loadExpedient, selected]);
+
+  // Promoções calculadas
+  const { promoTypeResult, getPromoType, valueGetPromo } = useMemo(() => {
+    if (!startTime || !endTime || loadPromotions.length === 0) {
+      return { promoTypeResult: '', getPromoType: 'Nenhuma', valueGetPromo: GetvalueHour };
+    }
+
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
+
+    const startTotal = startHour * 60 + startMinute;
+    const endTotal = endHour * 60 + endMinute;
+    let diffMinutes = endTotal - startTotal;
+    if (diffMinutes < 0) diffMinutes += 24 * 60;
+
+    const hours = Math.floor(diffMinutes / 60);
+    const timeDiff = `${hours}h`;
+
+    // Filtra promoções
+    const dayUsePromos = loadPromotions.filter(p =>
+      p.promotionType === "dayuse" &&
+      p.weekDays.$values.includes(new Date().getDay() || 7)
+    );
+
+    const timeDiffPromos = loadPromotions.filter(p =>
+      p.promotionType === timeDiff
+    );
+
+    if (dayUsePromos.length > 0) {
+      return {
+        promoTypeResult: `Day use - R$ ${dayUsePromos[0].value.toString()} por pessoa.`,
+        getPromoType: dayUsePromos[0].promotionType,
+        valueGetPromo: dayUsePromos[0].value
+      };
+    }
+
+    if (timeDiffPromos.length > 0) {
+      return {
+        promoTypeResult: `${timeDiffPromos[0].promotionType} pagando menos - R$ ${timeDiffPromos[0].value.toFixed(2)}`,
+        getPromoType: timeDiffPromos[0].promotionType,
+        valueGetPromo: timeDiffPromos[0].value
+      };
+    }
+
+    return {
+      promoTypeResult: "Nenhuma promoção encontrada.",
+      getPromoType: "Nenhuma",
+      valueGetPromo: GetvalueHour
+    };
+  }, [startTime, endTime, loadPromotions, GetvalueHour]);
+
+  // Handlers e funções auxiliares
+  const openModalReserve = useCallback(() => setIsOpenReserve(true), []);
+  const closeModalReserve = useCallback(() => {
+    setIsOpenReserve(false);
+    navigate("/principal");
+  }, [navigate]);
+
+  const openModalInformeExp = useCallback(() => setIsOpenInforme(true), []);
+  const closeModalInformeExp = useCallback(() => setIsOpenInforme(false), []);
 
   const roundMinutes = (minutes: number): number => minutes <= 15 ? 0 : 30;
 
-  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>, isStart: boolean) => {
+  const validateTimeInput = useCallback((time: string, type: "start" | "end"): boolean => {
+    if (!time || time === "00:00:00") {
+      setSendTitle('error');
+      setSendMessage(`Preencha o horário ${type === "start" ? "inicial" : "final"}`);
+      return false;
+    }
+    return true;
+  }, []);
+
+  const validateReservation = useCallback((): boolean => {
+    // 1. Verificar se há espaço selecionado
+    if (!selectedSpace) {
+      setSendTitle('error');
+      setSendMessage('Selecione um espaço');
+      return false;
+    }
+
+    // 2. Verificar se os campos de horário estão preenchidos
+    if (!validateTimeInput(startTime, "start") || !validateTimeInput(endTime, "end")) {
+      return false;
+    }
+
+    const currentDate = new Date();
+    const selectedDateObj = selected || currentDate;
+    const isToday = isSameDay(selectedDateObj, currentDate);
+
+    // 3. Converter horários para objetos Date
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+
+    const startDateTime = setMinutes(setHours(selectedDateObj, startHour), startMinute);
+    const endDateTime = setMinutes(setHours(selectedDateObj, endHour), endMinute);
+
+    // 4. Verificar se horário final é antes do inicial
+    if (isBefore(endDateTime, startDateTime) || isEqual(endDateTime, startDateTime)) {
+      setSendTitle('error');
+      setSendMessage('O horário final deve ser após o horário inicial');
+      return false;
+    }
+
+    // 5. Verificar expediente
+    const dayOfWeek = selectedDateObj.getDay();
+    const adjustedDay = dayOfWeek === 0 ? 7 : dayOfWeek;
+    const expedientForDay = loadExpedient?.$values?.find(exp =>
+      exp.weekDays.$values.includes(adjustedDay)
+    );
+
+    if (!expedientForDay || !expedientForDay.open) {
+      setSendTitle('error');
+      setSendMessage('A arena está fechada nesta data');
+      return false;
+    }
+
+    // Converter horários do expediente para comparação
+    const [expStartHour, expStartMinute] = expedientForDay.startTime.split(':').map(Number);
+    const [expEndHour, expEndMinute] = expedientForDay.endTime.split(':').map(Number);
+
+    const expStartDateTime = setMinutes(setHours(selectedDateObj, expStartHour), expStartMinute);
+    const expEndDateTime = setMinutes(setHours(selectedDateObj, expEndHour), expEndMinute);
+
+    // Verificar se está dentro do expediente
+    if (isBefore(startDateTime, expStartDateTime)) {
+      setSendTitle('error');
+      setSendMessage(`O horário inicial deve ser após ${format(expStartDateTime, 'HH:mm')}`);
+      return false;
+    }
+
+    if (isAfter(endDateTime, expEndDateTime)) {
+      setSendTitle('error');
+      setSendMessage(`O horário final deve ser antes de ${format(expEndDateTime, 'HH:mm')}`);
+      return false;
+    }
+
+    // 6. Verificar se é hoje e se o horário já passou
+    if (isToday) {
+      if (isBefore(startDateTime, currentDate)) {
+        setSendTitle('error');
+        setSendMessage(`O horário inicial já passou. Selecione após ${format(currentDate, 'HH:mm')}`);
+        return false;
+      }
+
+      if (isBefore(endDateTime, currentDate)) {
+        setSendTitle('error');
+        setSendMessage('O horário final já passou');
+        return false;
+      }
+    }
+
+    // 7. Verificar conflito com reservas existentes
+    if (reserveSpace.some(reserve => {
+      const reserveStart = new Date(`${reserve.dataReserve}T${reserve.timeInitial}`);
+      const reserveEnd = new Date(`${reserve.dataReserve}T${reserve.timeFinal}`);
+
+      return (
+        (isBefore(startDateTime, reserveEnd) && isAfter(endDateTime, reserveStart)) ||
+        isEqual(startDateTime, reserveStart) ||
+        isEqual(endDateTime, reserveEnd)
+      );
+    })) {
+      setSendTitle('error');
+      setSendMessage('Já existe uma reserva para este horário');
+      return false;
+    }
+
+    return true;
+  }, [selectedSpace, startTime, endTime, selected, loadExpedient, reserveSpace, validateTimeInput]);
+
+  const handleTimeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>, isStart: boolean) => {
     const time = event.target.value;
     const [hour, minute] = time.split(":").map(Number);
     const roundedMinute = roundMinutes(minute);
@@ -204,425 +367,185 @@ export function DatePickerReserve() {
 
     if (isStart) {
       setStartTime(formattedTime);
-      checkTimeValidity(formattedTime, "start");
     } else {
       setEndTime(formattedTime);
-      checkTimeValidity(formattedTime, "end");
     }
-  };
+  }, []);
 
-  const checkTimeValidity = (selectedTime: string, type: "start" | "end") => {
-    if (!loadExpedient) {
-      console.log("Expediente não carregado.");
-      return;
+  const handleSpace = useCallback((id: number) => {
+    setSelectedSpace(id);
+    setSelectedSpaceReserved(id);
+  }, []);
+
+  // Funções de API
+  const getSpaceSearch = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.post("/api/newSpace/search/space", {
+        arenaId: arenaId,
+        sports: String(sports),
+      });
+
+      const spacesData = Array.isArray(response.data.$values) ? response.data.$values : [];
+      setSpaces(spacesData);
+      setSpacesReserved(spacesData);
+
+      console.log("Spaces: ", spaces)
+      console.log("SpacesReserved: ", spacesReserved)
+
+      if (spacesData.length > 0) {
+        handleSpace(spacesData[0].spaceId);
+      }
+    } catch (error: any) {
+      setSendTitle('error');
+      setSendMessage(error.response?.data?.erro || 'Erro ao carregar espaços');
+    } finally {
+      setIsLoading(false);
     }
+  }, [arenaId, sports, handleSpace]);
 
-    const selectedDate = selected ? new Date(selected) : new Date();
-    const selectedDay = selectedDate.getDay();
-    const adjustedSelectedDay = selectedDay === 0 ? 7 : selectedDay;
-
-    const expedientForSelectedDay = loadExpedient.$values.find((expedient) =>
-      expedient.weekDays.$values.includes(adjustedSelectedDay)
-    );
-
-    if (expedientForSelectedDay) {
-      const { startTime: expStartTime, endTime: expEndTime } = expedientForSelectedDay;
-      const [expStartHour, expStartMinute] = expStartTime.split(":").map(Number);
-      const [expEndHour, expEndMinute] = expEndTime.split(":").map(Number);
-      const [selectedStartHour, selectedStartMinute] = selectedTime.split(":").map(Number);
-
-      if (isNaN(expStartHour) || isNaN(expStartMinute) || isNaN(expEndHour) || isNaN(expEndMinute) || isNaN(selectedStartHour) || isNaN(selectedStartMinute)) {
-        setMessageInformeError("Horário inválido.");
-        openModalInformeExp();
-        return;
-      }
-
-      const expStart = new Date();
-      expStart.setHours(expStartHour, expStartMinute, 0);
-
-      const expEnd = new Date();
-      expEnd.setHours(expEndHour, expEndMinute, 0);
-
-      const selectedTimeObj = new Date();
-      selectedTimeObj.setHours(selectedStartHour, selectedStartMinute, 0);
-
-      if (type === "start") {
-        if (selectedTimeObj >= expStart) {
-          console.log("Horário de início válido.");
-        } else {
-          setMessageInformeError(`Arena ainda não estará aberta no horário inicial, selecione a partir das ${format(expStart, "HH'h'")}.`);
-          openModalInformeExp();
-          setStartTime('00:00');
-          return;
-        }
-
-        const todayDate = format(new Date(), "yyyy-MM-dd");
-        const selectedDateFormatted = format(selectedDate, "yyyy-MM-dd");
-
-        if (todayDate === selectedDateFormatted) {
-          const currentTime = new Date().getHours();
-
-          if (currentTime > selectedTimeObj.getHours()) {
-            setMessageInformeError(`Este horário inicial já passou.`);
-            openModalInformeExp();
-            setStartTime('00:00');
-            return;
-          }
-          if (selectedTimeObj <= expStart) {
-            console.log("selectedTimeObj: ", selectedTimeObj)
-            console.log("expStart: ", expStart)
-            setMessageInformeError(`Horário fora do expediente.`);
-            openModalInformeExp();
-            setStartTime('00:00');
-            return;
-          }
-        }
-      }
-
-      if (type === "end") {
-        const [selectedEndHour, selectedEndMinute] = selectedTime.split(":").map(Number);
-        const selectedEndTimeObj = new Date();
-        selectedEndTimeObj.setHours(selectedEndHour, selectedEndMinute, 0);
-
-        if (isNaN(selectedEndHour) || isNaN(selectedEndMinute)) {
-          setMessageInformeError("Horário final inválido.");
-          openModalInformeExp();
-          return;
-        }
-
-        if (selectedEndTimeObj <= expEnd) {
-          console.log("Horário de fim válido.");
-        } else {
-          setMessageInformeError(`Horário final fora do expediente da arena, selecione a partir até ${format(expEnd, "HH'h'")}.`);
-          openModalInformeExp();
-          setEndTime('00:00');
-          return;
-        }
-
-        if (selectedEndTimeObj < expStart) {
-          setMessageInformeError(`Selecione um horário das ${format(expStart, "HH'h'")} até ${format(expEnd, "HH'h'")} para o dia selecionado.`);
-          openModalInformeExp();
-          setStartTime('00:00');
-          setEndTime('00:00');
-          return;
-        }
-      }
-    } else {
-      setMessageInformeError("Expediente para o dia selecionado não encontrado.");
-      openModalInformeExp();
-      setStartTime('00:00');
-      setEndTime('00:00');
-      return;
-    }
-  };
-
-  useEffect(() => {
-    if (user?.arena) {
-      api.post("/api/Promotions/get-promotion", {
-        arenaId: user?.arena,
-      })
-        .then((response) => {
-          setLoadPromotions(response?.data?.$values);
-        })
-        .catch((error: any) => {
-          setSendTitle("error");
-          setSendMessage(error?.response?.data);
-        });
-    }
-  }, [arenaId]);
-
-  useEffect(() => {
-    if (startTime && endTime && loadPromotions.length > 0) {
-      const [startHour, startMinute] = startTime.split(":").map(Number);
-      const [endHour, endMinute] = endTime.split(":").map(Number);
-
-      const startTotalMinutes = startHour * 60 + startMinute;
-      const endTotalMinutes = endHour * 60 + endMinute;
-
-      let diffInMinutes = endTotalMinutes - startTotalMinutes;
-
-      if (diffInMinutes < 0) {
-        diffInMinutes += 24 * 60;
-      }
-
-      const hours = Math.floor(diffInMinutes / 60);
-      const timeDiff = `${hours}h`;
-      setTimeDiff(timeDiff);
-
-      const filterPromo = loadPromotions.filter(
-        (item) => item.promotionType === timeDiff
-      );
-
-      const getDay = new Date().getDay();
-      const filterDayUse = loadPromotions.filter(
-        (item) => item.promotionType === "dayuse"
-      );
-
-      const dayUseValid = filterDayUse.filter((item) => item.weekDays.$values.includes(getDay));
-
-      if (dayUseValid.length > 0) {
-        setPromoTypeResult(`Day use - R$ ${dayUseValid[0].value.toString()} por pessoa.`);
-        setGetPromoType(filterPromo[0]?.promotionType);
-        setValueGetPromo(filterPromo[0]?.value as any);
-        return;
-      } else if (filterPromo.length > 0) {
-        setPromoTypeResult(
-          `${filterPromo[0]?.promotionType} pagando menos - R$ ${filterPromo[0]?.value.toFixed(2)}`
-        );
-        setGetPromoType(filterPromo[0]?.promotionType);
-        setValueGetPromo(filterPromo[0]?.value as any);
-      } else {
-        setPromoTypeResult("Nenhuma promoção encontrada.");
-        setGetPromoType("Nenhuma");
-        setValueGetPromo(GetvalueHour);
-      }
-    }
-  }, [startTime, endTime, loadPromotions]);
-
-  const getReserves = async () => {
+  const getReserves = useCallback(async () => {
     if (!arenaId || !selectedSpace || !selectedDate) return;
 
     setIsLoadingReserve(true);
-
     try {
       const response = await api.post("/getReserves/date", {
         arenaId: arenaId,
         spaceId: selectedSpace,
         dataReserve: selectedDate,
       });
-
       setReserveSpace(response.data);
     } catch (error) {
-      console.log("Erro ao buscar reservas:", error);
+      console.error("Erro ao buscar reservas:", error);
+      setSendTitle('error');
+      setSendMessage('Erro ao carregar reservas');
     } finally {
       setIsLoadingReserve(false);
     }
-  };
+  }, [arenaId, selectedSpace, selectedDate]);
+  const getExpedient = useCallback(async () => {
+    try {
+      const response = await api.post("/api/ArenaHours/get", { arenaId });
+      setLoadExpedient(response?.data);
+    } catch (error: any) {
+      setSendTitle('error');
+      setSendMessage(error?.response?.data || 'Erro ao carregar expediente');
+    }
+  }, [arenaId]);
+
+  const getPromotions = useCallback(async () => {
+    if (!user?.arena) return;
+
+    try {
+      const response = await api.post("/api/Promotions/get-promotion", {
+        arenaId: user.arena,
+      });
+      setLoadPromotions(response?.data?.$values || []);
+    } catch (error: any) {
+      setSendTitle("error");
+      setSendMessage(error?.response?.data || 'Erro ao carregar promoções');
+    }
+  }, [user?.arena]);
+
+  const handleCreateReservation = useCallback(async () => {
+    if (!validateReservation()) return;
+
+    setIsLoadingReserve(true);
+    try {
+      const response = await api.post("/api/reserve", {
+        userId: user?.userId,
+        arenaId: arenaId,
+        spaceId: selectedSpace,
+        dataReserve: selectedDate,
+        timeInitial: startTime,
+        timeFinal: endTime,
+        typeReserve: "avulsa",
+        observation: "",
+        promotion: getPromoType !== "Nenhuma",
+        promotionType: getPromoType !== "Nenhuma" ? getPromoType : null,
+        value: valueGetPromo
+      });
+
+      setSendTitle('success');
+      setSendMessage(response?.data?.message || 'Reserva criada com sucesso');
+      getReserves();
+    } catch (error: any) {
+      setSendTitle('error');
+      setSendMessage(error?.response?.data || 'Erro ao criar reserva');
+    } finally {
+      setIsLoadingReserve(false);
+    }
+  }, [validateReservation, user, arenaId, selectedSpace, selectedDate, startTime, endTime, getPromoType, valueGetPromo, getReserves]);
+
+  // Efeitos
+  useEffect(() => {
+    if (sendTitle && sendMessage) {
+      const timer = setTimeout(() => {
+        setSendTitle('');
+        setSendMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [sendTitle, sendMessage]);
+
+  useEffect(() => {
+    openModalReserve();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1014);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (arenaId && sports) {
+      getSpaceSearch();
+    }
+  }, [arenaId, sports, getSpaceSearch]);
+
+  useEffect(() => {
+    if (modalIsOpenReserve) {
+      getExpedient();
+      getPromotions();
+    }
+  }, [modalIsOpenReserve, getExpedient, getPromotions]);
 
   useEffect(() => {
     if (arenaId && selectedSpace && selectedDate) {
       getReserves();
     }
-  }, [arenaId, selectedSpace, selectedDate]);
+  }, [arenaId, selectedSpace, selectedDate, getReserves]);
 
-  useEffect(() => {
-    if (!selectedDate) {
-      const today = new Date();
-      const formattedDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
-      setSelectedDate(formattedDate);
-    }
-  }, [selectedDate]);
-
-  const calculateDifference = (start: string, end: string, selectedDate: Date) => {
-    const [startHour, startMinute] = start.split(":").map(Number);
-    const [endHour, endMinute] = end.split(":").map(Number);
-
-    const startDateStart = setSeconds(setMinutes(setHours(selectedDate, startHour), startMinute), 0);
-    const startDateEnd = setSeconds(setMinutes(setHours(selectedDate, endHour), endMinute), 0);
-
-    const diffInMilliseconds = differenceInMilliseconds(startDateEnd, startDateStart);
-    const hours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
-    const minutes = Math.floor((diffInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
-
-    setTimeDiff(`${hours}h`);
-  };
-
-  const calculeHoursAndCreateReserve = async () => {
-    const currentTime = new Date();
-    const [startHour, startMinute] = startTime.split(":").map(Number);
-    const [startHourEnd, startMinuteEnd] = endTime.split(":").map(Number);
-
-    const startDateStart = setMinutes(setHours(new Date(), startHour), startMinute);
-    const startDateEnd = setMinutes(setHours(new Date(), startHourEnd), startMinuteEnd);
-
-    if (selectedSpace == null) {
-      setSendTitle('error');
-      setSendMessage(`Selecione um espaço.`);
-      return;
-    } else if (startTime >= endTime) {
-      setSendTitle('error');
-      setSendMessage(`Horários incorretos.`);
-      return;
-    } else if (isBefore(startDateStart, currentTime)) {
-      setSendTitle('error');
-      setSendMessage(`Horário inicial incorreto.`);
-      return;
-    } else if (isBefore(startDateEnd, currentTime)) {
-      setSendTitle('error');
-      setSendMessage(`Horário final incorreto.`);
-      return;
-    }
-
-    else {
-      selected && startTime && endTime && calculateDifference(startTime, endTime, selected);
-
-      try {
-        const response = await api.post("/api/reserve", {
-          userId: user.userId,
-          arenaId: arenaId,
-          spaceId: selectedSpace,
-          dataReserve: selected === undefined ? format(new Date(), "yyyy-MM-dd") : format(selected as Date, "yyyy-MM-dd"),
-          timeInitial: startTime,
-          timeFinal: endTime,
-          typeReserve: "avulsa",
-          observation: "",
-          promotion: getPromoType !== "Nenhuma" ? true : false,
-          promotionType: getPromoType !== "Nenhuma" ? getPromoType : null,
-          value: valueGetPromo
-        });
-
-        setSendTitle('success');
-        setSendMessage(`${response?.data?.message}`);
-      } catch (error: any) {
-        setSendTitle('error');
-        setSendMessage(`${error?.response?.data}`);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (modalIsOpenReserve && spaces.length > 0) {
-      handleSpace(spaces[0]?.spaceId);
-    }
-  }, [modalIsOpenReserve, spaces]);
-
-  const handleSpace = (id: number) => {
-    setSelectedSpace(id);
-    setSelectedSpaceReserved(id);
-  };
-
-  async function GetExpedient() {
-    try {
-      const response = await api.post("/api/ArenaHours/get", {
-        arenaId: arenaId
-      });
-
-      const expedientData = response?.data;
-      setLoadExpedient(expedientData);
-    } catch (error: any) {
-      setSendTitle('error');
-      setSendMessage(`${error?.response?.data}`);
-    }
-  }
-
-  function getWeekDay(date: Date) {
-    const dayOfWeek = date.getDay();
-    return dayOfWeek === 0 ? 7 : dayOfWeek;
-  }
-
-  useEffect(() => {
-    if (modalIsOpenReserve) {
-      GetExpedient();
-    }
-  }, [modalIsOpenReserve]);
-
-  useEffect(() => {
-    if (loadExpedient && loadExpedient.$values.length > 0) {
-      const selectedDate = selected ? selected : new Date();
-      const adjustedGetDay = getWeekDay(selectedDate);
-
-      const getExpToday = loadExpedient.$values.filter((item: ArenaSchedule) => {
-        return item.weekDays?.$values.includes(adjustedGetDay);
-      });
-
-      if (getExpToday.length > 0) {
-        const currentExpedient = getExpToday[0];
-
-        if (!currentExpedient.open) {
-          openModalInformeExp()
-          setExpedientMessage('Arena fechada');
-          setStartTimeExp('');
-          setEndTimeExp('');
-        } else {
-          const startTimeFormatted = currentExpedient.startTime.substring(0, 5);
-          const endTimeFormatted = currentExpedient.endTime.substring(0, 5);
-
-          setStartTimeExp(startTimeFormatted);
-          setEndTimeExp(endTimeFormatted);
-          setExpedientMessage('');
-        }
-      } else {
-        setStartTimeExp('');
-        setEndTimeExp('');
-        setExpedientMessage('⏰');
-      }
-    }
-  }, [loadExpedient, selected]);
-
-  function formatSelectedDate(selected: Date | undefined) {
-    const today = new Date();
-
-    if (!selected) {
-      return format(today, "eeee dd/MM", { locale: pt });
-    }
-
-    const isToday = selected.toDateString() === today.toDateString();
-
-    if (isToday) {
-      return "Hoje";
-    }
-
-    return format(selected, "eeee dd/MM", { locale: pt });
-  }
-
-  useEffect(() => {
-    const formattedDate = formatSelectedDate(selected);
-    setFormattedDate(formattedDate);
-  }, [selected]);
-
-  const customStylesModalInforme = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: '#fff',
-      border: '0px solid #ccc',
-      borderRadius: '10px',
-      padding: '0px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '40vw',
-      height: '50vh',
-      maxWidth: '100%',
-      color: '#6c6c6c',
-      zIndex: 10000,
-    },
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-  };
-
-  function openModalInformeExp() {
-    setIsOpenInforme(true);
-  }
-
-  function closeModalInformeExp() {
-    setIsOpenInforme(false);
-  }
-
+  // Renderização
   return (
     <>
       <Toast title={sendTitle} message={sendMessage} />
-      {isLoading ? <Loading /> : (
+
+      {isLoading ? (
+        <Loading />
+      ) : (
         <>
-          <Modal isOpen={modalIsOpenReserve} onRequestClose={closeModalReserve} style={customStylesModalReserve} shouldCloseOnOverlayClick={false}>
+          <Modal
+            isOpen={modalIsOpenReserve}
+            onRequestClose={closeModalReserve}
+            style={customStylesModalReserve}
+            shouldCloseOnOverlayClick={false}
+          >
             <header className="header-modal-reserve">
               <h1><strong>{arena}</strong></h1>
               <p>{formattedDate}</p>
-              {expedientMessage ? (
-                <p>{expedientMessage}</p>
+              {expedientInfo.message ? (
+                <p>{expedientInfo.message}</p>
               ) : (
-                <>
-                  {
-                    startTimeExp && endTimeExp && (
-                      <p>Aberto: {startTimeExp} às {endTimeExp}</p>
-                    )
-                  }
-                </>
+                <p>Aberto: {expedientInfo.start} às {expedientInfo.end}</p>
               )}
-              <div className="area-close" onClick={closeModalReserve}><FiX size={24} /></div>
+              <div className="area-close" onClick={closeModalReserve}>
+                <FiX size={24} />
+              </div>
             </header>
 
             {isMobile && (
@@ -641,12 +564,14 @@ export function DatePickerReserve() {
                   <h5 className="title-reserved">Horários já reservados</h5>
                   <p>Selecione<strong> à direita</strong> um horário diferente dos listados abaixo.</p>
                 </div>
-                <div className="area-picker" onMouseUp={() => getReserves()}>
+
+                <div className="area-picker" onMouseUp={getReserves}>
                   <DatePickerHourReserved
                     selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
+                    setSelectedDate={(date: any) => setSelected(new Date(date))}
                   />
                 </div>
+
                 <section className="area-space-left">
                   {spacesReserved.length === 0 ? (
                     <>
@@ -676,7 +601,7 @@ export function DatePickerReserve() {
                       className="loading"
                     />
                   </div>
-                ) : reserveSpace.length !== 0 ? (
+                ) : reserveSpace.length > 0 ? (
                   reserveSpace
                     .sort((a, b) => {
                       const timeA = new Date(`1970-01-01T${a.timeInitial}Z`).getTime();
@@ -689,22 +614,23 @@ export function DatePickerReserve() {
                         className="card-reserve"
                         onClick={() => {
                           setSendTitle('error');
-                          setSendMessage(`Horário já reservado.`);
+                          setSendMessage('Horário já reservado');
                         }}
                       >
                         <strong style={{ fontWeight: '450' }}>
-                          {format(new Date(`1970-01-01T${item.timeInitial}`), "HH:mm")} {" "}
-                          às {" "}
+                          {format(new Date(`1970-01-01T${item.timeInitial}`), "HH:mm")} às {" "}
                           {format(new Date(`1970-01-01T${item.timeFinal}`), "HH:mm")}
                         </strong>
                         <div className="type-reserve">
-                          <p>{item.typeReserve == 'avulsa' ? "Avulsa" : "Fixo"}</p>
-                          {item.typeReserve == 'avulsa' ? <BsEmojiSunglasses /> : <MdOutlinePushPin />}
+                          <p>{item.typeReserve === 'avulsa' ? "Avulsa" : "Fixo"}</p>
+                          {item.typeReserve === 'avulsa' ? <BsEmojiSunglasses /> : <MdOutlinePushPin />}
                         </div>
                       </div>
                     ))
                 ) : (
-                  <div style={{ borderBottom: '1px solid #FF8A5B', textAlign: 'center' }}>Sem reservas feitas para esta data.</div>
+                  <div style={{ borderBottom: '1px solid #FF8A5B', textAlign: 'center' }}>
+                    Sem reservas feitas para esta data
+                  </div>
                 )}
               </section>
 
@@ -733,21 +659,44 @@ export function DatePickerReserve() {
                   mode="single"
                   selected={selected}
                   onSelect={setSelected}
-                  locale={ptBR as Locale}
+                  locale={ptBR}
                 />
 
                 <form>
-                  <label>Início:{" "}
-                    <input type="time" value={startTime.slice(0, 5)} onChange={(e) => handleTimeChange(e, true)} />
+                  <label>
+                    Início:{" "}
+                    <input
+                      type="time"
+                      value={startTime.slice(0, 5)}
+                      onChange={(e) => handleTimeChange(e, true)}
+                      min={expedientInfo.start}
+                      max={expedientInfo.end}
+                    />
                   </label>
-                  <label>Fim:{" "}
-                    <input type="time" value={endTime.slice(0, 5)} onChange={(e) => handleTimeChange(e, false)} />
+                  <label>
+                    Fim:{" "}
+                    <input
+                      type="time"
+                      value={endTime.slice(0, 5)}
+                      onChange={(e) => handleTimeChange(e, false)}
+                      min={startTime.slice(0, 5) || expedientInfo.start}
+                      max={expedientInfo.end}
+                    />
                   </label>
                 </form>
 
-                <h5><strong>Promoção: </strong> {promoTypeResult || 'Nenhuma promoção encontrada'}</h5>
+                <h5>
+                  <strong>Promoção: </strong>
+                  {promoTypeResult || 'Nenhuma promoção encontrada'}
+                </h5>
 
-                <button className="btn-reserve" onClick={calculeHoursAndCreateReserve}>Reservar</button>
+                <button
+                  className="btn-reserve"
+                  onClick={handleCreateReservation}
+                  disabled={isLoadingReserve}
+                >
+                  {isLoadingReserve ? 'Processando...' : 'Reservar'}
+                </button>
               </section>
             </div>
           </Modal>
@@ -766,15 +715,15 @@ export function DatePickerReserve() {
             </header>
             <section className="main-modal-informe">
               <h1>Fora do expediente =(</h1>
-              {expedientMessage !== '' ? (
-                <h5><strong>Informe:</strong> {expedientMessage} para <strong>{formattedDate}</strong></h5>
+              {expedientInfo.message ? (
+                <h5><strong>Informe:</strong> {expedientInfo.message} para <strong>{formattedDate}</strong></h5>
               ) : (
                 <h5><strong>Informe:</strong> {messageInformeError}</h5>
               )}
               {user?.role === "admin" && (
                 <h5>Expediente em: configs/expediente</h5>
               )}
-              <button onClick={() => closeModalInformeExp()}>Fechar</button>
+              <button onClick={closeModalInformeExp}>Fechar</button>
             </section>
           </Modal>
         </>
