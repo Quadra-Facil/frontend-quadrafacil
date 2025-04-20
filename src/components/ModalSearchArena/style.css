@@ -512,6 +512,9 @@
 
     .btn-agendar {
       width: 100%;
+      position: fixed;
+      bottom: 2%;
+      right: 2%;
     }
   }
 

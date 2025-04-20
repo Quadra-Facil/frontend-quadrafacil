@@ -318,6 +318,20 @@ main {
   background-color: #c66464;
 }
 
+.calcel-btn {
+  background-color: var(--secundary-color);
+  border: 2px solid var(--primary-color);
+  text-align: center;
+  color: var(--primary-color);
+  padding: 2% 5%;
+  border-radius: 20px;
+
+  &:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+  }
+}
+
 /* reservas - VERSÃO DESKTOP */
 .area-reserve {
   width: 25vw;

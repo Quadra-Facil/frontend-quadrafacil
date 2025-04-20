@@ -424,6 +424,28 @@ export default function Principal() {
     return <Loading />;
   }
 
+  async function deleteReserve() {
+    try {
+      setLoading(true)
+
+      await api.delete("/delete-reserve-id", {
+        data: {
+          reserveId: Number(dataReserveCard?.id_reserve)
+        }
+      })
+
+      closeModalDetails();
+      window.location.reload();
+      // chamar a state que popula os cards
+
+      setLoading(false)
+    } catch (error) {
+      setSendTitle("error");
+      setSendMessage("Erro ao cancelar reserva.")
+      setLoading(false)
+    }
+  }
+
   return (
     <>
       <main>
@@ -516,7 +538,10 @@ export default function Principal() {
           <div className="area-social">
             <div className="area-img" data-tooltip-id="insta"
               data-tooltip-content="Instagram"
-              data-tooltip-place="top">
+              data-tooltip-place="top"
+              onClick={() => window.location.href = "https://instagram.com/appquadrafacil"}
+            >
+
               <img src={IconInstagran} alt="icon" width={35}
               />
             </div>
@@ -524,7 +549,7 @@ export default function Principal() {
               data-tooltip-id="insta"
               data-tooltip-content="Atendimento"
               data-tooltip-place="top"
-              onClick={() => window.open("https://wa.me/send/?phone=5511993536138&text=Ol%C3%A1%2C+quero+conhecer+mais+%F0%9F%98%8A&type=phone_number&app_absent=0", '_blank')}
+              onClick={() => window.location.href = "https://wa.me/5511993536138?text=Olá,%20Quadra%20Fácil"}
             >
               <img src={IconWatsApp} alt="icon" width={35} />
             </div>
@@ -767,6 +792,11 @@ export default function Principal() {
                   <p><strong>Observação: </strong>{dataReserveCard.observation}</p>
                 )}
               </section>
+              {
+                user?.role !== "client" && (
+                  <a className="calcel-btn" onClick={() => deleteReserve()}>Cancelar Reserva</a>
+                )
+              }
             </main>
             <button onClick={() => closeModalDetails()}>Fechar</button>
           </section>
