@@ -104,9 +104,9 @@ export default function App() {
     await api.post('/api/email-send', {
       toEmail: emailForgotPass,
       nomeUsuario: "teste",
-      linkRecuperacao: "http://localhost:5173/recovery-pass"
+      linkRecuperacao: "https://www.agendamento.appquadrafacil.com.br/recovery-pass"
     })
-      .then((response) => {
+      .then(() => {
         setIsLoading(false);
         setSendTitle('success');
         setSendMessage(`E-mail enviado para ${emailForgotPass}`);

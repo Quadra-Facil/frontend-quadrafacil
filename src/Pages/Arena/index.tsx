@@ -1,7 +1,7 @@
 import "./style-arena.css";
 import Select from "react-select";
 import { Link } from "react-router-dom";
-import { FormEvent, useState, useEffect, useContext, useCallback } from "react";
+import { FormEvent, useState, useEffect, useContext } from "react";
 import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
@@ -73,7 +73,7 @@ export default function Arena() {
     return <div>Carregando...</div>;
   }
 
-  const { user } = authContext;
+  // const { user } = authContext;
 
   // Modal styles
   const customStylesModal = {
@@ -221,7 +221,7 @@ export default function Arena() {
           id_user: Number(selectedUser),
         },
       })
-      .then(async (response) => {
+      .then(async () => {
         setIsLoading(false);
         setSendTitle('success');
         setSendMessage(`Vínculo realizado.`);
@@ -230,7 +230,7 @@ export default function Arena() {
           // params: { // query params
           userId: Number(selectedUser)
           // },
-        }).then((resp) => {
+        }).then(() => {
           setSendTitle('success');
           setSendMessage(`Acesso admin inserido.`);
           closeModal();
@@ -315,7 +315,7 @@ export default function Arena() {
                   }
                   placeholder="Usuário"
                   styles={{
-                    control: (baseStyles, state) => ({
+                    control: (baseStyles) => ({
                       ...baseStyles,
                       borderColor: "none",
                       border: 0,
@@ -375,7 +375,7 @@ export default function Arena() {
                   }
                   placeholder="Arena"
                   styles={{
-                    control: (baseStyles, state) => ({
+                    control: (baseStyles) => ({
                       ...baseStyles,
                       borderColor: "none",
                       border: 0,
@@ -455,7 +455,7 @@ export default function Arena() {
                   onChange={(selectedOption) => setSelectedArena(selectedOption?.value || "")}
                   placeholder="Arena"
                   styles={{
-                    control: (baseStyles, state) => ({
+                    control: (baseStyles) => ({
                       ...baseStyles,
                       borderColor: "none",
                       border: 0,
@@ -515,7 +515,7 @@ export default function Arena() {
                   }
                   placeholder="Plano"
                   styles={{
-                    control: (baseStyles, state) => ({
+                    control: (baseStyles) => ({
                       ...baseStyles,
                       borderColor: "none",
                       border: 0,

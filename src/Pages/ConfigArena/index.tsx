@@ -1,5 +1,5 @@
 import "./style-config.css"
-import { FiActivity, FiArrowDownRight, FiCheck, FiChevronRight, FiDollarSign, FiEdit, FiLogOut, FiTrash, FiX } from "react-icons/fi";
+import { FiCheck, FiChevronRight, FiEdit, FiLogOut, FiTrash, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import Modal from "react-modal";
@@ -7,7 +7,7 @@ import { AuthContext } from "../../services/contexts/AuthContext";
 import Toast from "../../components/Toast";
 import Loading from "../../components/Loading";
 import { api } from "../../services/axiosApi/apiClient";
-import { CiUser, CiPower, CiStar, CiClock2, CiBadgeDollar, CiHome } from "react-icons/ci";
+import { CiUser, CiPower, CiClock2, CiBadgeDollar, CiHome } from "react-icons/ci";
 import { IMaskInput } from "react-imask";
 import Switch from "react-switch"
 import { format } from "date-fns";
@@ -92,7 +92,6 @@ interface WeekSchedule {
 export default function ConfigArena() {
   const navigate = useNavigate();
   const [modalIsOpenPrincipal, setModalIsOpenPrincipal] = useState<boolean>(false);
-  const [modalIsOpenOpeningHours, setModalIsOpenOpeningHours] = useState<boolean>(false);
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -341,7 +340,7 @@ export default function ConfigArena() {
         setPrograms(response.data.$values);
         setShouldFetchPrograms(true)
         return;
-      }).catch((error: any) => {
+      }).catch(() => {
         setSendTitle('error');
         setSendMessage('Erro ao buscar programação.');
       })
@@ -428,7 +427,6 @@ export default function ConfigArena() {
   // Mapeando os dias da semana para o layout
   const daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
-  const [isOpen, setIsOpen] = useState(true); // Exemplo de estado para controlar a abertura
 
   const [valueOpen, setValueOpen] = useState<boolean>(true);
   const handleOpenClick = () => {
@@ -681,11 +679,6 @@ export default function ConfigArena() {
     arenaId: number;
     startDate?: string;
     endDate?: string;
-  }
-
-  interface PromotionResponse {
-    $id: string;
-    $values: Promotion[];
   }
 
   const [loadPromotions, setLoadPromotions] = useState<Promotion[]>([]);

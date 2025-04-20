@@ -11,7 +11,6 @@ import AdressArena from './AdressArena/index.tsx';
 import ClientArena from './ClientArena/index.tsx';
 import Modal from "react-modal"
 import { DatePickerReserve } from '../components/DatePickerReserve/index.tsx';
-import DatePickerHourReserved from '../components/DatePickerHourReserved/index.tsx';
 import ModalSerchArena from '../components/ModalSearchArena/index.tsx';
 import ConfigArena from './ConfigArena/index.tsx';
 import ModalReserveFixed from '../components/ModalReserveFixed/index.tsx';

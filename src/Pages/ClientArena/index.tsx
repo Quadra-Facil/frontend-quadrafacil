@@ -222,13 +222,13 @@ export default function ClientArena() {
         await api.put("/api/Arena/status-edit", {
           realArenaId: selectedArena?.id,
           newStatus: "inativo"
-        }).then((response) => {
+        }).then(() => {
           setIsLoading(false);
           setSendTitle('success');
           setSendMessage('Arena temporariamente DESATIVADA');
           closeConfirmDialog();
           closeModalDetails();
-        }).catch((err) => {
+        }).catch(() => {
           setIsLoading(false);
           setSendTitle('error');
           setSendMessage('Erro ao desativar arena');
@@ -237,13 +237,13 @@ export default function ClientArena() {
         await api.put("/api/Arena/status-edit", {
           realArenaId: selectedArena?.id,
           newStatus: "ativo"
-        }).then((response) => {
+        }).then(() => {
           setIsLoading(false);
           setSendTitle('success');
           setSendMessage('Arena ATIVADA');
           closeConfirmDialog();
           closeModalDetails();
-        }).catch((err) => {
+        }).catch(() => {
           setIsLoading(false);
           setSendTitle('error');
           setSendMessage('Erro ao ATIVAR arena');
@@ -271,12 +271,12 @@ export default function ClientArena() {
     await api.put("/edit", {
       PlanSelect: selectedPlan,// O tipo de plano escolhido: "mensal", "semestral", "anual"
       ArenaId: Number(selectedArena?.id)
-    }).then((response) => {
+    }).then(() => {
       setIsLoading(false);
       setSendTitle('success');
       setSendMessage('Plano alterado');
       closeModalPlans();
-    }).catch((err) => {
+    }).catch(() => {
       setIsLoading(false);
       setSendTitle('error');
       setSendMessage('Erro ao ALTERAR plano');
@@ -374,7 +374,7 @@ export default function ClientArena() {
                         }}
                         placeholder="Plano"
                         styles={{
-                          control: (baseStyles, state) => ({
+                          control: (baseStyles) => ({
                             ...baseStyles,
                             borderColor: "none",
                             border: 0,

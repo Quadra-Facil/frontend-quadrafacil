@@ -1,7 +1,5 @@
 import axios, { AxiosError } from 'axios';
 import { parseCookies } from 'nookies';
-import { useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
 
 export function setupAPIClient(ctx = undefined) {
   let cookies = parseCookies(ctx);

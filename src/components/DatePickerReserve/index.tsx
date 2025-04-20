@@ -1,7 +1,7 @@
 import "react-day-picker/style.css";
 import "./style.css";
 import { useContext, useEffect, useState, useCallback, useMemo } from "react";
-import { setHours, setMinutes, setSeconds, differenceInMilliseconds, format, isBefore, isSameDay, isToday, isAfter, isEqual } from "date-fns";
+import { setHours, setMinutes, format, isBefore, isSameDay, isAfter, isEqual } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import { ptBR } from "date-fns/locale";
 import Toast from "../Toast";
@@ -151,7 +151,6 @@ export function DatePickerReserve() {
   // Estados de UI
   const [sendTitle, setSendTitle] = useState<'success' | 'error' | ''>('');
   const [sendMessage, setSendMessage] = useState('');
-  const [expedientMessage, setExpedientMessage] = useState('');
   const [messageInformeError, setMessageInformeError] = useState('');
   const [showReservations, setShowReservations] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1014);
@@ -245,9 +244,10 @@ export function DatePickerReserve() {
   const closeModalReserve = useCallback(() => {
     setIsOpenReserve(false);
     navigate("/principal");
+    setMessageInformeError('')
   }, [navigate]);
 
-  const openModalInformeExp = useCallback(() => setIsOpenInforme(true), []);
+  // const openModalInformeExp = useCallback(() => setIsOpenInforme(true), []);
   const closeModalInformeExp = useCallback(() => setIsOpenInforme(false), []);
 
   const roundMinutes = (minutes: number): number => minutes <= 15 ? 0 : 30;

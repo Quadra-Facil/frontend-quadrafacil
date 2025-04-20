@@ -188,7 +188,7 @@ export default function AdressArena() {
                   }
                   placeholder="Selecione uma UF"
                   styles={{
-                    control: (baseStyles, state) => ({
+                    control: (baseStyles) => ({
                       ...baseStyles,
                       borderColor: "none",
                       border: 0,
@@ -246,7 +246,7 @@ export default function AdressArena() {
                   placeholder="Selecione uma cidade"
                   isDisabled={!selectedUf}
                   styles={{
-                    control: (baseStyles, state) => ({
+                    control: (baseStyles) => ({
                       ...baseStyles,
                       borderColor: "none",
                       border: 0,
@@ -312,7 +312,7 @@ export default function AdressArena() {
                 placeholder={isLoadingSelect ? "Carregando..." : "Arena"} // Exibe "Carregando..." enquanto carrega
                 isLoading={isLoadingSelect} // Prop de loading
                 styles={{
-                  control: (baseStyles, state) => ({
+                  control: (baseStyles) => ({
                     ...baseStyles,
                     borderColor: "none",
                     border: 0,

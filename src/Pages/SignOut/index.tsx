@@ -7,9 +7,6 @@ import Toast from "../../components/Toast";
 import { useNavigate } from "react-router-dom";
 import { IMaskInput } from "react-imask";
 import Modal from "react-modal";
-import { FiMessageCircle, FiX } from "react-icons/fi";
-import Lottie from "lottie-react";
-import AtentimentoLottie from "../../img/suporte-lottie.json";
 
 Modal.setAppElement('#root'); // This line is important for accessibility
 
@@ -22,7 +19,7 @@ export default function SignOut() {
   const [isLoading, setIsLoading] = useState(false);
   const [sendTitle, setSendTitle] = useState('');
   const [sendMessage, setSendMessage] = useState('');
-  const [modalIsOpen, setIsOpen] = useState(false);
+  // const [modalIsOpen, setIsOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -69,36 +66,36 @@ export default function SignOut() {
   }
 
   // Style modal
-  const customStylesModal = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f0f0f0',
-      border: '1px solid #ccc',
-      borderRadius: '10px',
-      padding: '20px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      width: '80vw',
-      height: '90vh',
-      maxWidth: '90%',
-      color: '#6c6c6c'
-    },
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-  };
+  // const customStylesModal = {
+  //   content: {
+  //     top: '50%',
+  //     left: '50%',
+  //     right: 'auto',
+  //     bottom: 'auto',
+  //     marginRight: '-50%',
+  //     transform: 'translate(-50%, -50%)',
+  //     backgroundColor: '#f0f0f0',
+  //     border: '1px solid #ccc',
+  //     borderRadius: '10px',
+  //     padding: '20px',
+  //     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+  //     width: '80vw',
+  //     height: '90vh',
+  //     maxWidth: '90%',
+  //     color: '#6c6c6c'
+  //   },
+  //   overlay: {
+  //     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  //   },
+  // };
 
-  function openModal() {
-    setIsOpen(true);
-  }
+  // function openModal() {
+  //   setIsOpen(true);
+  // }
 
-  function closeModal() {
-    setIsOpen(false);
-  }
+  // function closeModal() {
+  //   setIsOpen(false);
+  // }
 
   return (
     <>

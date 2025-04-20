@@ -6,23 +6,6 @@ import { api } from "../../../services/axiosApi/apiClient";
 import { AuthContext } from "../../../services/contexts/AuthContext";
 import { format } from "date-fns";
 
-// Definição dos tipos de dados
-interface WeekDays {
-  $id: string;
-  $values: number[];
-}
-
-// Representa o horário de funcionamento de cada arena
-interface Expedient {
-  $id: string;
-  id: number;
-  arenaId: number;
-  weekDays: WeekDays;
-  startTime: string;
-  endTime: string;
-  open: boolean;
-}
-
 interface Arena {
   $id: string;
   id: number;
@@ -58,11 +41,10 @@ interface ReservaResponse {
 }
 
 export default function TimeLinePrincipal() {
-  const [getExpedient, setGetExpedient] = useState<Expedient[]>([]);
 
   // Usando o contexto de autenticação
   const authContext = useContext(AuthContext);
-  const { user, logout }: any = authContext;
+  const { user }: any = authContext;
   const [hourExp, setHourExp] = useState<any[]>([]);
   const [dataReserves, setDataReserves] = useState<ReservaResponse | null>(null);
 

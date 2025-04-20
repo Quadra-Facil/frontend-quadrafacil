@@ -10,7 +10,6 @@ const PasswordRecovery: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sendTitle, setSendTitle] = useState<string>('');
   const [sendMessage, setSendMessage] = useState<string>('');
   const [emailGetStorage, setEmailGetStorage] = useState<any>('');
@@ -67,6 +66,7 @@ const PasswordRecovery: React.FC = () => {
       setSendTitle("error");
       setSendMessage("Erro ao carregar as reservas.");
       setIsSubmitting(false);
+      setSuccess(false)
     }
 
   };

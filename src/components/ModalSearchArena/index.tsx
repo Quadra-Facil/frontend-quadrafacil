@@ -4,7 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { api } from "../../services/axiosApi/apiClient";
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Modal from "react-modal"
 import { FiX } from "react-icons/fi";
 import { AuthContext } from "../../services/contexts/AuthContext";
@@ -14,22 +14,6 @@ import ArenaIcon from "../../components/Principal/MenuOption/img/arenaIcon.svg"
 import ReserveIcon from "../../components/Principal/MenuOption/img/reserveIcon.svg"
 import SportIcon from "../../components/Principal/MenuOption/img/sportIcon.svg"
 import { format } from "date-fns";
-
-type GetAllUserResponse = {
-  $id: string;
-  users: {
-    $id: string;
-    $values: {
-      $id: string;
-      id: number;
-      userName: string;
-      email: string;
-      role: string;
-      phone: string;
-      arenaId: number;
-    }[];
-  };
-};
 
 type AddressArena = {
   state: string;
@@ -171,6 +155,7 @@ export default function ModalSerchArena() {
 
         const arenaArray = response.data?.arenas?.$values || [];
         setAllArenas(arenaArray)
+        setIsLoading(false)
 
         // Verificando se arenaArray é realmente um array
         if (Array.isArray(arenaArray)) {
@@ -313,7 +298,7 @@ export default function ModalSerchArena() {
                       }}
                       placeholder="Digite o nome da arena, estado ou cidade"
                       styles={{
-                        control: (baseStyles, state) => ({
+                        control: (baseStyles) => ({
                           ...baseStyles,
                           borderColor: "none",
                           border: 0,

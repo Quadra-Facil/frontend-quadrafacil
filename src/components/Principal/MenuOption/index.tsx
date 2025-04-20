@@ -1,6 +1,6 @@
 import "./style-menuOption.css";
 import LogoQuadra from "../../../img/logomarca.svg";
-import { FiMenu, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 import ReserveIcon from "./img/reserveIcon.svg";
 import LicencaIcon from "./img/licencaIcon.svg";
 import ArenaIcon from "./img/arenaIcon.svg";
@@ -16,11 +16,8 @@ import Toast from "../../Toast";
 import Loading from "../../Loading";
 import { api } from "../../../services/axiosApi/apiClient";
 import { AuthContext } from "../../../services/contexts/AuthContext";
-import { DatePickerReserve } from "../../DatePickerReserve";
-import DatePickerHourReserved from "../../DatePickerHourReserved";
 import { MdOutlinePushPin } from "react-icons/md";
 import { BsEmojiSunglasses } from "react-icons/bs";
-import ModalReserveFixed from "../../ModalReserveFixed";
 import { Tooltip } from 'react-tooltip'
 
 interface GetPlanResponse {

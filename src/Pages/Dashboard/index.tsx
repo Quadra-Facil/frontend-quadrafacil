@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import MenuOption from "../../components/Principal/MenuOption";
 import ApexCharts from 'react-apexcharts';
 import { api } from '../../services/axiosApi/apiClient';
-import { FiArrowLeft, FiHome } from 'react-icons/fi';
+import { FiHome } from 'react-icons/fi';
 import { GoRocket } from 'react-icons/go';
 
 interface Reserve {
@@ -61,11 +61,13 @@ export default function Dashboard() {
   }, [sendTitle, sendMessage]);
 
   async function loadSpaces() {
+    setIsLoading(true);
     try {
       const response = await api.post("/api/newSpace/get-spaces", {
         arenaId: user?.arena
       })
       setGetSpaces(response.data.$values)
+      setIsLoading(false);
     } catch (error: any) {
       console.log(error.response.data)
     }

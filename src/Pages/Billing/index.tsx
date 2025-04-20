@@ -1,6 +1,6 @@
 import './style.css';
 import { useContext, useEffect, useState } from "react";
-import { startOfWeek, startOfMonth, subMonths, endOfMonth, isSameDay, isWithinInterval, addDays, format } from 'date-fns';
+import { startOfWeek, startOfMonth, subMonths, endOfMonth, isSameDay, isWithinInterval, addDays } from 'date-fns';
 import Loading from "../../components/Loading";
 import Toast from "../../components/Toast";
 import MenuOption from "../../components/Principal/MenuOption";
@@ -12,7 +12,7 @@ import { MdPushPin } from 'react-icons/md';
 import { FaFireAlt } from 'react-icons/fa';
 import { LuFilterX } from 'react-icons/lu';
 import { jsPDF } from "jspdf";
-import autoTable, { CellDef } from 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { PiFilePdf } from 'react-icons/pi';
 
 interface Reserve {
