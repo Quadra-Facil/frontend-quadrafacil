@@ -10,9 +10,8 @@ import Modal from "react-modal";
 import Logo from "../../img/logomarca.svg";
 import Icon1 from "./img/IoTimeOutline.svg";
 import Icon2 from "./img/IoFlameOutline.svg";
-import Teste from './img/Soccer.gif'
 
-import { FiActivity, FiFilter, FiPlusCircle, FiRefreshCcw, FiSearch, FiX } from "react-icons/fi";
+import { FiActivity, FiFilter, FiRefreshCcw, FiSearch, FiX } from "react-icons/fi";
 import { api } from "../../services/axiosApi/apiClient";
 
 import { format, isBefore, parseISO } from "date-fns";
@@ -20,9 +19,7 @@ import Loading from "../../components/Loading";
 import { LuFilterX } from "react-icons/lu";
 import { ptBR } from "date-fns/locale";
 
-import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
-import { TbClockPlay } from "react-icons/tb";
 import TimeLinePrincipal from "../../components/Principal/TimeLinePrincipal";
 import CarrosselClient from "../../components/Principal/Carrousel-client";
 import { useNavigate } from "react-router-dom";
@@ -108,21 +105,6 @@ interface ReserveClient {
   $values: Reserva[];
 }
 
-interface WeekDays {
-  $id: string;
-  $values: number[]; // Array de números que representam os dias da semana
-}
-
-interface Expedient {
-  $id: string;
-  id: number;          // ID do horário
-  arenaId: number;     // ID da arena
-  weekDays: WeekDays;  // Objeto contendo os dias da semana
-  startTime: string;   // Hora de início (em formato "HH:MM:SS")
-  endTime: string;     // Hora de término (em formato "HH:MM:SS")
-  open: boolean;       // Se está aberto ou não
-}
-
 interface PlanData {
   $id: string;
   getPlan: {
@@ -145,7 +127,6 @@ export default function Principal() {
   const [isloading, setLoading] = useState<boolean>(true);
   const [classAreaUser, setClassAreaUser] = useState(false);
   const [Arena, setArena] = useState<string>('');
-  const [IdArena, setIdArena] = useState<number>();
 
   const [dataDesativeProgrma, setDataDesativeProgrma] = useState<DataProgram[]>();
   const [dataReserves, setDataReserves] = useState<ApiResponseReserve | null>(null);
