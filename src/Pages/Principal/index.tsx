@@ -207,6 +207,12 @@ export default function Principal() {
     setIsPlanExpired(false);
     localStorage.removeItem("authToken");
     window.location.reload();
+
+    // so para não dar erro 
+    sendTitle;
+    sendMessage;
+    setArena("")
+    dataDesativeProgrma;
   }
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {

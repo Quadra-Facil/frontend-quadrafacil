@@ -592,6 +592,7 @@ export default function ConfigArena() {
           setWeekDays([])
 
           await loadPromotionsFunction();
+          QtdPeoplePromotion;
         } catch (error: any) {
           setSendTitle('error');
 

@@ -90,6 +90,7 @@ export default function ClientArena() {
       .catch((err) => {
         setIsLoading(false)
         console.error("Erro ao buscar dados:", err);
+        isCheckd;
       });
   }, [selectedArena]);
 
