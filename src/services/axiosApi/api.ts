@@ -8,7 +8,8 @@ export function setupAPIClient(ctx = undefined) {
   // const { logout }: any = authContext;
 
   const api = axios.create({
-    baseURL: 'http://localhost:5214/', // URL do backend
+    // baseURL: 'http://localhost:5214/', // URL do backend
+    baseURL: 'http://alancarloscesar-001-site1.ktempurl.com'
   });
 
   // Adicionar um interceptor de requisição para incluir o token em todas as requisições
