@@ -305,9 +305,9 @@ export default function Principal() {
       }
     } else {
       try {
-        const resp = await api.post<ApiResponseReserve>("/getReserve/arena/data", {
+        const resp = await api.post<any>("/getReserve/arena/data", {
           arenaId: Number(user?.arena),
-          dataReserve: date,
+          dataReserve: date
         });
 
         if (resp?.data?.reservas?.$values?.length > 0) {
@@ -323,7 +323,7 @@ export default function Principal() {
         } else {
           setDataReserves(null);
         }
-      } catch (error) {
+      } catch (error: any) {
         setSendTitle("error");
         setSendMessage("Erro ao carregar as reservas.");
       } finally {

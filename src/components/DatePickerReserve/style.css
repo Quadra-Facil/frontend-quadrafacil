@@ -117,7 +117,7 @@
 
 .space-left,
 .space-reserve {
-  padding: 0.2rem;
+  padding: 0.2rem 1rem !important;
   border-radius: var(--radius-sm);
   background-color: white;
   border: 1px solid var(--border-color);
@@ -533,12 +533,12 @@ h5 strong {
     gap: 0.5rem;
     overflow: auto;
     scrollbar-width: none;
+    padding-left: 130%;
   }
 
   .space-left,
   .space-reserve {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    min-width: 130px;
   }
 
   .floating-reservations-button {
